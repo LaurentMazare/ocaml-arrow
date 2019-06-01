@@ -1,0 +1,17 @@
+(library
+  (name arrow_core)
+  (public_name arrow.core)
+  (c_names arrow_stubs)
+  (c_flags :standard -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include)
+  (c_library_flags :standard -larrow)
+  (libraries bigarray ctypes.foreign ctypes.stubs ctypes))
+
+(rule
+  (targets arrow_bindings.ml)
+  (deps    ../stubs/arrow_bindings.ml)
+  (action  (copy ../stubs/arrow_bindings.ml arrow_bindings.ml)))
+
+(rule
+  (targets arrow_stubs.c arrow_generated.ml)
+  (deps    (:arrow_gen ../stubs/arrow_gen.exe))
+  (action  (run %{arrow_gen})))

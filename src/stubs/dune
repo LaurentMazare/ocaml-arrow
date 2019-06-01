@@ -1,0 +1,3 @@
+(executables
+  (names arrow_gen)
+  (libraries ctypes.stubs))

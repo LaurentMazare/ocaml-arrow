@@ -1,3 +1,4 @@
+__pycache__
 *.annot
 *.cmo
 *.cma
@@ -7,6 +8,8 @@
 *.cmx
 *.cmxs
 *.cmxa
+*.swp
+*.ipynb_checkpoints
 
 # ocamlbuild working directory
 _build/
