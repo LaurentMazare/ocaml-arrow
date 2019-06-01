@@ -3,7 +3,7 @@
   (public_name arrow.core)
   (c_names arrow_stubs)
   (c_flags :standard -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include)
-  (c_library_flags :standard -larrow)
+  (c_library_flags :standard -lgobject-2.0 -larrow -larrow-glib)
   (libraries bigarray ctypes.foreign ctypes.stubs ctypes))
 
 (rule
