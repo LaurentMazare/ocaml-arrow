@@ -17,8 +17,6 @@ let build () =
 
 let read () =
   let input_stream = C.MemoryMappedInputStream.new_ "/tmp/a.csv" in
-  let input_stream = C.MemoryMappedInputStream.parent input_stream in
-  let input_stream = C.SeekableInputStream.parent input_stream in
   let csv_read_options = C.CSVReadOptions.new_ () in
   let csv_reader = C.CSVReader.new_ input_stream csv_read_options in
   let table = C.CSVReader.read csv_reader in

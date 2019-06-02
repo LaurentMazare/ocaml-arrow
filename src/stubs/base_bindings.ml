@@ -6,7 +6,7 @@ module C (F : Cstubs.FOREIGN) = struct
   type gobject = unit ptr
 
   let gobject : gobject typ = ptr void
-  let _array_builder = foreign "GARROW_ARRAY_BUILDER" (gobject @-> returning gobject)
+  let gobject_type = foreign "G_OBJECT_TYPE" (gobject @-> returning ulong)
   let object_unref = foreign "g_object_unref" (gobject @-> returning void)
   let strdup = foreign "strdup" (ptr char @-> returning string)
 
