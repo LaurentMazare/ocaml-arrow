@@ -8,8 +8,12 @@ let hello_world () =
 (* Similar to arrow-glib/example/build.c *)
 let build () =
   let builder = C.Int32ArrayBuilder.new_ () in
-  (* let array = C.ArrayBuilder.finish builder in *)
-  ignore (builder, ())
+  for i = 0 to 10 do
+    let ok = C.Int32ArrayBuilder.append_value builder (Int32.of_int i) in
+    assert ok
+  done;
+  let array = C.ArrayBuilder.finish (C.Int32ArrayBuilder.parent builder) in
+  Stdio.printf "%s\n%!" (C.Array.to_string array)
 
 let read () =
   let _file = C.MemoryMappedInputStream.new_ "/tmp/a.csv" in

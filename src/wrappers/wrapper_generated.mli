@@ -260,7 +260,12 @@ module ChunkedArray : sig
   type t = chunked_array
 
   val equal : t -> chunked_array -> bool
+  val get_chunk : t -> Unsigned.uint32 -> array_
+  val get_length : t -> Unsigned.uint64
+  val get_n_chunks : t -> Unsigned.uint32
+  val get_n_nulls : t -> Unsigned.uint64
   val get_value_data_type : t -> data_type
+  val slice : t -> Unsigned.uint64 -> Unsigned.uint64 -> chunked_array
   val to_string : t -> string
 end
 
@@ -279,7 +284,10 @@ module Column : sig
   val get_data : t -> chunked_array
   val get_data_type : t -> data_type
   val get_field : t -> field
+  val get_length : t -> Unsigned.uint64
+  val get_n_nulls : t -> Unsigned.uint64
   val get_name : t -> string
+  val slice : t -> Unsigned.uint64 -> Unsigned.uint64 -> column
   val to_string : t -> string
 end
 
@@ -315,6 +323,7 @@ module Date32Array : sig
 
   val parent : t -> numeric_array
   val new_ : Int64.t -> buffer -> buffer -> Int64.t -> t
+  val get_value : t -> Int64.t -> Int32.t
 end
 
 module Date32ArrayBuilder : sig
@@ -324,6 +333,7 @@ module Date32ArrayBuilder : sig
   val new_ : unit -> t
   val append_null : t -> bool
   val append_nulls : t -> Int64.t -> bool
+  val append_value : t -> Int32.t -> bool
 end
 
 module Date32DataType : sig
@@ -375,6 +385,7 @@ module Decimal128 : sig
   val plus : t -> decimal128 -> decimal128
   val to_integer : t -> Int64.t
   val to_string : t -> string
+  val to_string_scale : t -> Int32.t -> string
 end
 
 module Decimal128Array : sig
@@ -398,12 +409,15 @@ module Decimal128DataType : sig
   type t = decimal128_data_type
 
   val parent : t -> decimal_data_type
+  val new_ : Int32.t -> Int32.t -> t
 end
 
 module DecimalDataType : sig
   type t = decimal_data_type
 
   val parent : t -> fixed_size_binary_data_type
+  val get_precision : t -> Int32.t
+  val get_scale : t -> Int32.t
 end
 
 module DenseUnionArray : sig
@@ -468,9 +482,12 @@ module FeatherFileReader : sig
   type t = feather_file_reader
 
   val new_ : seekable_input_stream -> t
+  val get_column : t -> Int32.t -> column
+  val get_column_name : t -> Int32.t -> string
   val get_description : t -> string
   val get_n_columns : t -> Int64.t
   val get_n_rows : t -> Int64.t
+  val get_version : t -> Int32.t
   val has_description : t -> bool
   val read : t -> table
 end
@@ -513,12 +530,15 @@ module FixedSizeBinaryDataType : sig
   type t = fixed_size_binary_data_type
 
   val parent : t -> fixed_width_data_type
+  val new_ : Int32.t -> t
+  val get_byte_width : t -> Int32.t
 end
 
 module FixedWidthDataType : sig
   type t = fixed_width_data_type
 
   val parent : t -> data_type
+  val get_bit_width : t -> Int32.t
 end
 
 module FloatArray : sig
@@ -572,6 +592,7 @@ module InputStream : sig
 
   val parent : t -> input_stream
   val advance : t -> Int64.t -> bool
+  val align : t -> Int32.t -> bool
   val read_tensor : t -> tensor
 end
 
@@ -580,6 +601,7 @@ module Int16Array : sig
 
   val parent : t -> numeric_array
   val new_ : Int64.t -> buffer -> buffer -> Int64.t -> t
+  val get_value : t -> Int64.t -> int
   val sum : t -> Int64.t
 end
 
@@ -590,6 +612,7 @@ module Int16ArrayBuilder : sig
   val new_ : unit -> t
   val append_null : t -> bool
   val append_nulls : t -> Int64.t -> bool
+  val append_value : t -> int -> bool
 end
 
 module Int16DataType : sig
@@ -604,6 +627,7 @@ module Int32Array : sig
 
   val parent : t -> numeric_array
   val new_ : Int64.t -> buffer -> buffer -> Int64.t -> t
+  val get_value : t -> Int64.t -> Int32.t
   val sum : t -> Int64.t
 end
 
@@ -614,6 +638,7 @@ module Int32ArrayBuilder : sig
   val new_ : unit -> t
   val append_null : t -> bool
   val append_nulls : t -> Int64.t -> bool
+  val append_value : t -> Int32.t -> bool
 end
 
 module Int32DataType : sig
@@ -654,6 +679,7 @@ module Int8Array : sig
 
   val parent : t -> numeric_array
   val new_ : Int64.t -> buffer -> buffer -> Int64.t -> t
+  val get_value : t -> Int64.t -> int
   val sum : t -> Int64.t
 end
 
@@ -664,6 +690,7 @@ module Int8ArrayBuilder : sig
   val new_ : unit -> t
   val append_null : t -> bool
   val append_nulls : t -> Int64.t -> bool
+  val append_value : t -> int -> bool
 end
 
 module Int8DataType : sig
@@ -769,6 +796,7 @@ end
 module OutputStream : sig
   type t = output_stream
 
+  val align : t -> Int32.t -> bool
   val write_tensor : t -> tensor -> Int64.t
 end
 
@@ -782,9 +810,14 @@ end
 module RecordBatch : sig
   type t = record_batch
 
+  val add_column : t -> Unsigned.uint32 -> field -> array_ -> record_batch
   val equal : t -> record_batch -> bool
+  val get_column : t -> Int32.t -> array_
+  val get_column_name : t -> Int32.t -> string
+  val get_n_columns : t -> Unsigned.uint32
   val get_n_rows : t -> Int64.t
   val get_schema : t -> schema
+  val remove_column : t -> Unsigned.uint32 -> record_batch
   val slice : t -> Int64.t -> Int64.t -> record_batch
   val to_string : t -> string
 end
@@ -794,7 +827,9 @@ module RecordBatchBuilder : sig
 
   val new_ : schema -> t
   val flush : t -> record_batch
+  val get_column_builder : t -> Int32.t -> array_builder
   val get_initial_capacity : t -> Int64.t
+  val get_n_columns : t -> Int32.t
   val get_schema : t -> schema
 end
 
@@ -802,7 +837,9 @@ module RecordBatchFileReader : sig
   type t = record_batch_file_reader
 
   val new_ : seekable_input_stream -> t
+  val get_n_record_batches : t -> Unsigned.uint32
   val get_schema : t -> schema
+  val read_record_batch : t -> Unsigned.uint32 -> record_batch
 end
 
 module RecordBatchFileWriter : sig
@@ -853,8 +890,13 @@ end
 module Schema : sig
   type t = schema
 
+  val add_field : t -> Unsigned.uint32 -> field -> schema
   val equal : t -> schema -> bool
+  val get_field : t -> Unsigned.uint32 -> field
   val get_field_by_name : t -> string -> field
+  val n_fields : t -> Unsigned.uint32
+  val remove_field : t -> Unsigned.uint32 -> schema
+  val replace_field : t -> Unsigned.uint32 -> field -> schema
   val to_string : t -> string
 end
 
@@ -862,6 +904,7 @@ module SeekableInputStream : sig
   type t = seekable_input_stream
 
   val parent : t -> input_stream
+  val get_size : t -> Unsigned.uint64
   val get_support_zero_copy : t -> bool
   val read_at : t -> Int64.t -> Int64.t -> buffer
 end
@@ -905,6 +948,7 @@ module StructArray : sig
   type t = struct_array
 
   val parent : t -> array_
+  val get_field : t -> Int32.t -> array_
 end
 
 module StructArrayBuilder : sig
@@ -914,20 +958,30 @@ module StructArrayBuilder : sig
   val new_ : struct_data_type -> t
   val append_null : t -> bool
   val append_value : t -> bool
+  val get_field_builder : t -> Int32.t -> array_builder
 end
 
 module StructDataType : sig
   type t = struct_data_type
 
   val parent : t -> data_type
+  val get_field : t -> Int32.t -> field
   val get_field_by_name : t -> string -> field
+  val get_field_index : t -> string -> Int32.t
+  val get_n_fields : t -> Int32.t
 end
 
 module Table : sig
   type t = table
 
+  val add_column : t -> Unsigned.uint32 -> column -> table
   val equal : t -> table -> bool
+  val get_column : t -> Unsigned.uint32 -> column
+  val get_n_columns : t -> Unsigned.uint32
+  val get_n_rows : t -> Unsigned.uint64
   val get_schema : t -> schema
+  val remove_column : t -> Unsigned.uint32 -> table
+  val replace_column : t -> Unsigned.uint32 -> column -> table
   val to_string : t -> string
 end
 
@@ -943,6 +997,8 @@ module Tensor : sig
 
   val equal : t -> tensor -> bool
   val get_buffer : t -> buffer
+  val get_dimension_name : t -> Int32.t -> string
+  val get_n_dimensions : t -> Int32.t
   val get_size : t -> Int64.t
   val get_value_data_type : t -> data_type
   val is_column_major : t -> bool
@@ -956,6 +1012,7 @@ module Time32Array : sig
 
   val parent : t -> numeric_array
   val new_ : time32_data_type -> Int64.t -> buffer -> buffer -> Int64.t -> t
+  val get_value : t -> Int64.t -> Int32.t
 end
 
 module Time32ArrayBuilder : sig
@@ -965,6 +1022,7 @@ module Time32ArrayBuilder : sig
   val new_ : time32_data_type -> t
   val append_null : t -> bool
   val append_nulls : t -> Int64.t -> bool
+  val append_value : t -> Int32.t -> bool
 end
 
 module Time32DataType : sig
@@ -1032,6 +1090,8 @@ module UInt16Array : sig
 
   val parent : t -> numeric_array
   val new_ : Int64.t -> buffer -> buffer -> Int64.t -> t
+  val get_value : t -> Int64.t -> Unsigned.uint16
+  val sum : t -> Unsigned.uint64
 end
 
 module UInt16ArrayBuilder : sig
@@ -1041,6 +1101,7 @@ module UInt16ArrayBuilder : sig
   val new_ : unit -> t
   val append_null : t -> bool
   val append_nulls : t -> Int64.t -> bool
+  val append_value : t -> Unsigned.uint16 -> bool
 end
 
 module UInt16DataType : sig
@@ -1055,6 +1116,8 @@ module UInt32Array : sig
 
   val parent : t -> numeric_array
   val new_ : Int64.t -> buffer -> buffer -> Int64.t -> t
+  val get_value : t -> Int64.t -> Unsigned.uint32
+  val sum : t -> Unsigned.uint64
 end
 
 module UInt32ArrayBuilder : sig
@@ -1064,6 +1127,7 @@ module UInt32ArrayBuilder : sig
   val new_ : unit -> t
   val append_null : t -> bool
   val append_nulls : t -> Int64.t -> bool
+  val append_value : t -> Unsigned.uint32 -> bool
 end
 
 module UInt32DataType : sig
@@ -1078,6 +1142,8 @@ module UInt64Array : sig
 
   val parent : t -> numeric_array
   val new_ : Int64.t -> buffer -> buffer -> Int64.t -> t
+  val get_value : t -> Int64.t -> Unsigned.uint64
+  val sum : t -> Unsigned.uint64
 end
 
 module UInt64ArrayBuilder : sig
@@ -1087,6 +1153,7 @@ module UInt64ArrayBuilder : sig
   val new_ : unit -> t
   val append_null : t -> bool
   val append_nulls : t -> Int64.t -> bool
+  val append_value : t -> Unsigned.uint64 -> bool
 end
 
 module UInt64DataType : sig
@@ -1101,6 +1168,8 @@ module UInt8Array : sig
 
   val parent : t -> numeric_array
   val new_ : Int64.t -> buffer -> buffer -> Int64.t -> t
+  val get_value : t -> Int64.t -> Unsigned.uint8
+  val sum : t -> Unsigned.uint64
 end
 
 module UInt8ArrayBuilder : sig
@@ -1110,6 +1179,7 @@ module UInt8ArrayBuilder : sig
   val new_ : unit -> t
   val append_null : t -> bool
   val append_nulls : t -> Int64.t -> bool
+  val append_value : t -> Unsigned.uint8 -> bool
 end
 
 module UInt8DataType : sig
@@ -1126,17 +1196,21 @@ module UIntArrayBuilder : sig
   val new_ : unit -> t
   val append_null : t -> bool
   val append_nulls : t -> Int64.t -> bool
+  val append_value : t -> Unsigned.uint64 -> bool
 end
 
 module UnionArray : sig
   type t = union_array
 
   val parent : t -> array_
+  val get_field : t -> Int32.t -> array_
 end
 
 module UnionDataType : sig
   type t = union_data_type
 
   val parent : t -> data_type
+  val get_field : t -> Int32.t -> field
+  val get_n_fields : t -> Int32.t
 end
 

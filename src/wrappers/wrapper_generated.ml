@@ -694,8 +694,34 @@ module ChunkedArray = struct
     let res = C.ChunkedArray.equal t other_chunked_array in
     res
 
+  let get_chunk t i =
+    let res = C.ChunkedArray.get_chunk t i in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let get_length t =
+    let res = C.ChunkedArray.get_length t in
+    res
+
+  let get_n_chunks t =
+    let res = C.ChunkedArray.get_n_chunks t in
+    res
+
+  let get_n_nulls t =
+    let res = C.ChunkedArray.get_n_nulls t in
+    res
+
   let get_value_data_type t =
     let res = C.ChunkedArray.get_value_data_type t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let slice t offset length =
+    let res = C.ChunkedArray.slice t offset length in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -767,8 +793,23 @@ module Column = struct
     Gc.finalise C.object_unref res;
     res
 
+  let get_length t =
+    let res = C.Column.get_length t in
+    res
+
+  let get_n_nulls t =
+    let res = C.Column.get_n_nulls t in
+    res
+
   let get_name t =
     let res = C.Column.get_name t in
+    res
+
+  let slice t offset length =
+    let res = C.Column.slice t offset length in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let to_string t =
@@ -867,6 +908,10 @@ module Date32Array = struct
     Gc.finalise C.object_unref res;
     res
 
+  let get_value t i =
+    let res = C.Date32Array.get_value t i in
+    res
+
 end
 
 module Date32ArrayBuilder = struct
@@ -897,6 +942,21 @@ module Date32ArrayBuilder = struct
   let append_nulls t n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.Date32ArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    res
+
+  let append_value t value =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.Date32ArrayBuilder.append_value t value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1095,6 +1155,10 @@ module Decimal128 = struct
     let res = C.Decimal128.to_string t in
     res
 
+  let to_string_scale t scale =
+    let res = C.Decimal128.to_string_scale t scale in
+    res
+
 end
 
 module Decimal128Array = struct
@@ -1158,11 +1222,26 @@ end
 module Decimal128DataType = struct
   type t = decimal128_data_type
   let parent t = t
+  let new_ precision scale =
+    let res = C.Decimal128DataType.new_ precision scale in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
 end
 
 module DecimalDataType = struct
   type t = decimal_data_type
   let parent t = t
+  let get_precision t =
+    let res = C.DecimalDataType.get_precision t in
+    res
+
+  let get_scale t =
+    let res = C.DecimalDataType.get_scale t in
+    res
+
 end
 
 module DenseUnionArray = struct
@@ -1358,6 +1437,28 @@ module FeatherFileReader = struct
     Gc.finalise C.object_unref res;
     res
 
+  let get_column t i =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.FeatherFileReader.get_column t i (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let get_column_name t i =
+    let res = C.FeatherFileReader.get_column_name t i in
+    res
+
   let get_description t =
     let res = C.FeatherFileReader.get_description t in
     res
@@ -1368,6 +1469,10 @@ module FeatherFileReader = struct
 
   let get_n_rows t =
     let res = C.FeatherFileReader.get_n_rows t in
+    res
+
+  let get_version t =
+    let res = C.FeatherFileReader.get_version t in
     res
 
   let has_description t =
@@ -1533,11 +1638,26 @@ end
 module FixedSizeBinaryDataType = struct
   type t = fixed_size_binary_data_type
   let parent t = t
+  let new_ byte_width =
+    let res = C.FixedSizeBinaryDataType.new_ byte_width in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let get_byte_width t =
+    let res = C.FixedSizeBinaryDataType.get_byte_width t in
+    res
+
 end
 
 module FixedWidthDataType = struct
   type t = fixed_width_data_type
   let parent t = t
+  let get_bit_width t =
+    let res = C.FixedWidthDataType.get_bit_width t in
+    res
+
 end
 
 module FloatArray = struct
@@ -1687,6 +1807,21 @@ module InputStream = struct
     end;
     res
 
+  let align t alignment =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.InputStream.align t alignment (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    res
+
   let read_tensor t =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.InputStream.read_tensor t (CArray.start gerr__) in
@@ -1715,6 +1850,10 @@ module Int16Array = struct
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
+    res
+
+  let get_value t i =
+    let res = C.Int16Array.get_value t i in
     res
 
   let sum t =
@@ -1774,6 +1913,21 @@ module Int16ArrayBuilder = struct
     end;
     res
 
+  let append_value t value =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.Int16ArrayBuilder.append_value t value (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    res
+
 end
 
 module Int16DataType = struct
@@ -1796,6 +1950,10 @@ module Int32Array = struct
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
+    res
+
+  let get_value t i =
+    let res = C.Int32Array.get_value t i in
     res
 
   let sum t =
@@ -1843,6 +2001,21 @@ module Int32ArrayBuilder = struct
   let append_nulls t n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.Int32ArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    res
+
+  let append_value t value =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.Int32ArrayBuilder.append_value t value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1979,6 +2152,10 @@ module Int8Array = struct
     Gc.finalise C.object_unref res;
     res
 
+  let get_value t i =
+    let res = C.Int8Array.get_value t i in
+    res
+
   let sum t =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.Int8Array.sum t (CArray.start gerr__) in
@@ -2024,6 +2201,21 @@ module Int8ArrayBuilder = struct
   let append_nulls t n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.Int8ArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    res
+
+  let append_value t value =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.Int8ArrayBuilder.append_value t value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2345,6 +2537,21 @@ end
 
 module OutputStream = struct
   type t = output_stream
+  let align t alignment =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.OutputStream.align t alignment (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    res
+
   let write_tensor t tensor =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.OutputStream.write_tensor t tensor (CArray.start gerr__) in
@@ -2376,8 +2583,41 @@ end
 
 module RecordBatch = struct
   type t = record_batch
+  let add_column t i field column =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.RecordBatch.add_column t i field column (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
   let equal t other_record_batch =
     let res = C.RecordBatch.equal t other_record_batch in
+    res
+
+  let get_column t i =
+    let res = C.RecordBatch.get_column t i in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let get_column_name t i =
+    let res = C.RecordBatch.get_column_name t i in
+    res
+
+  let get_n_columns t =
+    let res = C.RecordBatch.get_n_columns t in
     res
 
   let get_n_rows t =
@@ -2386,6 +2626,24 @@ module RecordBatch = struct
 
   let get_schema t =
     let res = C.RecordBatch.get_schema t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let remove_column t i =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.RecordBatch.remove_column t i (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -2453,8 +2711,19 @@ module RecordBatchBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
+  let get_column_builder t i =
+    let res = C.RecordBatchBuilder.get_column_builder t i in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
   let get_initial_capacity t =
     let res = C.RecordBatchBuilder.get_initial_capacity t in
+    res
+
+  let get_n_columns t =
+    let res = C.RecordBatchBuilder.get_n_columns t in
     res
 
   let get_schema t =
@@ -2486,8 +2755,30 @@ module RecordBatchFileReader = struct
     Gc.finalise C.object_unref res;
     res
 
+  let get_n_record_batches t =
+    let res = C.RecordBatchFileReader.get_n_record_batches t in
+    res
+
   let get_schema t =
     let res = C.RecordBatchFileReader.get_schema t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let read_record_batch t i =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.RecordBatchFileReader.read_record_batch t i (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -2697,12 +2988,77 @@ end
 
 module Schema = struct
   type t = schema
+  let add_field t i field =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.Schema.add_field t i field (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
   let equal t other_schema =
     let res = C.Schema.equal t other_schema in
     res
 
+  let get_field t i =
+    let res = C.Schema.get_field t i in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
   let get_field_by_name t name =
     let res = C.Schema.get_field_by_name t name in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let n_fields t =
+    let res = C.Schema.n_fields t in
+    res
+
+  let remove_field t i =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.Schema.remove_field t i (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let replace_field t i field =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.Schema.replace_field t i field (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -2717,6 +3073,21 @@ end
 module SeekableInputStream = struct
   type t = seekable_input_stream
   let parent t = t
+  let get_size t =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.SeekableInputStream.get_size t (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    res
+
   let get_support_zero_copy t =
     let res = C.SeekableInputStream.get_support_zero_copy t in
     res
@@ -2809,6 +3180,13 @@ end
 module StructArray = struct
   type t = struct_array
   let parent t = t
+  let get_field t i =
+    let res = C.StructArray.get_field t i in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
 end
 
 module StructArrayBuilder = struct
@@ -2862,13 +3240,8 @@ module StructArrayBuilder = struct
     end;
     res
 
-end
-
-module StructDataType = struct
-  type t = struct_data_type
-  let parent t = t
-  let get_field_by_name t name =
-    let res = C.StructDataType.get_field_by_name t name in
+  let get_field_builder t i =
+    let res = C.StructArrayBuilder.get_field_builder t i in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -2876,14 +3249,110 @@ module StructDataType = struct
 
 end
 
+module StructDataType = struct
+  type t = struct_data_type
+  let parent t = t
+  let get_field t i =
+    let res = C.StructDataType.get_field t i in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let get_field_by_name t name =
+    let res = C.StructDataType.get_field_by_name t name in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let get_field_index t name =
+    let res = C.StructDataType.get_field_index t name in
+    res
+
+  let get_n_fields t =
+    let res = C.StructDataType.get_n_fields t in
+    res
+
+end
+
 module Table = struct
   type t = table
+  let add_column t i column =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.Table.add_column t i column (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
   let equal t other_table =
     let res = C.Table.equal t other_table in
     res
 
+  let get_column t i =
+    let res = C.Table.get_column t i in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let get_n_columns t =
+    let res = C.Table.get_n_columns t in
+    res
+
+  let get_n_rows t =
+    let res = C.Table.get_n_rows t in
+    res
+
   let get_schema t =
     let res = C.Table.get_schema t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let remove_column t i =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.Table.remove_column t i (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let replace_column t i column =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.Table.replace_column t i column (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -2931,6 +3400,14 @@ module Tensor = struct
     Gc.finalise C.object_unref res;
     res
 
+  let get_dimension_name t i =
+    let res = C.Tensor.get_dimension_name t i in
+    res
+
+  let get_n_dimensions t =
+    let res = C.Tensor.get_n_dimensions t in
+    res
+
   let get_size t =
     let res = C.Tensor.get_size t in
     res
@@ -2970,6 +3447,10 @@ module Time32Array = struct
     Gc.finalise C.object_unref res;
     res
 
+  let get_value t i =
+    let res = C.Time32Array.get_value t i in
+    res
+
 end
 
 module Time32ArrayBuilder = struct
@@ -3000,6 +3481,21 @@ module Time32ArrayBuilder = struct
   let append_nulls t n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.Time32ArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    res
+
+  let append_value t value =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.Time32ArrayBuilder.append_value t value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3190,6 +3686,25 @@ module UInt16Array = struct
     Gc.finalise C.object_unref res;
     res
 
+  let get_value t i =
+    let res = C.UInt16Array.get_value t i in
+    res
+
+  let sum t =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.UInt16Array.sum t (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    res
+
 end
 
 module UInt16ArrayBuilder = struct
@@ -3232,6 +3747,21 @@ module UInt16ArrayBuilder = struct
     end;
     res
 
+  let append_value t value =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.UInt16ArrayBuilder.append_value t value (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    res
+
 end
 
 module UInt16DataType = struct
@@ -3254,6 +3784,25 @@ module UInt32Array = struct
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
+    res
+
+  let get_value t i =
+    let res = C.UInt32Array.get_value t i in
+    res
+
+  let sum t =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.UInt32Array.sum t (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
     res
 
 end
@@ -3298,6 +3847,21 @@ module UInt32ArrayBuilder = struct
     end;
     res
 
+  let append_value t value =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.UInt32ArrayBuilder.append_value t value (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    res
+
 end
 
 module UInt32DataType = struct
@@ -3320,6 +3884,25 @@ module UInt64Array = struct
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
+    res
+
+  let get_value t i =
+    let res = C.UInt64Array.get_value t i in
+    res
+
+  let sum t =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.UInt64Array.sum t (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
     res
 
 end
@@ -3364,6 +3947,21 @@ module UInt64ArrayBuilder = struct
     end;
     res
 
+  let append_value t value =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.UInt64ArrayBuilder.append_value t value (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    res
+
 end
 
 module UInt64DataType = struct
@@ -3386,6 +3984,25 @@ module UInt8Array = struct
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
+    res
+
+  let get_value t i =
+    let res = C.UInt8Array.get_value t i in
+    res
+
+  let sum t =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.UInt8Array.sum t (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
     res
 
 end
@@ -3418,6 +4035,21 @@ module UInt8ArrayBuilder = struct
   let append_nulls t n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.UInt8ArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    res
+
+  let append_value t value =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.UInt8ArrayBuilder.append_value t value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3484,15 +4116,48 @@ module UIntArrayBuilder = struct
     end;
     res
 
+  let append_value t value =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.UIntArrayBuilder.append_value t value (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    res
+
 end
 
 module UnionArray = struct
   type t = union_array
   let parent t = t
+  let get_field t i =
+    let res = C.UnionArray.get_field t i in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
 end
 
 module UnionDataType = struct
   type t = union_data_type
   let parent t = t
+  let get_field t i =
+    let res = C.UnionDataType.get_field t i in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let get_n_fields t =
+    let res = C.UnionDataType.get_n_fields t in
+    res
+
 end
 

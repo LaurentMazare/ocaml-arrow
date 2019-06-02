@@ -11,6 +11,13 @@ snake_exceptions = {
 
 c_ml_types = {
     'gint64': { 'c': 'int64_t', 'ml': 'Int64.t', 'base': True },
+    'gint32': { 'c': 'int32_t', 'ml': 'Int32.t', 'base': True },
+    'gint16': { 'c': 'int16_t', 'ml': 'int', 'base': True },
+    'gint8': { 'c': 'int8_t', 'ml': 'int', 'base': True },
+    'guint64': { 'c': 'uint64_t', 'ml': 'Unsigned.uint64', 'base': True },
+    'guint32': { 'c': 'uint32_t', 'ml': 'Unsigned.uint32', 'base': True },
+    'guint16': { 'c': 'uint16_t', 'ml': 'Unsigned.uint16', 'base': True },
+    'guint8': { 'c': 'uint8_t', 'ml': 'Unsigned.uint8', 'base': True },
     'gdouble': { 'c': 'double', 'ml': 'float', 'base': True },
     'gfloat': { 'c': 'float', 'ml': 'float', 'base': True },
     'gboolean': { 'c': 'bool', 'ml': 'bool', 'base': True },
