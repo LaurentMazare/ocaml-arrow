@@ -6,6 +6,17 @@ type_names = {
     'array': 'array_',
 }
 
+func_names = {
+    'new': 'new_',
+}
+
+ctypes = {
+    'gint64': 'int64_t',
+    'gdouble': 'double',
+    'gfloat': 'float',
+    'gboolean': 'bool',
+}
+
 def snake_case(name):
   s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
   res = re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
@@ -22,23 +33,49 @@ gi.require_version('Arrow', '1.0')
 from gi.repository import Arrow
 rep = gi.Repository.get_default()
 
+def ctype(type_):
+  t = type_.get_tag_as_string()
+  ctype = ctypes.get(t, None)
+  if ctype is not None: return ctype
+  if t == 'interface':
+    return snake_case(type_.get_interface().get_name())
+
 def handle_object_info(oinfo, fobj):
   oname = oinfo.get_name()
   # ctype: oinfo.get_type_name()
   fobj.write('  module %s = struct\n' % oname)
-  fobj.write('    type t = %s\n' % snake_case(oname))
-  fobj.write('  end\n\n')
+  fobj.write('    type t = %s\n\n' % snake_case(oname))
 
-  for method in oinfo.get_methods():
-    can_throw = method.can_throw_gerror()
-    args = method.get_arguments()
-    for arg in args:
-      is_opt = arg.is_optional()
-      arg_type = arg.get_type()
-      t = arg_type.get_tag_as_string()
-      i = arg_type.get_interface()
-      # if == 'interface' => t.get_interface()
-    rt = method.get_return_type()
+  for m in oinfo.get_methods():
+    if m.is_deprecated(): continue
+    try:
+      mname = m.get_name()
+      mname = func_names.get(mname, mname)
+      args = m.get_arguments()
+      type_ = []
+      if m.is_method(): type_.append('t')
+      for arg in args:
+        is_opt = arg.is_optional()
+        arg_type = ctype(arg.get_type())
+        if arg_type is None:
+          raise ValueError('unhandled type for %s %s' % (arg, m))
+        type_.append(arg_type)
+      if m.can_throw_gerror():
+        type_.append('ptr ptr void')
+      if m.is_constructor():
+        type_.append('returning t')
+      else:
+        rt = ctype(m.get_return_type())
+        if rt is None:
+          raise ValueError('unhandled rt for ' + str(m))
+        type_.append('returning %s' % rt)
+      type_ = ' @-> '.join(type_)
+      fobj.write('    let %s = foreign "%s"\n' % (mname, m.get_symbol()))
+      fobj.write('      (%s)\n' % type_)
+    except ValueError as e:
+      print(e)
+
+  fobj.write('  end\n\n')
 
   if oname.startswith('Array'):
     print('>>', oinfo, oinfo.get_name(), oinfo.get_type_name())
