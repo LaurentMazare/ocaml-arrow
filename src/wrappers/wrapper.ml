@@ -8,6 +8,10 @@ type _ gobject = C.gobject
 
 module Array = struct
   type t = [ `array_ ] gobject
+  let of_gobject g =
+    if C.Array.get_type () = C.gobject_type g
+    then Some g else None
+
   let cast t__ target_data_type options =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.Array.cast t__ target_data_type options (CArray.start gerr__) in
@@ -167,6 +171,10 @@ end
 
 module ArrayBuilder = struct
   type t = [ `array_builder ] gobject
+  let of_gobject g =
+    if C.ArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let finish t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.ArrayBuilder.finish t__ (CArray.start gerr__) in
@@ -196,6 +204,10 @@ end
 
 module BinaryArray = struct
   type t = [ `binary_array | `array_ ] gobject
+  let of_gobject g =
+    if C.BinaryArray.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ length value_offsets data null_bitmap n_nulls =
     let res = C.BinaryArray.new_ length value_offsets data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -221,6 +233,10 @@ end
 
 module BinaryArrayBuilder = struct
   type t = [ `binary_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.BinaryArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.BinaryArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -247,6 +263,10 @@ end
 
 module BinaryDataType = struct
   type t = [ `binary_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.BinaryDataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.BinaryDataType.new_ () in
     if Ctypes.is_null res
@@ -258,6 +278,10 @@ end
 
 module BooleanArray = struct
   type t = [ `boolean_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.BooleanArray.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ length data null_bitmap n_nulls =
     let res = C.BooleanArray.new_ length data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -345,6 +369,10 @@ end
 
 module BooleanArrayBuilder = struct
   type t = [ `boolean_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.BooleanArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.BooleanArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -401,6 +429,10 @@ end
 
 module BooleanDataType = struct
   type t = [ `boolean_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.BooleanDataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.BooleanDataType.new_ () in
     if Ctypes.is_null res
@@ -412,6 +444,10 @@ end
 
 module Buffer = struct
   type t = [ `buffer ] gobject
+  let of_gobject g =
+    if C.Buffer.get_type () = C.gobject_type g
+    then Some g else None
+
   let copy t__ start size =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.Buffer.copy t__ start size (CArray.start gerr__) in
@@ -468,6 +504,10 @@ end
 
 module BufferInputStream = struct
   type t = [ `buffer_input_stream | `seekable_input_stream | `input_stream ] gobject
+  let of_gobject g =
+    if C.BufferInputStream.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ buffer =
     let res = C.BufferInputStream.new_ buffer in
     if Ctypes.is_null res
@@ -486,6 +526,10 @@ end
 
 module BufferOutputStream = struct
   type t = [ `buffer_output_stream | `output_stream ] gobject
+  let of_gobject g =
+    if C.BufferOutputStream.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ buffer =
     let res = C.BufferOutputStream.new_ buffer in
     if Ctypes.is_null res
@@ -497,6 +541,10 @@ end
 
 module CSVReadOptions = struct
   type t = [ `csv_read_options ] gobject
+  let of_gobject g =
+    if C.CSVReadOptions.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.CSVReadOptions.new_ () in
     if Ctypes.is_null res
@@ -508,6 +556,10 @@ end
 
 module CSVReader = struct
   type t = [ `csv_reader ] gobject
+  let of_gobject g =
+    if C.CSVReader.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ input options =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.CSVReader.new_ input options (CArray.start gerr__) in
@@ -548,6 +600,10 @@ end
 
 module CastOptions = struct
   type t = [ `cast_options ] gobject
+  let of_gobject g =
+    if C.CastOptions.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.CastOptions.new_ () in
     if Ctypes.is_null res
@@ -559,6 +615,10 @@ end
 
 module ChunkedArray = struct
   type t = [ `chunked_array ] gobject
+  let of_gobject g =
+    if C.ChunkedArray.get_type () = C.gobject_type g
+    then Some g else None
+
   let equal t__ other_chunked_array =
     let res = C.ChunkedArray.equal t__ other_chunked_array in
     res
@@ -615,6 +675,10 @@ end
 
 module Codec = struct
   type t = [ `codec ] gobject
+  let of_gobject g =
+    if C.Codec.get_type () = C.gobject_type g
+    then Some g else None
+
   let get_name t__ =
     let res = C.Codec.get_name t__ in
     res
@@ -623,6 +687,10 @@ end
 
 module Column = struct
   type t = [ `column ] gobject
+  let of_gobject g =
+    if C.Column.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_array field array =
     let res = C.Column.new_array field array in
     if Ctypes.is_null res
@@ -700,6 +768,10 @@ end
 
 module CompressedInputStream = struct
   type t = [ `compressed_input_stream | `input_stream ] gobject
+  let of_gobject g =
+    if C.CompressedInputStream.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ codec raw =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.CompressedInputStream.new_ codec raw (CArray.start gerr__) in
@@ -722,6 +794,10 @@ end
 
 module CompressedOutputStream = struct
   type t = [ `compressed_output_stream | `output_stream ] gobject
+  let of_gobject g =
+    if C.CompressedOutputStream.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ codec raw =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.CompressedOutputStream.new_ codec raw (CArray.start gerr__) in
@@ -744,6 +820,10 @@ end
 
 module CountOptions = struct
   type t = [ `count_options ] gobject
+  let of_gobject g =
+    if C.CountOptions.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.CountOptions.new_ () in
     if Ctypes.is_null res
@@ -755,6 +835,10 @@ end
 
 module DataType = struct
   type t = [ `data_type ] gobject
+  let of_gobject g =
+    if C.DataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let equal t__ other_data_type =
     let res = C.DataType.equal t__ other_data_type in
     res
@@ -767,6 +851,10 @@ end
 
 module Date32Array = struct
   type t = [ `date32_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.Date32Array.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ length data null_bitmap n_nulls =
     let res = C.Date32Array.new_ length data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -782,6 +870,10 @@ end
 
 module Date32ArrayBuilder = struct
   type t = [ `date32_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.Date32ArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.Date32ArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -838,6 +930,10 @@ end
 
 module Date32DataType = struct
   type t = [ `date32_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.Date32DataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.Date32DataType.new_ () in
     if Ctypes.is_null res
@@ -849,6 +945,10 @@ end
 
 module Date64Array = struct
   type t = [ `date64_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.Date64Array.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ length data null_bitmap n_nulls =
     let res = C.Date64Array.new_ length data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -864,6 +964,10 @@ end
 
 module Date64ArrayBuilder = struct
   type t = [ `date64_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.Date64ArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.Date64ArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -920,6 +1024,10 @@ end
 
 module Date64DataType = struct
   type t = [ `date64_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.Date64DataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.Date64DataType.new_ () in
     if Ctypes.is_null res
@@ -931,6 +1039,10 @@ end
 
 module Decimal128 = struct
   type t = [ `decimal128 ] gobject
+  let of_gobject g =
+    if C.Decimal128.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_integer data =
     let res = C.Decimal128.new_integer data in
     if Ctypes.is_null res
@@ -1024,6 +1136,10 @@ end
 
 module Decimal128Array = struct
   type t = [ `decimal128_array | `fixed_size_binary_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.Decimal128Array.get_type () = C.gobject_type g
+    then Some g else None
+
   let format_value t__ i =
     let res = C.Decimal128Array.format_value t__ i in
     res
@@ -1039,6 +1155,10 @@ end
 
 module Decimal128ArrayBuilder = struct
   type t = [ `decimal128_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.Decimal128ArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ data_type =
     let res = C.Decimal128ArrayBuilder.new_ data_type in
     if Ctypes.is_null res
@@ -1080,6 +1200,10 @@ end
 
 module Decimal128DataType = struct
   type t = [ `decimal128_data_type | `decimal_data_type | `fixed_size_binary_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.Decimal128DataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ precision scale =
     let res = C.Decimal128DataType.new_ precision scale in
     if Ctypes.is_null res
@@ -1091,6 +1215,10 @@ end
 
 module DecimalDataType = struct
   type t = [ `decimal_data_type | `fixed_size_binary_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.DecimalDataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let get_precision t__ =
     let res = C.DecimalDataType.get_precision t__ in
     res
@@ -1103,14 +1231,26 @@ end
 
 module DenseUnionArray = struct
   type t = [ `dense_union_array | `union_array | `array_ ] gobject
+  let of_gobject g =
+    if C.DenseUnionArray.get_type () = C.gobject_type g
+    then Some g else None
+
 end
 
 module DenseUnionDataType = struct
   type t = [ `dense_union_data_type | `union_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.DenseUnionDataType.get_type () = C.gobject_type g
+    then Some g else None
+
 end
 
 module DictionaryArray = struct
   type t = [ `dictionary_array | `array_ ] gobject
+  let of_gobject g =
+    if C.DictionaryArray.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ data_type indices =
     let res = C.DictionaryArray.new_ data_type indices in
     if Ctypes.is_null res
@@ -1143,6 +1283,10 @@ end
 
 module DictionaryDataType = struct
   type t = [ `dictionary_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.DictionaryDataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ index_data_type dictionary ordered =
     let res = C.DictionaryDataType.new_ index_data_type dictionary ordered in
     if Ctypes.is_null res
@@ -1172,6 +1316,10 @@ end
 
 module DoubleArray = struct
   type t = [ `double_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.DoubleArray.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ length data null_bitmap n_nulls =
     let res = C.DoubleArray.new_ length data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -1202,6 +1350,10 @@ end
 
 module DoubleArrayBuilder = struct
   type t = [ `double_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.DoubleArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.DoubleArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -1258,6 +1410,10 @@ end
 
 module DoubleDataType = struct
   type t = [ `double_data_type | `floating_point_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.DoubleDataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.DoubleDataType.new_ () in
     if Ctypes.is_null res
@@ -1269,6 +1425,10 @@ end
 
 module FeatherFileReader = struct
   type t = [ `feather_file_reader ] gobject
+  let of_gobject g =
+    if C.FeatherFileReader.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ file =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.FeatherFileReader.new_ file (CArray.start gerr__) in
@@ -1351,6 +1511,10 @@ end
 
 module FeatherFileWriter = struct
   type t = [ `feather_file_writer ] gobject
+  let of_gobject g =
+    if C.FeatherFileWriter.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ sink =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.FeatherFileWriter.new_ sink (CArray.start gerr__) in
@@ -1418,6 +1582,10 @@ end
 
 module Field = struct
   type t = [ `field ] gobject
+  let of_gobject g =
+    if C.Field.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ name data_type =
     let res = C.Field.new_ name data_type in
     if Ctypes.is_null res
@@ -1459,6 +1627,10 @@ end
 
 module FileOutputStream = struct
   type t = [ `file_output_stream | `output_stream ] gobject
+  let of_gobject g =
+    if C.FileOutputStream.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ path append =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.FileOutputStream.new_ path append (CArray.start gerr__) in
@@ -1481,10 +1653,18 @@ end
 
 module FixedSizeBinaryArray = struct
   type t = [ `fixed_size_binary_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.FixedSizeBinaryArray.get_type () = C.gobject_type g
+    then Some g else None
+
 end
 
 module FixedSizeBinaryDataType = struct
   type t = [ `fixed_size_binary_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.FixedSizeBinaryDataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ byte_width =
     let res = C.FixedSizeBinaryDataType.new_ byte_width in
     if Ctypes.is_null res
@@ -1500,6 +1680,10 @@ end
 
 module FixedWidthDataType = struct
   type t = [ `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.FixedWidthDataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let get_bit_width t__ =
     let res = C.FixedWidthDataType.get_bit_width t__ in
     res
@@ -1508,6 +1692,10 @@ end
 
 module FloatArray = struct
   type t = [ `float_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.FloatArray.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ length data null_bitmap n_nulls =
     let res = C.FloatArray.new_ length data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -1538,6 +1726,10 @@ end
 
 module FloatArrayBuilder = struct
   type t = [ `float_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.FloatArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.FloatArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -1594,6 +1786,10 @@ end
 
 module FloatDataType = struct
   type t = [ `float_data_type | `floating_point_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.FloatDataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.FloatDataType.new_ () in
     if Ctypes.is_null res
@@ -1605,10 +1801,18 @@ end
 
 module FloatingPointDataType = struct
   type t = [ `floating_point_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.FloatingPointDataType.get_type () = C.gobject_type g
+    then Some g else None
+
 end
 
 module GIOInputStream = struct
   type t = [ `gio_input_stream | `seekable_input_stream | `input_stream ] gobject
+  let of_gobject g =
+    if C.GIOInputStream.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ gio_input_stream =
     let res = C.GIOInputStream.new_ gio_input_stream in
     if Ctypes.is_null res
@@ -1620,6 +1824,10 @@ end
 
 module GIOOutputStream = struct
   type t = [ `gio_output_stream | `output_stream ] gobject
+  let of_gobject g =
+    if C.GIOOutputStream.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ gio_output_stream =
     let res = C.GIOOutputStream.new_ gio_output_stream in
     if Ctypes.is_null res
@@ -1631,6 +1839,10 @@ end
 
 module InputStream = struct
   type t = [ `input_stream ] gobject
+  let of_gobject g =
+    if C.InputStream.get_type () = C.gobject_type g
+    then Some g else None
+
   let advance t__ n_bytes =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.InputStream.advance t__ n_bytes (CArray.start gerr__) in
@@ -1683,6 +1895,10 @@ end
 
 module Int16Array = struct
   type t = [ `int16_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.Int16Array.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ length data null_bitmap n_nulls =
     let res = C.Int16Array.new_ length data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -1713,6 +1929,10 @@ end
 
 module Int16ArrayBuilder = struct
   type t = [ `int16_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.Int16ArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.Int16ArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -1769,6 +1989,10 @@ end
 
 module Int16DataType = struct
   type t = [ `int16_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.Int16DataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.Int16DataType.new_ () in
     if Ctypes.is_null res
@@ -1780,6 +2004,10 @@ end
 
 module Int32Array = struct
   type t = [ `int32_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.Int32Array.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ length data null_bitmap n_nulls =
     let res = C.Int32Array.new_ length data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -1810,6 +2038,10 @@ end
 
 module Int32ArrayBuilder = struct
   type t = [ `int32_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.Int32ArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.Int32ArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -1866,6 +2098,10 @@ end
 
 module Int32DataType = struct
   type t = [ `int32_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.Int32DataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.Int32DataType.new_ () in
     if Ctypes.is_null res
@@ -1877,6 +2113,10 @@ end
 
 module Int64Array = struct
   type t = [ `int64_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.Int64Array.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ length data null_bitmap n_nulls =
     let res = C.Int64Array.new_ length data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -1907,6 +2147,10 @@ end
 
 module Int64ArrayBuilder = struct
   type t = [ `int64_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.Int64ArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.Int64ArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -1963,6 +2207,10 @@ end
 
 module Int64DataType = struct
   type t = [ `int64_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.Int64DataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.Int64DataType.new_ () in
     if Ctypes.is_null res
@@ -1974,6 +2222,10 @@ end
 
 module Int8Array = struct
   type t = [ `int8_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.Int8Array.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ length data null_bitmap n_nulls =
     let res = C.Int8Array.new_ length data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -2004,6 +2256,10 @@ end
 
 module Int8ArrayBuilder = struct
   type t = [ `int8_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.Int8ArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.Int8ArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -2060,6 +2316,10 @@ end
 
 module Int8DataType = struct
   type t = [ `int8_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.Int8DataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.Int8DataType.new_ () in
     if Ctypes.is_null res
@@ -2071,6 +2331,10 @@ end
 
 module IntArrayBuilder = struct
   type t = [ `int_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.IntArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.IntArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -2127,10 +2391,18 @@ end
 
 module IntegerDataType = struct
   type t = [ `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.IntegerDataType.get_type () = C.gobject_type g
+    then Some g else None
+
 end
 
 module ListArray = struct
   type t = [ `list_array | `array_ ] gobject
+  let of_gobject g =
+    if C.ListArray.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ data_type length value_offsets values null_bitmap n_nulls =
     let res = C.ListArray.new_ data_type length value_offsets values null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -2156,6 +2428,10 @@ end
 
 module ListArrayBuilder = struct
   type t = [ `list_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.ListArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ data_type =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.ListArrayBuilder.new_ data_type (CArray.start gerr__) in
@@ -2215,6 +2491,10 @@ end
 
 module ListDataType = struct
   type t = [ `list_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.ListDataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ field =
     let res = C.ListDataType.new_ field in
     if Ctypes.is_null res
@@ -2233,6 +2513,10 @@ end
 
 module MemoryMappedInputStream = struct
   type t = [ `memory_mapped_input_stream | `seekable_input_stream | `input_stream ] gobject
+  let of_gobject g =
+    if C.MemoryMappedInputStream.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ path =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.MemoryMappedInputStream.new_ path (CArray.start gerr__) in
@@ -2255,6 +2539,10 @@ end
 
 module MutableBuffer = struct
   type t = [ `mutable_buffer | `buffer ] gobject
+  let of_gobject g =
+    if C.MutableBuffer.get_type () = C.gobject_type g
+    then Some g else None
+
   let slice t__ offset size =
     let res = C.MutableBuffer.slice t__ offset size in
     if Ctypes.is_null res
@@ -2266,6 +2554,10 @@ end
 
 module NullArray = struct
   type t = [ `null_array | `array_ ] gobject
+  let of_gobject g =
+    if C.NullArray.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ length =
     let res = C.NullArray.new_ length in
     if Ctypes.is_null res
@@ -2277,6 +2569,10 @@ end
 
 module NullArrayBuilder = struct
   type t = [ `null_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.NullArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.NullArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -2318,6 +2614,10 @@ end
 
 module NullDataType = struct
   type t = [ `null_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.NullDataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.NullDataType.new_ () in
     if Ctypes.is_null res
@@ -2329,6 +2629,10 @@ end
 
 module NumericArray = struct
   type t = [ `numeric_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.NumericArray.get_type () = C.gobject_type g
+    then Some g else None
+
   let mean t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.NumericArray.mean t__ (CArray.start gerr__) in
@@ -2348,10 +2652,18 @@ end
 
 module NumericDataType = struct
   type t = [ `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.NumericDataType.get_type () = C.gobject_type g
+    then Some g else None
+
 end
 
 module OutputStream = struct
   type t = [ `output_stream ] gobject
+  let of_gobject g =
+    if C.OutputStream.get_type () = C.gobject_type g
+    then Some g else None
+
   let align t__ alignment =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.OutputStream.align t__ alignment (CArray.start gerr__) in
@@ -2386,6 +2698,10 @@ end
 
 module PrimitiveArray = struct
   type t = [ `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.PrimitiveArray.get_type () = C.gobject_type g
+    then Some g else None
+
   let get_buffer t__ =
     let res = C.PrimitiveArray.get_buffer t__ in
     if Ctypes.is_null res
@@ -2397,6 +2713,10 @@ end
 
 module RecordBatch = struct
   type t = [ `record_batch ] gobject
+  let of_gobject g =
+    if C.RecordBatch.get_type () = C.gobject_type g
+    then Some g else None
+
   let add_column t__ i field column =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.RecordBatch.add_column t__ i field column (CArray.start gerr__) in
@@ -2489,6 +2809,10 @@ end
 
 module RecordBatchBuilder = struct
   type t = [ `record_batch_builder ] gobject
+  let of_gobject g =
+    if C.RecordBatchBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ schema =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.RecordBatchBuilder.new_ schema (CArray.start gerr__) in
@@ -2551,6 +2875,10 @@ end
 
 module RecordBatchFileReader = struct
   type t = [ `record_batch_file_reader ] gobject
+  let of_gobject g =
+    if C.RecordBatchFileReader.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ file =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.RecordBatchFileReader.new_ file (CArray.start gerr__) in
@@ -2602,6 +2930,10 @@ end
 
 module RecordBatchFileWriter = struct
   type t = [ `record_batch_file_writer | `record_batch_stream_writer | `record_batch_writer ] gobject
+  let of_gobject g =
+    if C.RecordBatchFileWriter.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ sink schema =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.RecordBatchFileWriter.new_ sink schema (CArray.start gerr__) in
@@ -2624,6 +2956,10 @@ end
 
 module RecordBatchReader = struct
   type t = [ `record_batch_reader ] gobject
+  let of_gobject g =
+    if C.RecordBatchReader.get_type () = C.gobject_type g
+    then Some g else None
+
   let get_schema t__ =
     let res = C.RecordBatchReader.get_schema t__ in
     if Ctypes.is_null res
@@ -2653,6 +2989,10 @@ end
 
 module RecordBatchStreamReader = struct
   type t = [ `record_batch_stream_reader | `record_batch_reader ] gobject
+  let of_gobject g =
+    if C.RecordBatchStreamReader.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ stream =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.RecordBatchStreamReader.new_ stream (CArray.start gerr__) in
@@ -2675,6 +3015,10 @@ end
 
 module RecordBatchStreamWriter = struct
   type t = [ `record_batch_stream_writer | `record_batch_writer ] gobject
+  let of_gobject g =
+    if C.RecordBatchStreamWriter.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ sink schema =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.RecordBatchStreamWriter.new_ sink schema (CArray.start gerr__) in
@@ -2697,6 +3041,10 @@ end
 
 module RecordBatchWriter = struct
   type t = [ `record_batch_writer ] gobject
+  let of_gobject g =
+    if C.RecordBatchWriter.get_type () = C.gobject_type g
+    then Some g else None
+
   let close t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.RecordBatchWriter.close t__ (CArray.start gerr__) in
@@ -2746,6 +3094,10 @@ end
 
 module ResizableBuffer = struct
   type t = [ `resizable_buffer | `mutable_buffer | `buffer ] gobject
+  let of_gobject g =
+    if C.ResizableBuffer.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ initial_size =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.ResizableBuffer.new_ initial_size (CArray.start gerr__) in
@@ -2798,6 +3150,10 @@ end
 
 module Schema = struct
   type t = [ `schema ] gobject
+  let of_gobject g =
+    if C.Schema.get_type () = C.gobject_type g
+    then Some g else None
+
   let add_field t__ i field =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.Schema.add_field t__ i field (CArray.start gerr__) in
@@ -2882,6 +3238,10 @@ end
 
 module SeekableInputStream = struct
   type t = [ `seekable_input_stream | `input_stream ] gobject
+  let of_gobject g =
+    if C.SeekableInputStream.get_type () = C.gobject_type g
+    then Some g else None
+
   let get_size t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.SeekableInputStream.get_size t__ (CArray.start gerr__) in
@@ -2923,14 +3283,26 @@ end
 
 module SparseUnionArray = struct
   type t = [ `sparse_union_array | `union_array | `array_ ] gobject
+  let of_gobject g =
+    if C.SparseUnionArray.get_type () = C.gobject_type g
+    then Some g else None
+
 end
 
 module SparseUnionDataType = struct
   type t = [ `sparse_union_data_type | `union_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.SparseUnionDataType.get_type () = C.gobject_type g
+    then Some g else None
+
 end
 
 module StringArray = struct
   type t = [ `string_array | `binary_array | `array_ ] gobject
+  let of_gobject g =
+    if C.StringArray.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ length value_offsets data null_bitmap n_nulls =
     let res = C.StringArray.new_ length value_offsets data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -2946,6 +3318,10 @@ end
 
 module StringArrayBuilder = struct
   type t = [ `string_array_builder | `binary_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.StringArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.StringArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -2972,6 +3348,10 @@ end
 
 module StringDataType = struct
   type t = [ `string_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.StringDataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.StringDataType.new_ () in
     if Ctypes.is_null res
@@ -2983,6 +3363,10 @@ end
 
 module StructArray = struct
   type t = [ `struct_array | `array_ ] gobject
+  let of_gobject g =
+    if C.StructArray.get_type () = C.gobject_type g
+    then Some g else None
+
   let get_field t__ i =
     let res = C.StructArray.get_field t__ i in
     if Ctypes.is_null res
@@ -2994,6 +3378,10 @@ end
 
 module StructArrayBuilder = struct
   type t = [ `struct_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.StructArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ data_type =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.StructArrayBuilder.new_ data_type (CArray.start gerr__) in
@@ -3053,6 +3441,10 @@ end
 
 module StructDataType = struct
   type t = [ `struct_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.StructDataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let get_field t__ i =
     let res = C.StructDataType.get_field t__ i in
     if Ctypes.is_null res
@@ -3079,6 +3471,10 @@ end
 
 module Table = struct
   type t = [ `table ] gobject
+  let of_gobject g =
+    if C.Table.get_type () = C.gobject_type g
+    then Some g else None
+
   let add_column t__ i column =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.Table.add_column t__ i column (CArray.start gerr__) in
@@ -3178,6 +3574,10 @@ end
 
 module TableBatchReader = struct
   type t = [ `table_batch_reader | `record_batch_reader ] gobject
+  let of_gobject g =
+    if C.TableBatchReader.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ table =
     let res = C.TableBatchReader.new_ table in
     if Ctypes.is_null res
@@ -3189,6 +3589,10 @@ end
 
 module Tensor = struct
   type t = [ `tensor ] gobject
+  let of_gobject g =
+    if C.Tensor.get_type () = C.gobject_type g
+    then Some g else None
+
   let equal t__ other_tensor =
     let res = C.Tensor.equal t__ other_tensor in
     res
@@ -3239,6 +3643,10 @@ end
 
 module Time32Array = struct
   type t = [ `time32_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.Time32Array.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ data_type length data null_bitmap n_nulls =
     let res = C.Time32Array.new_ data_type length data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -3254,6 +3662,10 @@ end
 
 module Time32ArrayBuilder = struct
   type t = [ `time32_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.Time32ArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ data_type =
     let res = C.Time32ArrayBuilder.new_ data_type in
     if Ctypes.is_null res
@@ -3310,10 +3722,18 @@ end
 
 module Time32DataType = struct
   type t = [ `time32_data_type | `time_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.Time32DataType.get_type () = C.gobject_type g
+    then Some g else None
+
 end
 
 module Time64Array = struct
   type t = [ `time64_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.Time64Array.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ data_type length data null_bitmap n_nulls =
     let res = C.Time64Array.new_ data_type length data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -3329,6 +3749,10 @@ end
 
 module Time64ArrayBuilder = struct
   type t = [ `time64_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.Time64ArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ data_type =
     let res = C.Time64ArrayBuilder.new_ data_type in
     if Ctypes.is_null res
@@ -3385,14 +3809,26 @@ end
 
 module Time64DataType = struct
   type t = [ `time64_data_type | `time_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.Time64DataType.get_type () = C.gobject_type g
+    then Some g else None
+
 end
 
 module TimeDataType = struct
   type t = [ `time_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.TimeDataType.get_type () = C.gobject_type g
+    then Some g else None
+
 end
 
 module TimestampArray = struct
   type t = [ `timestamp_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.TimestampArray.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ data_type length data null_bitmap n_nulls =
     let res = C.TimestampArray.new_ data_type length data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -3408,6 +3844,10 @@ end
 
 module TimestampArrayBuilder = struct
   type t = [ `timestamp_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.TimestampArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ data_type =
     let res = C.TimestampArrayBuilder.new_ data_type in
     if Ctypes.is_null res
@@ -3464,10 +3904,18 @@ end
 
 module TimestampDataType = struct
   type t = [ `timestamp_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.TimestampDataType.get_type () = C.gobject_type g
+    then Some g else None
+
 end
 
 module UInt16Array = struct
   type t = [ `u_int16_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.UInt16Array.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ length data null_bitmap n_nulls =
     let res = C.UInt16Array.new_ length data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -3498,6 +3946,10 @@ end
 
 module UInt16ArrayBuilder = struct
   type t = [ `u_int16_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.UInt16ArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.UInt16ArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -3554,6 +4006,10 @@ end
 
 module UInt16DataType = struct
   type t = [ `u_int16_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.UInt16DataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.UInt16DataType.new_ () in
     if Ctypes.is_null res
@@ -3565,6 +4021,10 @@ end
 
 module UInt32Array = struct
   type t = [ `u_int32_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.UInt32Array.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ length data null_bitmap n_nulls =
     let res = C.UInt32Array.new_ length data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -3595,6 +4055,10 @@ end
 
 module UInt32ArrayBuilder = struct
   type t = [ `u_int32_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.UInt32ArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.UInt32ArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -3651,6 +4115,10 @@ end
 
 module UInt32DataType = struct
   type t = [ `u_int32_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.UInt32DataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.UInt32DataType.new_ () in
     if Ctypes.is_null res
@@ -3662,6 +4130,10 @@ end
 
 module UInt64Array = struct
   type t = [ `u_int64_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.UInt64Array.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ length data null_bitmap n_nulls =
     let res = C.UInt64Array.new_ length data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -3692,6 +4164,10 @@ end
 
 module UInt64ArrayBuilder = struct
   type t = [ `u_int64_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.UInt64ArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.UInt64ArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -3748,6 +4224,10 @@ end
 
 module UInt64DataType = struct
   type t = [ `u_int64_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.UInt64DataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.UInt64DataType.new_ () in
     if Ctypes.is_null res
@@ -3759,6 +4239,10 @@ end
 
 module UInt8Array = struct
   type t = [ `u_int8_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let of_gobject g =
+    if C.UInt8Array.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ length data null_bitmap n_nulls =
     let res = C.UInt8Array.new_ length data null_bitmap n_nulls in
     if Ctypes.is_null res
@@ -3789,6 +4273,10 @@ end
 
 module UInt8ArrayBuilder = struct
   type t = [ `u_int8_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.UInt8ArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.UInt8ArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -3845,6 +4333,10 @@ end
 
 module UInt8DataType = struct
   type t = [ `u_int8_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.UInt8DataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.UInt8DataType.new_ () in
     if Ctypes.is_null res
@@ -3856,6 +4348,10 @@ end
 
 module UIntArrayBuilder = struct
   type t = [ `u_int_array_builder | `array_builder ] gobject
+  let of_gobject g =
+    if C.UIntArrayBuilder.get_type () = C.gobject_type g
+    then Some g else None
+
   let new_ () =
     let res = C.UIntArrayBuilder.new_ () in
     if Ctypes.is_null res
@@ -3912,6 +4408,10 @@ end
 
 module UnionArray = struct
   type t = [ `union_array | `array_ ] gobject
+  let of_gobject g =
+    if C.UnionArray.get_type () = C.gobject_type g
+    then Some g else None
+
   let get_field t__ i =
     let res = C.UnionArray.get_field t__ i in
     if Ctypes.is_null res
@@ -3923,6 +4423,10 @@ end
 
 module UnionDataType = struct
   type t = [ `union_data_type | `data_type ] gobject
+  let of_gobject g =
+    if C.UnionDataType.get_type () = C.gobject_type g
+    then Some g else None
+
   let get_field t__ i =
     let res = C.UnionDataType.get_field t__ i in
     if Ctypes.is_null res

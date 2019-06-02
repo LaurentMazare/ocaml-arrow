@@ -262,6 +262,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = array_
     let t : t typ = array_
 
+    let get_type = foreign "garrow_array_get_type"
+      (void @-> returning ulong)
+
     let cast = foreign "garrow_array_cast"
       (t @-> data_type @-> cast_options @-> ptr (ptr GError.t) @-> returning array_)
     let count = foreign "garrow_array_count"
@@ -302,6 +305,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = array_builder
     let t : t typ = array_builder
 
+    let get_type = foreign "garrow_array_builder_get_type"
+      (void @-> returning ulong)
+
     let finish = foreign "garrow_array_builder_finish"
       (t @-> ptr (ptr GError.t) @-> returning array_)
     let get_value_data_type = foreign "garrow_array_builder_get_value_data_type"
@@ -311,6 +317,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module BinaryArray = struct
     type t = binary_array
     let t : t typ = binary_array
+
+    let get_type = foreign "garrow_binary_array_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_binary_array_new"
       (int64_t @-> buffer @-> buffer @-> buffer @-> int64_t @-> returning t)
@@ -324,6 +333,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = binary_array_builder
     let t : t typ = binary_array_builder
 
+    let get_type = foreign "garrow_binary_array_builder_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_binary_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_binary_array_builder_append_null"
@@ -334,6 +346,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = binary_data_type
     let t : t typ = binary_data_type
 
+    let get_type = foreign "garrow_binary_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_binary_data_type_new"
       (void @-> returning t)
   end
@@ -341,6 +356,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module BooleanArray = struct
     type t = boolean_array
     let t : t typ = boolean_array
+
+    let get_type = foreign "garrow_boolean_array_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_boolean_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
@@ -360,6 +378,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = boolean_array_builder
     let t : t typ = boolean_array_builder
 
+    let get_type = foreign "garrow_boolean_array_builder_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_boolean_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_boolean_array_builder_append_null"
@@ -374,6 +395,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = boolean_data_type
     let t : t typ = boolean_data_type
 
+    let get_type = foreign "garrow_boolean_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_boolean_data_type_new"
       (void @-> returning t)
   end
@@ -381,6 +405,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Buffer = struct
     type t = buffer
     let t : t typ = buffer
+
+    let get_type = foreign "garrow_buffer_get_type"
+      (void @-> returning ulong)
 
     let copy = foreign "garrow_buffer_copy"
       (t @-> int64_t @-> int64_t @-> ptr (ptr GError.t) @-> returning buffer)
@@ -404,6 +431,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = buffer_input_stream
     let t : t typ = buffer_input_stream
 
+    let get_type = foreign "garrow_buffer_input_stream_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_buffer_input_stream_new"
       (buffer @-> returning t)
     let get_buffer = foreign "garrow_buffer_input_stream_get_buffer"
@@ -414,6 +444,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = buffer_output_stream
     let t : t typ = buffer_output_stream
 
+    let get_type = foreign "garrow_buffer_output_stream_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_buffer_output_stream_new"
       (resizable_buffer @-> returning t)
   end
@@ -422,6 +455,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = csv_read_options
     let t : t typ = csv_read_options
 
+    let get_type = foreign "garrow_csv_read_options_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_csv_read_options_new"
       (void @-> returning t)
   end
@@ -429,6 +465,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module CSVReader = struct
     type t = csv_reader
     let t : t typ = csv_reader
+
+    let get_type = foreign "garrow_csv_reader_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_csv_reader_new"
       (input_stream @-> csv_read_options @-> ptr (ptr GError.t) @-> returning t)
@@ -440,6 +479,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = cast_options
     let t : t typ = cast_options
 
+    let get_type = foreign "garrow_cast_options_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_cast_options_new"
       (void @-> returning t)
   end
@@ -447,6 +489,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module ChunkedArray = struct
     type t = chunked_array
     let t : t typ = chunked_array
+
+    let get_type = foreign "garrow_chunked_array_get_type"
+      (void @-> returning ulong)
 
     let equal = foreign "garrow_chunked_array_equal"
       (t @-> chunked_array @-> returning bool)
@@ -470,6 +515,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = codec
     let t : t typ = codec
 
+    let get_type = foreign "garrow_codec_get_type"
+      (void @-> returning ulong)
+
     let get_name = foreign "garrow_codec_get_name"
       (t @-> returning string)
   end
@@ -477,6 +525,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Column = struct
     type t = column
     let t : t typ = column
+
+    let get_type = foreign "garrow_column_get_type"
+      (void @-> returning ulong)
 
     let new_array = foreign "garrow_column_new_array"
       (field @-> array_ @-> returning t)
@@ -506,6 +557,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = compressed_input_stream
     let t : t typ = compressed_input_stream
 
+    let get_type = foreign "garrow_compressed_input_stream_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_compressed_input_stream_new"
       (codec @-> input_stream @-> ptr (ptr GError.t) @-> returning t)
   end
@@ -513,6 +567,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module CompressedOutputStream = struct
     type t = compressed_output_stream
     let t : t typ = compressed_output_stream
+
+    let get_type = foreign "garrow_compressed_output_stream_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_compressed_output_stream_new"
       (codec @-> output_stream @-> ptr (ptr GError.t) @-> returning t)
@@ -522,6 +579,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = count_options
     let t : t typ = count_options
 
+    let get_type = foreign "garrow_count_options_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_count_options_new"
       (void @-> returning t)
   end
@@ -529,6 +589,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module DataType = struct
     type t = data_type
     let t : t typ = data_type
+
+    let get_type = foreign "garrow_data_type_get_type"
+      (void @-> returning ulong)
 
     let equal = foreign "garrow_data_type_equal"
       (t @-> data_type @-> returning bool)
@@ -540,6 +603,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = date32_array
     let t : t typ = date32_array
 
+    let get_type = foreign "garrow_date32_array_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_date32_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
     let get_value = foreign "garrow_date32_array_get_value"
@@ -549,6 +615,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Date32ArrayBuilder = struct
     type t = date32_array_builder
     let t : t typ = date32_array_builder
+
+    let get_type = foreign "garrow_date32_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_date32_array_builder_new"
       (void @-> returning t)
@@ -564,6 +633,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = date32_data_type
     let t : t typ = date32_data_type
 
+    let get_type = foreign "garrow_date32_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_date32_data_type_new"
       (void @-> returning t)
   end
@@ -571,6 +643,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Date64Array = struct
     type t = date64_array
     let t : t typ = date64_array
+
+    let get_type = foreign "garrow_date64_array_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_date64_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
@@ -581,6 +656,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Date64ArrayBuilder = struct
     type t = date64_array_builder
     let t : t typ = date64_array_builder
+
+    let get_type = foreign "garrow_date64_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_date64_array_builder_new"
       (void @-> returning t)
@@ -596,6 +674,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = date64_data_type
     let t : t typ = date64_data_type
 
+    let get_type = foreign "garrow_date64_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_date64_data_type_new"
       (void @-> returning t)
   end
@@ -603,6 +684,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Decimal128 = struct
     type t = decimal128
     let t : t typ = decimal128
+
+    let get_type = foreign "garrow_decimal128_get_type"
+      (void @-> returning ulong)
 
     let new_integer = foreign "garrow_decimal128_new_integer"
       (int64_t @-> returning t)
@@ -640,6 +724,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = decimal128_array
     let t : t typ = decimal128_array
 
+    let get_type = foreign "garrow_decimal128_array_get_type"
+      (void @-> returning ulong)
+
     let format_value = foreign "garrow_decimal128_array_format_value"
       (t @-> int64_t @-> returning string)
     let get_value = foreign "garrow_decimal128_array_get_value"
@@ -649,6 +736,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Decimal128ArrayBuilder = struct
     type t = decimal128_array_builder
     let t : t typ = decimal128_array_builder
+
+    let get_type = foreign "garrow_decimal128_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_decimal128_array_builder_new"
       (decimal128_data_type @-> returning t)
@@ -662,6 +752,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = decimal128_data_type
     let t : t typ = decimal128_data_type
 
+    let get_type = foreign "garrow_decimal128_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_decimal128_data_type_new"
       (int32_t @-> int32_t @-> returning t)
   end
@@ -669,6 +762,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module DecimalDataType = struct
     type t = decimal_data_type
     let t : t typ = decimal_data_type
+
+    let get_type = foreign "garrow_decimal_data_type_get_type"
+      (void @-> returning ulong)
 
     let get_precision = foreign "garrow_decimal_data_type_get_precision"
       (t @-> returning int32_t)
@@ -680,17 +776,26 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = dense_union_array
     let t : t typ = dense_union_array
 
+    let get_type = foreign "garrow_dense_union_array_get_type"
+      (void @-> returning ulong)
+
   end
 
   module DenseUnionDataType = struct
     type t = dense_union_data_type
     let t : t typ = dense_union_data_type
 
+    let get_type = foreign "garrow_dense_union_data_type_get_type"
+      (void @-> returning ulong)
+
   end
 
   module DictionaryArray = struct
     type t = dictionary_array
     let t : t typ = dictionary_array
+
+    let get_type = foreign "garrow_dictionary_array_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_dictionary_array_new"
       (data_type @-> array_ @-> returning t)
@@ -706,6 +811,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = dictionary_data_type
     let t : t typ = dictionary_data_type
 
+    let get_type = foreign "garrow_dictionary_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_dictionary_data_type_new"
       (data_type @-> array_ @-> bool @-> returning t)
     let get_dictionary = foreign "garrow_dictionary_data_type_get_dictionary"
@@ -720,6 +828,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = double_array
     let t : t typ = double_array
 
+    let get_type = foreign "garrow_double_array_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_double_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
     let get_value = foreign "garrow_double_array_get_value"
@@ -731,6 +842,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module DoubleArrayBuilder = struct
     type t = double_array_builder
     let t : t typ = double_array_builder
+
+    let get_type = foreign "garrow_double_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_double_array_builder_new"
       (void @-> returning t)
@@ -746,6 +860,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = double_data_type
     let t : t typ = double_data_type
 
+    let get_type = foreign "garrow_double_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_double_data_type_new"
       (void @-> returning t)
   end
@@ -753,6 +870,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module FeatherFileReader = struct
     type t = feather_file_reader
     let t : t typ = feather_file_reader
+
+    let get_type = foreign "garrow_feather_file_reader_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_feather_file_reader_new"
       (seekable_input_stream @-> ptr (ptr GError.t) @-> returning t)
@@ -778,6 +898,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = feather_file_writer
     let t : t typ = feather_file_writer
 
+    let get_type = foreign "garrow_feather_file_writer_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_feather_file_writer_new"
       (output_stream @-> ptr (ptr GError.t) @-> returning t)
     let append = foreign "garrow_feather_file_writer_append"
@@ -791,6 +914,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Field = struct
     type t = field
     let t : t typ = field
+
+    let get_type = foreign "garrow_field_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_field_new"
       (string @-> data_type @-> returning t)
@@ -812,6 +938,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = file_output_stream
     let t : t typ = file_output_stream
 
+    let get_type = foreign "garrow_file_output_stream_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_file_output_stream_new"
       (string @-> bool @-> ptr (ptr GError.t) @-> returning t)
   end
@@ -820,11 +949,17 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = fixed_size_binary_array
     let t : t typ = fixed_size_binary_array
 
+    let get_type = foreign "garrow_fixed_size_binary_array_get_type"
+      (void @-> returning ulong)
+
   end
 
   module FixedSizeBinaryDataType = struct
     type t = fixed_size_binary_data_type
     let t : t typ = fixed_size_binary_data_type
+
+    let get_type = foreign "garrow_fixed_size_binary_data_type_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_fixed_size_binary_data_type_new"
       (int32_t @-> returning t)
@@ -836,6 +971,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = fixed_width_data_type
     let t : t typ = fixed_width_data_type
 
+    let get_type = foreign "garrow_fixed_width_data_type_get_type"
+      (void @-> returning ulong)
+
     let get_bit_width = foreign "garrow_fixed_width_data_type_get_bit_width"
       (t @-> returning int32_t)
   end
@@ -843,6 +981,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module FloatArray = struct
     type t = float_array
     let t : t typ = float_array
+
+    let get_type = foreign "garrow_float_array_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_float_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
@@ -855,6 +996,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module FloatArrayBuilder = struct
     type t = float_array_builder
     let t : t typ = float_array_builder
+
+    let get_type = foreign "garrow_float_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_float_array_builder_new"
       (void @-> returning t)
@@ -870,6 +1014,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = float_data_type
     let t : t typ = float_data_type
 
+    let get_type = foreign "garrow_float_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_float_data_type_new"
       (void @-> returning t)
   end
@@ -878,11 +1025,17 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = floating_point_data_type
     let t : t typ = floating_point_data_type
 
+    let get_type = foreign "garrow_floating_point_data_type_get_type"
+      (void @-> returning ulong)
+
   end
 
   module GIOInputStream = struct
     type t = gio_input_stream
     let t : t typ = gio_input_stream
+
+    let get_type = foreign "garrow_gio_input_stream_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_gio_input_stream_new"
       (input_stream @-> returning t)
@@ -892,6 +1045,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = gio_output_stream
     let t : t typ = gio_output_stream
 
+    let get_type = foreign "garrow_gio_output_stream_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_gio_output_stream_new"
       (output_stream @-> returning t)
   end
@@ -899,6 +1055,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module InputStream = struct
     type t = input_stream
     let t : t typ = input_stream
+
+    let get_type = foreign "garrow_input_stream_get_type"
+      (void @-> returning ulong)
 
     let advance = foreign "garrow_input_stream_advance"
       (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
@@ -912,6 +1071,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = int16_array
     let t : t typ = int16_array
 
+    let get_type = foreign "garrow_int16_array_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_int16_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
     let get_value = foreign "garrow_int16_array_get_value"
@@ -923,6 +1085,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Int16ArrayBuilder = struct
     type t = int16_array_builder
     let t : t typ = int16_array_builder
+
+    let get_type = foreign "garrow_int16_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_int16_array_builder_new"
       (void @-> returning t)
@@ -938,6 +1103,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = int16_data_type
     let t : t typ = int16_data_type
 
+    let get_type = foreign "garrow_int16_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_int16_data_type_new"
       (void @-> returning t)
   end
@@ -945,6 +1113,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Int32Array = struct
     type t = int32_array
     let t : t typ = int32_array
+
+    let get_type = foreign "garrow_int32_array_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_int32_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
@@ -957,6 +1128,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Int32ArrayBuilder = struct
     type t = int32_array_builder
     let t : t typ = int32_array_builder
+
+    let get_type = foreign "garrow_int32_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_int32_array_builder_new"
       (void @-> returning t)
@@ -972,6 +1146,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = int32_data_type
     let t : t typ = int32_data_type
 
+    let get_type = foreign "garrow_int32_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_int32_data_type_new"
       (void @-> returning t)
   end
@@ -979,6 +1156,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Int64Array = struct
     type t = int64_array
     let t : t typ = int64_array
+
+    let get_type = foreign "garrow_int64_array_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_int64_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
@@ -991,6 +1171,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Int64ArrayBuilder = struct
     type t = int64_array_builder
     let t : t typ = int64_array_builder
+
+    let get_type = foreign "garrow_int64_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_int64_array_builder_new"
       (void @-> returning t)
@@ -1006,6 +1189,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = int64_data_type
     let t : t typ = int64_data_type
 
+    let get_type = foreign "garrow_int64_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_int64_data_type_new"
       (void @-> returning t)
   end
@@ -1013,6 +1199,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Int8Array = struct
     type t = int8_array
     let t : t typ = int8_array
+
+    let get_type = foreign "garrow_int8_array_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_int8_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
@@ -1025,6 +1214,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Int8ArrayBuilder = struct
     type t = int8_array_builder
     let t : t typ = int8_array_builder
+
+    let get_type = foreign "garrow_int8_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_int8_array_builder_new"
       (void @-> returning t)
@@ -1040,6 +1232,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = int8_data_type
     let t : t typ = int8_data_type
 
+    let get_type = foreign "garrow_int8_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_int8_data_type_new"
       (void @-> returning t)
   end
@@ -1047,6 +1242,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module IntArrayBuilder = struct
     type t = int_array_builder
     let t : t typ = int_array_builder
+
+    let get_type = foreign "garrow_int_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_int_array_builder_new"
       (void @-> returning t)
@@ -1062,11 +1260,17 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = integer_data_type
     let t : t typ = integer_data_type
 
+    let get_type = foreign "garrow_integer_data_type_get_type"
+      (void @-> returning ulong)
+
   end
 
   module ListArray = struct
     type t = list_array
     let t : t typ = list_array
+
+    let get_type = foreign "garrow_list_array_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_list_array_new"
       (data_type @-> int64_t @-> buffer @-> array_ @-> buffer @-> int64_t @-> returning t)
@@ -1079,6 +1283,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module ListArrayBuilder = struct
     type t = list_array_builder
     let t : t typ = list_array_builder
+
+    let get_type = foreign "garrow_list_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_list_array_builder_new"
       (list_data_type @-> ptr (ptr GError.t) @-> returning t)
@@ -1094,6 +1301,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = list_data_type
     let t : t typ = list_data_type
 
+    let get_type = foreign "garrow_list_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_list_data_type_new"
       (field @-> returning t)
     let get_field = foreign "garrow_list_data_type_get_field"
@@ -1104,6 +1314,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = memory_mapped_input_stream
     let t : t typ = memory_mapped_input_stream
 
+    let get_type = foreign "garrow_memory_mapped_input_stream_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_memory_mapped_input_stream_new"
       (string @-> ptr (ptr GError.t) @-> returning t)
   end
@@ -1111,6 +1324,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module MutableBuffer = struct
     type t = mutable_buffer
     let t : t typ = mutable_buffer
+
+    let get_type = foreign "garrow_mutable_buffer_get_type"
+      (void @-> returning ulong)
 
     let slice = foreign "garrow_mutable_buffer_slice"
       (t @-> int64_t @-> int64_t @-> returning mutable_buffer)
@@ -1120,6 +1336,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = null_array
     let t : t typ = null_array
 
+    let get_type = foreign "garrow_null_array_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_null_array_new"
       (int64_t @-> returning t)
   end
@@ -1127,6 +1346,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module NullArrayBuilder = struct
     type t = null_array_builder
     let t : t typ = null_array_builder
+
+    let get_type = foreign "garrow_null_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_null_array_builder_new"
       (void @-> returning t)
@@ -1140,6 +1362,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = null_data_type
     let t : t typ = null_data_type
 
+    let get_type = foreign "garrow_null_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_null_data_type_new"
       (void @-> returning t)
   end
@@ -1147,6 +1372,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module NumericArray = struct
     type t = numeric_array
     let t : t typ = numeric_array
+
+    let get_type = foreign "garrow_numeric_array_get_type"
+      (void @-> returning ulong)
 
     let mean = foreign "garrow_numeric_array_mean"
       (t @-> ptr (ptr GError.t) @-> returning double)
@@ -1156,11 +1384,17 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = numeric_data_type
     let t : t typ = numeric_data_type
 
+    let get_type = foreign "garrow_numeric_data_type_get_type"
+      (void @-> returning ulong)
+
   end
 
   module OutputStream = struct
     type t = output_stream
     let t : t typ = output_stream
+
+    let get_type = foreign "garrow_output_stream_get_type"
+      (void @-> returning ulong)
 
     let align = foreign "garrow_output_stream_align"
       (t @-> int32_t @-> ptr (ptr GError.t) @-> returning bool)
@@ -1172,6 +1406,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = primitive_array
     let t : t typ = primitive_array
 
+    let get_type = foreign "garrow_primitive_array_get_type"
+      (void @-> returning ulong)
+
     let get_buffer = foreign "garrow_primitive_array_get_buffer"
       (t @-> returning buffer)
   end
@@ -1179,6 +1416,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module RecordBatch = struct
     type t = record_batch
     let t : t typ = record_batch
+
+    let get_type = foreign "garrow_record_batch_get_type"
+      (void @-> returning ulong)
 
     let add_column = foreign "garrow_record_batch_add_column"
       (t @-> uint32_t @-> field @-> array_ @-> ptr (ptr GError.t) @-> returning record_batch)
@@ -1206,6 +1446,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = record_batch_builder
     let t : t typ = record_batch_builder
 
+    let get_type = foreign "garrow_record_batch_builder_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_record_batch_builder_new"
       (schema @-> ptr (ptr GError.t) @-> returning t)
     let flush = foreign "garrow_record_batch_builder_flush"
@@ -1224,6 +1467,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = record_batch_file_reader
     let t : t typ = record_batch_file_reader
 
+    let get_type = foreign "garrow_record_batch_file_reader_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_record_batch_file_reader_new"
       (seekable_input_stream @-> ptr (ptr GError.t) @-> returning t)
     let get_n_record_batches = foreign "garrow_record_batch_file_reader_get_n_record_batches"
@@ -1238,6 +1484,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = record_batch_file_writer
     let t : t typ = record_batch_file_writer
 
+    let get_type = foreign "garrow_record_batch_file_writer_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_record_batch_file_writer_new"
       (output_stream @-> schema @-> ptr (ptr GError.t) @-> returning t)
   end
@@ -1245,6 +1494,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module RecordBatchReader = struct
     type t = record_batch_reader
     let t : t typ = record_batch_reader
+
+    let get_type = foreign "garrow_record_batch_reader_get_type"
+      (void @-> returning ulong)
 
     let get_schema = foreign "garrow_record_batch_reader_get_schema"
       (t @-> returning schema)
@@ -1256,6 +1508,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = record_batch_stream_reader
     let t : t typ = record_batch_stream_reader
 
+    let get_type = foreign "garrow_record_batch_stream_reader_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_record_batch_stream_reader_new"
       (input_stream @-> ptr (ptr GError.t) @-> returning t)
   end
@@ -1264,6 +1519,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = record_batch_stream_writer
     let t : t typ = record_batch_stream_writer
 
+    let get_type = foreign "garrow_record_batch_stream_writer_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_record_batch_stream_writer_new"
       (output_stream @-> schema @-> ptr (ptr GError.t) @-> returning t)
   end
@@ -1271,6 +1529,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module RecordBatchWriter = struct
     type t = record_batch_writer
     let t : t typ = record_batch_writer
+
+    let get_type = foreign "garrow_record_batch_writer_get_type"
+      (void @-> returning ulong)
 
     let close = foreign "garrow_record_batch_writer_close"
       (t @-> ptr (ptr GError.t) @-> returning bool)
@@ -1284,6 +1545,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = resizable_buffer
     let t : t typ = resizable_buffer
 
+    let get_type = foreign "garrow_resizable_buffer_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_resizable_buffer_new"
       (int64_t @-> ptr (ptr GError.t) @-> returning t)
     let reserve = foreign "garrow_resizable_buffer_reserve"
@@ -1295,6 +1559,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Schema = struct
     type t = schema
     let t : t typ = schema
+
+    let get_type = foreign "garrow_schema_get_type"
+      (void @-> returning ulong)
 
     let add_field = foreign "garrow_schema_add_field"
       (t @-> uint32_t @-> field @-> ptr (ptr GError.t) @-> returning schema)
@@ -1318,6 +1585,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = seekable_input_stream
     let t : t typ = seekable_input_stream
 
+    let get_type = foreign "garrow_seekable_input_stream_get_type"
+      (void @-> returning ulong)
+
     let get_size = foreign "garrow_seekable_input_stream_get_size"
       (t @-> ptr (ptr GError.t) @-> returning uint64_t)
     let get_support_zero_copy = foreign "garrow_seekable_input_stream_get_support_zero_copy"
@@ -1330,17 +1600,26 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = sparse_union_array
     let t : t typ = sparse_union_array
 
+    let get_type = foreign "garrow_sparse_union_array_get_type"
+      (void @-> returning ulong)
+
   end
 
   module SparseUnionDataType = struct
     type t = sparse_union_data_type
     let t : t typ = sparse_union_data_type
 
+    let get_type = foreign "garrow_sparse_union_data_type_get_type"
+      (void @-> returning ulong)
+
   end
 
   module StringArray = struct
     type t = string_array
     let t : t typ = string_array
+
+    let get_type = foreign "garrow_string_array_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_string_array_new"
       (int64_t @-> buffer @-> buffer @-> buffer @-> int64_t @-> returning t)
@@ -1352,6 +1631,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = string_array_builder
     let t : t typ = string_array_builder
 
+    let get_type = foreign "garrow_string_array_builder_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_string_array_builder_new"
       (void @-> returning t)
     let append_value = foreign "garrow_string_array_builder_append_value"
@@ -1362,6 +1644,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = string_data_type
     let t : t typ = string_data_type
 
+    let get_type = foreign "garrow_string_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_string_data_type_new"
       (void @-> returning t)
   end
@@ -1370,6 +1655,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = struct_array
     let t : t typ = struct_array
 
+    let get_type = foreign "garrow_struct_array_get_type"
+      (void @-> returning ulong)
+
     let get_field = foreign "garrow_struct_array_get_field"
       (t @-> int32_t @-> returning array_)
   end
@@ -1377,6 +1665,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module StructArrayBuilder = struct
     type t = struct_array_builder
     let t : t typ = struct_array_builder
+
+    let get_type = foreign "garrow_struct_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_struct_array_builder_new"
       (struct_data_type @-> ptr (ptr GError.t) @-> returning t)
@@ -1392,6 +1683,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = struct_data_type
     let t : t typ = struct_data_type
 
+    let get_type = foreign "garrow_struct_data_type_get_type"
+      (void @-> returning ulong)
+
     let get_field = foreign "garrow_struct_data_type_get_field"
       (t @-> int32_t @-> returning field)
     let get_field_by_name = foreign "garrow_struct_data_type_get_field_by_name"
@@ -1405,6 +1699,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Table = struct
     type t = table
     let t : t typ = table
+
+    let get_type = foreign "garrow_table_get_type"
+      (void @-> returning ulong)
 
     let add_column = foreign "garrow_table_add_column"
       (t @-> uint32_t @-> column @-> ptr (ptr GError.t) @-> returning table)
@@ -1430,6 +1727,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = table_batch_reader
     let t : t typ = table_batch_reader
 
+    let get_type = foreign "garrow_table_batch_reader_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_table_batch_reader_new"
       (table @-> returning t)
   end
@@ -1437,6 +1737,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Tensor = struct
     type t = tensor
     let t : t typ = tensor
+
+    let get_type = foreign "garrow_tensor_get_type"
+      (void @-> returning ulong)
 
     let equal = foreign "garrow_tensor_equal"
       (t @-> tensor @-> returning bool)
@@ -1464,6 +1767,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = time32_array
     let t : t typ = time32_array
 
+    let get_type = foreign "garrow_time32_array_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_time32_array_new"
       (time32_data_type @-> int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
     let get_value = foreign "garrow_time32_array_get_value"
@@ -1473,6 +1779,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Time32ArrayBuilder = struct
     type t = time32_array_builder
     let t : t typ = time32_array_builder
+
+    let get_type = foreign "garrow_time32_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_time32_array_builder_new"
       (time32_data_type @-> returning t)
@@ -1488,11 +1797,17 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = time32_data_type
     let t : t typ = time32_data_type
 
+    let get_type = foreign "garrow_time32_data_type_get_type"
+      (void @-> returning ulong)
+
   end
 
   module Time64Array = struct
     type t = time64_array
     let t : t typ = time64_array
+
+    let get_type = foreign "garrow_time64_array_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_time64_array_new"
       (time64_data_type @-> int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
@@ -1503,6 +1818,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module Time64ArrayBuilder = struct
     type t = time64_array_builder
     let t : t typ = time64_array_builder
+
+    let get_type = foreign "garrow_time64_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_time64_array_builder_new"
       (time64_data_type @-> returning t)
@@ -1518,17 +1836,26 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = time64_data_type
     let t : t typ = time64_data_type
 
+    let get_type = foreign "garrow_time64_data_type_get_type"
+      (void @-> returning ulong)
+
   end
 
   module TimeDataType = struct
     type t = time_data_type
     let t : t typ = time_data_type
 
+    let get_type = foreign "garrow_time_data_type_get_type"
+      (void @-> returning ulong)
+
   end
 
   module TimestampArray = struct
     type t = timestamp_array
     let t : t typ = timestamp_array
+
+    let get_type = foreign "garrow_timestamp_array_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_timestamp_array_new"
       (timestamp_data_type @-> int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
@@ -1539,6 +1866,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module TimestampArrayBuilder = struct
     type t = timestamp_array_builder
     let t : t typ = timestamp_array_builder
+
+    let get_type = foreign "garrow_timestamp_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_timestamp_array_builder_new"
       (timestamp_data_type @-> returning t)
@@ -1554,11 +1884,17 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = timestamp_data_type
     let t : t typ = timestamp_data_type
 
+    let get_type = foreign "garrow_timestamp_data_type_get_type"
+      (void @-> returning ulong)
+
   end
 
   module UInt16Array = struct
     type t = u_int16_array
     let t : t typ = u_int16_array
+
+    let get_type = foreign "garrow_uint16_array_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_uint16_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
@@ -1571,6 +1907,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module UInt16ArrayBuilder = struct
     type t = u_int16_array_builder
     let t : t typ = u_int16_array_builder
+
+    let get_type = foreign "garrow_uint16_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_uint16_array_builder_new"
       (void @-> returning t)
@@ -1586,6 +1925,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = u_int16_data_type
     let t : t typ = u_int16_data_type
 
+    let get_type = foreign "garrow_uint16_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_uint16_data_type_new"
       (void @-> returning t)
   end
@@ -1593,6 +1935,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module UInt32Array = struct
     type t = u_int32_array
     let t : t typ = u_int32_array
+
+    let get_type = foreign "garrow_uint32_array_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_uint32_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
@@ -1605,6 +1950,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module UInt32ArrayBuilder = struct
     type t = u_int32_array_builder
     let t : t typ = u_int32_array_builder
+
+    let get_type = foreign "garrow_uint32_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_uint32_array_builder_new"
       (void @-> returning t)
@@ -1620,6 +1968,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = u_int32_data_type
     let t : t typ = u_int32_data_type
 
+    let get_type = foreign "garrow_uint32_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_uint32_data_type_new"
       (void @-> returning t)
   end
@@ -1627,6 +1978,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module UInt64Array = struct
     type t = u_int64_array
     let t : t typ = u_int64_array
+
+    let get_type = foreign "garrow_uint64_array_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_uint64_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
@@ -1639,6 +1993,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module UInt64ArrayBuilder = struct
     type t = u_int64_array_builder
     let t : t typ = u_int64_array_builder
+
+    let get_type = foreign "garrow_uint64_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_uint64_array_builder_new"
       (void @-> returning t)
@@ -1654,6 +2011,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = u_int64_data_type
     let t : t typ = u_int64_data_type
 
+    let get_type = foreign "garrow_uint64_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_uint64_data_type_new"
       (void @-> returning t)
   end
@@ -1661,6 +2021,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module UInt8Array = struct
     type t = u_int8_array
     let t : t typ = u_int8_array
+
+    let get_type = foreign "garrow_uint8_array_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_uint8_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
@@ -1673,6 +2036,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module UInt8ArrayBuilder = struct
     type t = u_int8_array_builder
     let t : t typ = u_int8_array_builder
+
+    let get_type = foreign "garrow_uint8_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_uint8_array_builder_new"
       (void @-> returning t)
@@ -1688,6 +2054,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = u_int8_data_type
     let t : t typ = u_int8_data_type
 
+    let get_type = foreign "garrow_uint8_data_type_get_type"
+      (void @-> returning ulong)
+
     let new_ = foreign "garrow_uint8_data_type_new"
       (void @-> returning t)
   end
@@ -1695,6 +2064,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module UIntArrayBuilder = struct
     type t = u_int_array_builder
     let t : t typ = u_int_array_builder
+
+    let get_type = foreign "garrow_uint_array_builder_get_type"
+      (void @-> returning ulong)
 
     let new_ = foreign "garrow_uint_array_builder_new"
       (void @-> returning t)
@@ -1710,6 +2082,9 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = union_array
     let t : t typ = union_array
 
+    let get_type = foreign "garrow_union_array_get_type"
+      (void @-> returning ulong)
+
     let get_field = foreign "garrow_union_array_get_field"
       (t @-> int32_t @-> returning array_)
   end
@@ -1717,6 +2092,9 @@ module C (F : Cstubs.FOREIGN) = struct
   module UnionDataType = struct
     type t = union_data_type
     let t : t typ = union_data_type
+
+    let get_type = foreign "garrow_union_data_type_get_type"
+      (void @-> returning ulong)
 
     let get_field = foreign "garrow_union_data_type_get_field"
       (t @-> int32_t @-> returning field)

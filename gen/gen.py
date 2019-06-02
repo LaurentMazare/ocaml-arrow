@@ -79,6 +79,8 @@ def c_ml_type(type_, is_arg=None):
       ml = variant_type(type_.get_interface())
     return { 'c': t, 'ml': ml, 'base': False }
 
+get_type_suffix = '_get_type'
+
 def handle_object_info(oinfo, f_c, f_ml, f_mli):
   oname = oinfo.get_name()
   # ctype: oinfo.get_type_name()
@@ -91,6 +93,15 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
   f_ml.write('  type t = %s\n' % variant_t)
   f_mli.write('module %s : sig\n' % oname)
   f_mli.write('  type t = %s\n\n' % variant_t)
+
+  get_type = oinfo.get_type_init()
+  f_c.write('    let get_type = foreign "%s"\n' % get_type)
+  f_c.write('      (void @-> returning ulong)\n\n')
+
+  f_ml.write('  let of_gobject g =\n')
+  f_ml.write('    if C.%s.get_type () = C.gobject_type g\n' % oname)
+  f_ml.write('    then Some g else None\n\n')
+  f_mli.write('  val of_gobject : _ gobject -> t option\n\n')
 
   for m in oinfo.get_methods():
     if m.is_deprecated(): continue

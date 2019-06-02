@@ -6,6 +6,8 @@ type _ gobject
 module Array : sig
   type t = [ `array_ ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val cast : [> `array_ ] gobject -> [> `data_type ] gobject -> [> `cast_options ] gobject -> [ `array_ ] gobject
   val count : [> `array_ ] gobject -> [> `count_options ] gobject -> Int64.t
   val count_values : [> `array_ ] gobject -> [ `struct_array | `array_ ] gobject
@@ -28,12 +30,16 @@ end
 module ArrayBuilder : sig
   type t = [ `array_builder ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val finish : [> `array_builder ] gobject -> [ `array_ ] gobject
   val get_value_data_type : [> `array_builder ] gobject -> [ `data_type ] gobject
 end
 
 module BinaryArray : sig
   type t = [ `binary_array | `array_ ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_buffer : [> `binary_array ] gobject -> [ `buffer ] gobject
@@ -43,6 +49,8 @@ end
 module BinaryArrayBuilder : sig
   type t = [ `binary_array_builder | `array_builder ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
   val append_null : [> `binary_array_builder ] gobject -> bool
 end
@@ -50,11 +58,15 @@ end
 module BinaryDataType : sig
   type t = [ `binary_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module BooleanArray : sig
   type t = [ `boolean_array | `primitive_array | `array_ ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val and_ : [> `boolean_array ] gobject -> [> `boolean_array ] gobject -> [ `boolean_array | `primitive_array | `array_ ] gobject
@@ -67,6 +79,8 @@ end
 module BooleanArrayBuilder : sig
   type t = [ `boolean_array_builder | `array_builder ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
   val append_null : [> `boolean_array_builder ] gobject -> bool
   val append_nulls : [> `boolean_array_builder ] gobject -> Int64.t -> bool
@@ -76,11 +90,15 @@ end
 module BooleanDataType : sig
   type t = [ `boolean_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module Buffer : sig
   type t = [ `buffer ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val copy : [> `buffer ] gobject -> Int64.t -> Int64.t -> [ `buffer ] gobject
   val equal : [> `buffer ] gobject -> [> `buffer ] gobject -> bool
@@ -95,6 +113,8 @@ end
 module BufferInputStream : sig
   type t = [ `buffer_input_stream | `seekable_input_stream | `input_stream ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : [> `buffer ] gobject -> t
   val get_buffer : [> `buffer_input_stream ] gobject -> [ `buffer ] gobject
 end
@@ -102,17 +122,23 @@ end
 module BufferOutputStream : sig
   type t = [ `buffer_output_stream | `output_stream ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : [> `resizable_buffer ] gobject -> t
 end
 
 module CSVReadOptions : sig
   type t = [ `csv_read_options ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module CSVReader : sig
   type t = [ `csv_reader ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : [> `input_stream ] gobject -> [> `csv_read_options ] gobject -> t
   val read : [> `csv_reader ] gobject -> [ `table ] gobject
@@ -121,11 +147,15 @@ end
 module CastOptions : sig
   type t = [ `cast_options ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module ChunkedArray : sig
   type t = [ `chunked_array ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val equal : [> `chunked_array ] gobject -> [> `chunked_array ] gobject -> bool
   val get_chunk : [> `chunked_array ] gobject -> Unsigned.uint32 -> [ `array_ ] gobject
@@ -140,11 +170,15 @@ end
 module Codec : sig
   type t = [ `codec ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val get_name : [> `codec ] gobject -> string
 end
 
 module Column : sig
   type t = [ `column ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_array : [> `field ] gobject -> [> `array_ ] gobject -> t
   val new_chunked_array : [> `field ] gobject -> [> `chunked_array ] gobject -> t
@@ -162,11 +196,15 @@ end
 module CompressedInputStream : sig
   type t = [ `compressed_input_stream | `input_stream ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : [> `codec ] gobject -> [> `input_stream ] gobject -> t
 end
 
 module CompressedOutputStream : sig
   type t = [ `compressed_output_stream | `output_stream ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : [> `codec ] gobject -> [> `output_stream ] gobject -> t
 end
@@ -174,11 +212,15 @@ end
 module CountOptions : sig
   type t = [ `count_options ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module DataType : sig
   type t = [ `data_type ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val equal : [> `data_type ] gobject -> [> `data_type ] gobject -> bool
   val to_string : [> `data_type ] gobject -> string
@@ -187,12 +229,16 @@ end
 module Date32Array : sig
   type t = [ `date32_array | `numeric_array | `primitive_array | `array_ ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `date32_array ] gobject -> Int64.t -> Int32.t
 end
 
 module Date32ArrayBuilder : sig
   type t = [ `date32_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
   val append_null : [> `date32_array_builder ] gobject -> bool
@@ -203,11 +249,15 @@ end
 module Date32DataType : sig
   type t = [ `date32_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module Date64Array : sig
   type t = [ `date64_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `date64_array ] gobject -> Int64.t -> Int64.t
@@ -215,6 +265,8 @@ end
 
 module Date64ArrayBuilder : sig
   type t = [ `date64_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
   val append_null : [> `date64_array_builder ] gobject -> bool
@@ -225,11 +277,15 @@ end
 module Date64DataType : sig
   type t = [ `date64_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module Decimal128 : sig
   type t = [ `decimal128 ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_integer : Int64.t -> t
   val new_string : string -> t
@@ -251,12 +307,16 @@ end
 module Decimal128Array : sig
   type t = [ `decimal128_array | `fixed_size_binary_array | `primitive_array | `array_ ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val format_value : [> `decimal128_array ] gobject -> Int64.t -> string
   val get_value : [> `decimal128_array ] gobject -> Int64.t -> [ `decimal128 ] gobject
 end
 
 module Decimal128ArrayBuilder : sig
   type t = [ `decimal128_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : [> `decimal128_data_type ] gobject -> t
   val append_null : [> `decimal128_array_builder ] gobject -> bool
@@ -266,11 +326,15 @@ end
 module Decimal128DataType : sig
   type t = [ `decimal128_data_type | `decimal_data_type | `fixed_size_binary_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : Int32.t -> Int32.t -> t
 end
 
 module DecimalDataType : sig
   type t = [ `decimal_data_type | `fixed_size_binary_data_type | `fixed_width_data_type | `data_type ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val get_precision : [> `decimal_data_type ] gobject -> Int32.t
   val get_scale : [> `decimal_data_type ] gobject -> Int32.t
@@ -279,15 +343,21 @@ end
 module DenseUnionArray : sig
   type t = [ `dense_union_array | `union_array | `array_ ] gobject
 
+  val of_gobject : _ gobject -> t option
+
 end
 
 module DenseUnionDataType : sig
   type t = [ `dense_union_data_type | `union_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
 end
 
 module DictionaryArray : sig
   type t = [ `dictionary_array | `array_ ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : [> `data_type ] gobject -> [> `array_ ] gobject -> t
   val get_dictionary : [> `dictionary_array ] gobject -> [ `array_ ] gobject
@@ -298,6 +368,8 @@ end
 module DictionaryDataType : sig
   type t = [ `dictionary_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : [> `data_type ] gobject -> [> `array_ ] gobject -> bool -> t
   val get_dictionary : [> `dictionary_data_type ] gobject -> [ `array_ ] gobject
   val get_index_data_type : [> `dictionary_data_type ] gobject -> [ `data_type ] gobject
@@ -307,6 +379,8 @@ end
 module DoubleArray : sig
   type t = [ `double_array | `numeric_array | `primitive_array | `array_ ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `double_array ] gobject -> Int64.t -> float
   val sum : [> `double_array ] gobject -> float
@@ -314,6 +388,8 @@ end
 
 module DoubleArrayBuilder : sig
   type t = [ `double_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
   val append_null : [> `double_array_builder ] gobject -> bool
@@ -324,11 +400,15 @@ end
 module DoubleDataType : sig
   type t = [ `double_data_type | `floating_point_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module FeatherFileReader : sig
   type t = [ `feather_file_reader ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : [> `seekable_input_stream ] gobject -> t
   val get_column : [> `feather_file_reader ] gobject -> Int32.t -> [ `column ] gobject
@@ -344,6 +424,8 @@ end
 module FeatherFileWriter : sig
   type t = [ `feather_file_writer ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : [> `output_stream ] gobject -> t
   val append : [> `feather_file_writer ] gobject -> string -> [> `array_ ] gobject -> bool
   val close : [> `feather_file_writer ] gobject -> bool
@@ -352,6 +434,8 @@ end
 
 module Field : sig
   type t = [ `field ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : string -> [> `data_type ] gobject -> t
   val new_full : string -> [> `data_type ] gobject -> bool -> t
@@ -365,16 +449,22 @@ end
 module FileOutputStream : sig
   type t = [ `file_output_stream | `output_stream ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : string -> bool -> t
 end
 
 module FixedSizeBinaryArray : sig
   type t = [ `fixed_size_binary_array | `primitive_array | `array_ ] gobject
 
+  val of_gobject : _ gobject -> t option
+
 end
 
 module FixedSizeBinaryDataType : sig
   type t = [ `fixed_size_binary_data_type | `fixed_width_data_type | `data_type ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : Int32.t -> t
   val get_byte_width : [> `fixed_size_binary_data_type ] gobject -> Int32.t
@@ -383,11 +473,15 @@ end
 module FixedWidthDataType : sig
   type t = [ `fixed_width_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val get_bit_width : [> `fixed_width_data_type ] gobject -> Int32.t
 end
 
 module FloatArray : sig
   type t = [ `float_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `float_array ] gobject -> Int64.t -> float
@@ -396,6 +490,8 @@ end
 
 module FloatArrayBuilder : sig
   type t = [ `float_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
   val append_null : [> `float_array_builder ] gobject -> bool
@@ -406,16 +502,22 @@ end
 module FloatDataType : sig
   type t = [ `float_data_type | `floating_point_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module FloatingPointDataType : sig
   type t = [ `floating_point_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
 end
 
 module GIOInputStream : sig
   type t = [ `gio_input_stream | `seekable_input_stream | `input_stream ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : [> `input_stream ] gobject -> t
 end
@@ -423,11 +525,15 @@ end
 module GIOOutputStream : sig
   type t = [ `gio_output_stream | `output_stream ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : [> `output_stream ] gobject -> t
 end
 
 module InputStream : sig
   type t = [ `input_stream ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val advance : [> `input_stream ] gobject -> Int64.t -> bool
   val align : [> `input_stream ] gobject -> Int32.t -> bool
@@ -437,6 +543,8 @@ end
 module Int16Array : sig
   type t = [ `int16_array | `numeric_array | `primitive_array | `array_ ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `int16_array ] gobject -> Int64.t -> int
   val sum : [> `int16_array ] gobject -> Int64.t
@@ -444,6 +552,8 @@ end
 
 module Int16ArrayBuilder : sig
   type t = [ `int16_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
   val append_null : [> `int16_array_builder ] gobject -> bool
@@ -454,11 +564,15 @@ end
 module Int16DataType : sig
   type t = [ `int16_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module Int32Array : sig
   type t = [ `int32_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `int32_array ] gobject -> Int64.t -> Int32.t
@@ -467,6 +581,8 @@ end
 
 module Int32ArrayBuilder : sig
   type t = [ `int32_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
   val append_null : [> `int32_array_builder ] gobject -> bool
@@ -477,11 +593,15 @@ end
 module Int32DataType : sig
   type t = [ `int32_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module Int64Array : sig
   type t = [ `int64_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `int64_array ] gobject -> Int64.t -> Int64.t
@@ -490,6 +610,8 @@ end
 
 module Int64ArrayBuilder : sig
   type t = [ `int64_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
   val append_null : [> `int64_array_builder ] gobject -> bool
@@ -500,11 +622,15 @@ end
 module Int64DataType : sig
   type t = [ `int64_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module Int8Array : sig
   type t = [ `int8_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `int8_array ] gobject -> Int64.t -> int
@@ -513,6 +639,8 @@ end
 
 module Int8ArrayBuilder : sig
   type t = [ `int8_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
   val append_null : [> `int8_array_builder ] gobject -> bool
@@ -523,11 +651,15 @@ end
 module Int8DataType : sig
   type t = [ `int8_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module IntArrayBuilder : sig
   type t = [ `int_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
   val append_null : [> `int_array_builder ] gobject -> bool
@@ -538,10 +670,14 @@ end
 module IntegerDataType : sig
   type t = [ `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
 end
 
 module ListArray : sig
   type t = [ `list_array | `array_ ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : [> `data_type ] gobject -> Int64.t -> [> `buffer ] gobject -> [> `array_ ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `list_array ] gobject -> Int64.t -> [ `array_ ] gobject
@@ -550,6 +686,8 @@ end
 
 module ListArrayBuilder : sig
   type t = [ `list_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : [> `list_data_type ] gobject -> t
   val append_null : [> `list_array_builder ] gobject -> bool
@@ -560,6 +698,8 @@ end
 module ListDataType : sig
   type t = [ `list_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : [> `field ] gobject -> t
   val get_field : [> `list_data_type ] gobject -> [ `field ] gobject
 end
@@ -567,11 +707,15 @@ end
 module MemoryMappedInputStream : sig
   type t = [ `memory_mapped_input_stream | `seekable_input_stream | `input_stream ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : string -> t
 end
 
 module MutableBuffer : sig
   type t = [ `mutable_buffer | `buffer ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val slice : [> `mutable_buffer ] gobject -> Int64.t -> Int64.t -> [ `mutable_buffer | `buffer ] gobject
 end
@@ -579,11 +723,15 @@ end
 module NullArray : sig
   type t = [ `null_array | `array_ ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : Int64.t -> t
 end
 
 module NullArrayBuilder : sig
   type t = [ `null_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
   val append_null : [> `null_array_builder ] gobject -> bool
@@ -593,11 +741,15 @@ end
 module NullDataType : sig
   type t = [ `null_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module NumericArray : sig
   type t = [ `numeric_array | `primitive_array | `array_ ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val mean : [> `numeric_array ] gobject -> float
 end
@@ -605,10 +757,14 @@ end
 module NumericDataType : sig
   type t = [ `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
 end
 
 module OutputStream : sig
   type t = [ `output_stream ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val align : [> `output_stream ] gobject -> Int32.t -> bool
   val write_tensor : [> `output_stream ] gobject -> [> `tensor ] gobject -> Int64.t
@@ -617,11 +773,15 @@ end
 module PrimitiveArray : sig
   type t = [ `primitive_array | `array_ ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val get_buffer : [> `primitive_array ] gobject -> [ `buffer ] gobject
 end
 
 module RecordBatch : sig
   type t = [ `record_batch ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val add_column : [> `record_batch ] gobject -> Unsigned.uint32 -> [> `field ] gobject -> [> `array_ ] gobject -> [ `record_batch ] gobject
   val equal : [> `record_batch ] gobject -> [> `record_batch ] gobject -> bool
@@ -638,6 +798,8 @@ end
 module RecordBatchBuilder : sig
   type t = [ `record_batch_builder ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : [> `schema ] gobject -> t
   val flush : [> `record_batch_builder ] gobject -> [ `record_batch ] gobject
   val get_column_builder : [> `record_batch_builder ] gobject -> Int32.t -> [ `array_builder ] gobject
@@ -649,6 +811,8 @@ end
 module RecordBatchFileReader : sig
   type t = [ `record_batch_file_reader ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : [> `seekable_input_stream ] gobject -> t
   val get_n_record_batches : [> `record_batch_file_reader ] gobject -> Unsigned.uint32
   val get_schema : [> `record_batch_file_reader ] gobject -> [ `schema ] gobject
@@ -658,11 +822,15 @@ end
 module RecordBatchFileWriter : sig
   type t = [ `record_batch_file_writer | `record_batch_stream_writer | `record_batch_writer ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : [> `output_stream ] gobject -> [> `schema ] gobject -> t
 end
 
 module RecordBatchReader : sig
   type t = [ `record_batch_reader ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val get_schema : [> `record_batch_reader ] gobject -> [ `schema ] gobject
   val read_next : [> `record_batch_reader ] gobject -> [ `record_batch ] gobject
@@ -671,17 +839,23 @@ end
 module RecordBatchStreamReader : sig
   type t = [ `record_batch_stream_reader | `record_batch_reader ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : [> `input_stream ] gobject -> t
 end
 
 module RecordBatchStreamWriter : sig
   type t = [ `record_batch_stream_writer | `record_batch_writer ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : [> `output_stream ] gobject -> [> `schema ] gobject -> t
 end
 
 module RecordBatchWriter : sig
   type t = [ `record_batch_writer ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val close : [> `record_batch_writer ] gobject -> bool
   val write_record_batch : [> `record_batch_writer ] gobject -> [> `record_batch ] gobject -> bool
@@ -691,6 +865,8 @@ end
 module ResizableBuffer : sig
   type t = [ `resizable_buffer | `mutable_buffer | `buffer ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : Int64.t -> t
   val reserve : [> `resizable_buffer ] gobject -> Int64.t -> bool
   val resize : [> `resizable_buffer ] gobject -> Int64.t -> bool
@@ -698,6 +874,8 @@ end
 
 module Schema : sig
   type t = [ `schema ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val add_field : [> `schema ] gobject -> Unsigned.uint32 -> [> `field ] gobject -> [ `schema ] gobject
   val equal : [> `schema ] gobject -> [> `schema ] gobject -> bool
@@ -712,6 +890,8 @@ end
 module SeekableInputStream : sig
   type t = [ `seekable_input_stream | `input_stream ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val get_size : [> `seekable_input_stream ] gobject -> Unsigned.uint64
   val get_support_zero_copy : [> `seekable_input_stream ] gobject -> bool
   val read_at : [> `seekable_input_stream ] gobject -> Int64.t -> Int64.t -> [ `buffer ] gobject
@@ -720,15 +900,21 @@ end
 module SparseUnionArray : sig
   type t = [ `sparse_union_array | `union_array | `array_ ] gobject
 
+  val of_gobject : _ gobject -> t option
+
 end
 
 module SparseUnionDataType : sig
   type t = [ `sparse_union_data_type | `union_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
 end
 
 module StringArray : sig
   type t = [ `string_array | `binary_array | `array_ ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_string : [> `string_array ] gobject -> Int64.t -> string
@@ -737,6 +923,8 @@ end
 module StringArrayBuilder : sig
   type t = [ `string_array_builder | `binary_array_builder | `array_builder ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
   val append_value : [> `string_array_builder ] gobject -> string -> bool
 end
@@ -744,17 +932,23 @@ end
 module StringDataType : sig
   type t = [ `string_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module StructArray : sig
   type t = [ `struct_array | `array_ ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val get_field : [> `struct_array ] gobject -> Int32.t -> [ `array_ ] gobject
 end
 
 module StructArrayBuilder : sig
   type t = [ `struct_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : [> `struct_data_type ] gobject -> t
   val append_null : [> `struct_array_builder ] gobject -> bool
@@ -765,6 +959,8 @@ end
 module StructDataType : sig
   type t = [ `struct_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val get_field : [> `struct_data_type ] gobject -> Int32.t -> [ `field ] gobject
   val get_field_by_name : [> `struct_data_type ] gobject -> string -> [ `field ] gobject
   val get_field_index : [> `struct_data_type ] gobject -> string -> Int32.t
@@ -773,6 +969,8 @@ end
 
 module Table : sig
   type t = [ `table ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val add_column : [> `table ] gobject -> Unsigned.uint32 -> [> `column ] gobject -> [ `table ] gobject
   val equal : [> `table ] gobject -> [> `table ] gobject -> bool
@@ -788,11 +986,15 @@ end
 module TableBatchReader : sig
   type t = [ `table_batch_reader | `record_batch_reader ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : [> `table ] gobject -> t
 end
 
 module Tensor : sig
   type t = [ `tensor ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val equal : [> `tensor ] gobject -> [> `tensor ] gobject -> bool
   val get_buffer : [> `tensor ] gobject -> [ `buffer ] gobject
@@ -809,12 +1011,16 @@ end
 module Time32Array : sig
   type t = [ `time32_array | `numeric_array | `primitive_array | `array_ ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : [> `time32_data_type ] gobject -> Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `time32_array ] gobject -> Int64.t -> Int32.t
 end
 
 module Time32ArrayBuilder : sig
   type t = [ `time32_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : [> `time32_data_type ] gobject -> t
   val append_null : [> `time32_array_builder ] gobject -> bool
@@ -825,10 +1031,14 @@ end
 module Time32DataType : sig
   type t = [ `time32_data_type | `time_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
 end
 
 module Time64Array : sig
   type t = [ `time64_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : [> `time64_data_type ] gobject -> Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `time64_array ] gobject -> Int64.t -> Int64.t
@@ -836,6 +1046,8 @@ end
 
 module Time64ArrayBuilder : sig
   type t = [ `time64_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : [> `time64_data_type ] gobject -> t
   val append_null : [> `time64_array_builder ] gobject -> bool
@@ -846,15 +1058,21 @@ end
 module Time64DataType : sig
   type t = [ `time64_data_type | `time_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
 end
 
 module TimeDataType : sig
   type t = [ `time_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
 end
 
 module TimestampArray : sig
   type t = [ `timestamp_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : [> `timestamp_data_type ] gobject -> Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `timestamp_array ] gobject -> Int64.t -> Int64.t
@@ -862,6 +1080,8 @@ end
 
 module TimestampArrayBuilder : sig
   type t = [ `timestamp_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : [> `timestamp_data_type ] gobject -> t
   val append_null : [> `timestamp_array_builder ] gobject -> bool
@@ -872,10 +1092,14 @@ end
 module TimestampDataType : sig
   type t = [ `timestamp_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
 end
 
 module UInt16Array : sig
   type t = [ `u_int16_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `u_int16_array ] gobject -> Int64.t -> Unsigned.uint16
@@ -884,6 +1108,8 @@ end
 
 module UInt16ArrayBuilder : sig
   type t = [ `u_int16_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
   val append_null : [> `u_int16_array_builder ] gobject -> bool
@@ -894,11 +1120,15 @@ end
 module UInt16DataType : sig
   type t = [ `u_int16_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module UInt32Array : sig
   type t = [ `u_int32_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `u_int32_array ] gobject -> Int64.t -> Unsigned.uint32
@@ -907,6 +1137,8 @@ end
 
 module UInt32ArrayBuilder : sig
   type t = [ `u_int32_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
   val append_null : [> `u_int32_array_builder ] gobject -> bool
@@ -917,11 +1149,15 @@ end
 module UInt32DataType : sig
   type t = [ `u_int32_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module UInt64Array : sig
   type t = [ `u_int64_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `u_int64_array ] gobject -> Int64.t -> Unsigned.uint64
@@ -930,6 +1166,8 @@ end
 
 module UInt64ArrayBuilder : sig
   type t = [ `u_int64_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
   val append_null : [> `u_int64_array_builder ] gobject -> bool
@@ -940,11 +1178,15 @@ end
 module UInt64DataType : sig
   type t = [ `u_int64_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module UInt8Array : sig
   type t = [ `u_int8_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `u_int8_array ] gobject -> Int64.t -> Unsigned.uint8
@@ -953,6 +1195,8 @@ end
 
 module UInt8ArrayBuilder : sig
   type t = [ `u_int8_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
   val append_null : [> `u_int8_array_builder ] gobject -> bool
@@ -963,11 +1207,15 @@ end
 module UInt8DataType : sig
   type t = [ `u_int8_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val new_ : unit -> t
 end
 
 module UIntArrayBuilder : sig
   type t = [ `u_int_array_builder | `array_builder ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
   val append_null : [> `u_int_array_builder ] gobject -> bool
@@ -978,11 +1226,15 @@ end
 module UnionArray : sig
   type t = [ `union_array | `array_ ] gobject
 
+  val of_gobject : _ gobject -> t option
+
   val get_field : [> `union_array ] gobject -> Int32.t -> [ `array_ ] gobject
 end
 
 module UnionDataType : sig
   type t = [ `union_data_type | `data_type ] gobject
+
+  val of_gobject : _ gobject -> t option
 
   val get_field : [> `union_data_type ] gobject -> Int32.t -> [ `field ] gobject
   val get_n_fields : [> `union_data_type ] gobject -> Int32.t
