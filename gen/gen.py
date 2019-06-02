@@ -10,11 +10,11 @@ snake_exceptions = {
 }
 
 c_ml_types = {
-    'gint64': ('int64_t', 'Int64.t'),
-    'gdouble': ('double', 'float'),
-    'gfloat': ('float', 'float'),
-    'gboolean': ('bool', 'bool'),
-    'utf8': ('string', 'string'),
+    'gint64': { 'c': 'int64_t', 'ml': 'Int64.t', 'base': True },
+    'gdouble': { 'c': 'double', 'ml': 'float', 'base': True },
+    'gfloat': { 'c': 'float', 'ml': 'float', 'base': True },
+    'gboolean': { 'c': 'bool', 'ml': 'bool', 'base': True },
+    'utf8': { 'c': 'string', 'ml': 'string', 'base': True },
 }
 
 unsupported_types = set([
@@ -43,7 +43,7 @@ def c_ml_type(type_):
   if t == 'interface':
     t = snake_case(type_.get_interface().get_name())
     if t in unsupported_types: return None
-    return t, t
+    return { 'c': t, 'ml': t, 'base': False }
 
 def handle_object_info(oinfo, f_c, f_ml, f_mli):
   oname = oinfo.get_name()
@@ -55,7 +55,13 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
   f_ml.write('module %s = struct\n' % oname)
   f_ml.write('  type t = %s\n' % snake_case(oname))
   f_mli.write('module %s : sig\n' % oname)
-  f_mli.write('  type t = %s\n' % snake_case(oname))
+  f_mli.write('  type t = %s\n\n' % snake_case(oname))
+
+  parent = snake_case(oinfo.get_parent().get_name())
+  if parent != 'object':
+    # TODO: check if a proper conversion is needed
+    f_ml.write('  let parent t = t\n')
+    f_mli.write('  val parent : t -> %s\n' % parent)
 
   for m in oinfo.get_methods():
     if m.is_deprecated(): continue
@@ -76,10 +82,9 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
         arg_type = c_ml_type(arg.get_type())
         if arg_type is None:
           raise ValueError('unhandled type for %s %s' % (arg, m))
-        ct, mlt = arg_type
-        c_type.append(ct)
+        c_type.append(arg_type['c'])
         ml_args.append(arg.get_name())
-        ml_type.append(mlt)
+        ml_type.append(arg_type['ml'])
 
       if m.can_throw_gerror():
         c_type.append('ptr (ptr GError.t)')
@@ -89,16 +94,19 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
         ml_args.append('()')
         ml_type.append('unit')
 
+      return_base_type = None
       if m.is_constructor():
         c_type.append('returning t')
         ml_type.append('t')
+        return_base_type = False
       else:
         return_type = c_ml_type(m.get_return_type())
         if return_type is None:
           raise ValueError('unhandled rt for ' + str(m))
-        ct, mlt = return_type
-        c_type.append('returning %s' % ct)
-        ml_type.append(mlt)
+        c_type.append('returning %s' % return_type['c'])
+        ml_type.append(return_type['ml'])
+        # TODO: check whether ownership is passed...
+        return_base_type = return_type['base']
 
       c_type = ' @-> '.join(c_type)
       f_c.write('    let %s = foreign "%s"\n' % (mname, m.get_symbol()))
@@ -114,14 +122,20 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
         f_ml.write('    let gerr__ = CArray.get gerr__ 0 in\n')
         f_ml.write('    if not (Ctypes.is_null gerr__)\n')
         f_ml.write('    then begin\n')
-        f_ml.write('      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in\n')
+        f_ml.write('      let msg = getf (!@ gerr__) C.GError.message in\n')
+        f_ml.write('      if Ctypes.is_null msg\n');
+        f_ml.write('      then failwith "failed with null error message";\n')
+        f_ml.write('      let msg = C.strdup msg in\n');
         f_ml.write('      C.GError.free gerr__;\n')
         f_ml.write('      failwith msg\n')
         f_ml.write('    end;\n')
-        # TODO: f_ml.write('    if Ctypes.is_null res')
-        # TODO: Gc.finalise
       else:
         f_ml.write('    let res = C.%s.%s %s in\n' % (oname, mname, ml_args))
+
+      if not return_base_type:
+        f_ml.write('    if Ctypes.is_null res\n')
+        f_ml.write('    then failwith "returned null";\n')
+        f_ml.write('    Gc.finalise C.object_unref res;\n')
       f_ml.write('    res\n\n')
 
       f_mli.write('  val %s : %s\n' % (mname, ml_type))

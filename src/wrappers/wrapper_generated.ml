@@ -137,10 +137,16 @@ module Array = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let count t options =
@@ -149,7 +155,10 @@ module Array = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -161,10 +170,16 @@ module Array = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let dictionary_encode t =
@@ -173,10 +188,16 @@ module Array = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let equal t other_array =
@@ -201,6 +222,9 @@ module Array = struct
 
   let get_null_bitmap t =
     let res = C.Array.get_null_bitmap t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_offset t =
@@ -209,6 +233,9 @@ module Array = struct
 
   let get_value_data_type t =
     let res = C.Array.get_value_data_type t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let is_null t i =
@@ -221,6 +248,9 @@ module Array = struct
 
   let slice t offset length =
     let res = C.Array.slice t offset length in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let to_string t =
@@ -229,7 +259,10 @@ module Array = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -241,10 +274,16 @@ module Array = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
@@ -257,38 +296,61 @@ module ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_value_data_type t =
     let res = C.ArrayBuilder.get_value_data_type t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module BinaryArray = struct
   type t = binary_array
+  let parent t = t
   let new_ length value_offsets data null_bitmap n_nulls =
     let res = C.BinaryArray.new_ length value_offsets data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_buffer t =
     let res = C.BinaryArray.get_buffer t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_offsets_buffer t =
     let res = C.BinaryArray.get_offsets_buffer t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module BinaryArrayBuilder = struct
   type t = binary_array_builder
+  let parent t = t
   let new_ () =
     let res = C.BinaryArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -297,7 +359,10 @@ module BinaryArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -307,16 +372,24 @@ end
 
 module BinaryDataType = struct
   type t = binary_data_type
+  let parent t = t
   let new_ () =
     let res = C.BinaryDataType.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module BooleanArray = struct
   type t = boolean_array
+  let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.BooleanArray.new_ length data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let and_ t right =
@@ -325,10 +398,16 @@ module BooleanArray = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_value t i =
@@ -341,10 +420,16 @@ module BooleanArray = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let or_ t right =
@@ -353,10 +438,16 @@ module BooleanArray = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let xor t right =
@@ -365,18 +456,28 @@ module BooleanArray = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module BooleanArrayBuilder = struct
   type t = boolean_array_builder
+  let parent t = t
   let new_ () =
     let res = C.BooleanArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -385,7 +486,10 @@ module BooleanArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -397,7 +501,10 @@ module BooleanArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -409,7 +516,10 @@ module BooleanArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -419,8 +529,12 @@ end
 
 module BooleanDataType = struct
   type t = boolean_data_type
+  let parent t = t
   let new_ () =
     let res = C.BooleanDataType.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
@@ -433,10 +547,16 @@ module Buffer = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let equal t other_buffer =
@@ -453,6 +573,9 @@ module Buffer = struct
 
   let get_parent t =
     let res = C.Buffer.get_parent t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_size t =
@@ -465,26 +588,40 @@ module Buffer = struct
 
   let slice t offset size =
     let res = C.Buffer.slice t offset size in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module BufferInputStream = struct
   type t = buffer_input_stream
+  let parent t = t
   let new_ buffer =
     let res = C.BufferInputStream.new_ buffer in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_buffer t =
     let res = C.BufferInputStream.get_buffer t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module BufferOutputStream = struct
   type t = buffer_output_stream
+  let parent t = t
   let new_ buffer =
     let res = C.BufferOutputStream.new_ buffer in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
@@ -493,6 +630,9 @@ module CSVReadOptions = struct
   type t = csv_read_options
   let new_ () =
     let res = C.CSVReadOptions.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
@@ -505,10 +645,16 @@ module CSVReader = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let read t =
@@ -517,10 +663,16 @@ module CSVReader = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
@@ -529,6 +681,9 @@ module CastOptions = struct
   type t = cast_options
   let new_ () =
     let res = C.CastOptions.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
@@ -541,6 +696,9 @@ module ChunkedArray = struct
 
   let get_value_data_type t =
     let res = C.ChunkedArray.get_value_data_type t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let to_string t =
@@ -549,7 +707,10 @@ module ChunkedArray = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -569,10 +730,16 @@ module Column = struct
   type t = column
   let new_array field array =
     let res = C.Column.new_array field array in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let new_chunked_array field chunked_array =
     let res = C.Column.new_chunked_array field chunked_array in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let equal t other_column =
@@ -581,14 +748,23 @@ module Column = struct
 
   let get_data t =
     let res = C.Column.get_data t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_data_type t =
     let res = C.Column.get_data_type t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_field t =
     let res = C.Column.get_field t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_name t =
@@ -601,7 +777,10 @@ module Column = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -611,32 +790,46 @@ end
 
 module CompressedInputStream = struct
   type t = compressed_input_stream
+  let parent t = t
   let new_ codec raw =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.CompressedInputStream.new_ codec raw (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module CompressedOutputStream = struct
   type t = compressed_output_stream
+  let parent t = t
   let new_ codec raw =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.CompressedOutputStream.new_ codec raw (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
@@ -645,6 +838,9 @@ module CountOptions = struct
   type t = count_options
   let new_ () =
     let res = C.CountOptions.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
@@ -663,16 +859,24 @@ end
 
 module Date32Array = struct
   type t = date32_array
+  let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.Date32Array.new_ length data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module Date32ArrayBuilder = struct
   type t = date32_array_builder
+  let parent t = t
   let new_ () =
     let res = C.Date32ArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -681,7 +885,10 @@ module Date32ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -693,7 +900,10 @@ module Date32ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -703,16 +913,24 @@ end
 
 module Date32DataType = struct
   type t = date32_data_type
+  let parent t = t
   let new_ () =
     let res = C.Date32DataType.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module Date64Array = struct
   type t = date64_array
+  let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.Date64Array.new_ length data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_value t i =
@@ -723,8 +941,12 @@ end
 
 module Date64ArrayBuilder = struct
   type t = date64_array_builder
+  let parent t = t
   let new_ () =
     let res = C.Date64ArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -733,7 +955,10 @@ module Date64ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -745,7 +970,10 @@ module Date64ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -757,7 +985,10 @@ module Date64ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -767,8 +998,12 @@ end
 
 module Date64DataType = struct
   type t = date64_data_type
+  let parent t = t
   let new_ () =
     let res = C.Date64DataType.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
@@ -777,10 +1012,16 @@ module Decimal128 = struct
   type t = decimal128
   let new_integer data =
     let res = C.Decimal128.new_integer data in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let new_string data =
     let res = C.Decimal128.new_string data in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let divide t right remainder =
@@ -789,10 +1030,16 @@ module Decimal128 = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let equal t other_decimal =
@@ -817,10 +1064,16 @@ module Decimal128 = struct
 
   let minus t right =
     let res = C.Decimal128.minus t right in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let multiply t right =
     let res = C.Decimal128.multiply t right in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let not_equal t other_decimal =
@@ -829,6 +1082,9 @@ module Decimal128 = struct
 
   let plus t right =
     let res = C.Decimal128.plus t right in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let to_integer t =
@@ -843,20 +1099,28 @@ end
 
 module Decimal128Array = struct
   type t = decimal128_array
+  let parent t = t
   let format_value t i =
     let res = C.Decimal128Array.format_value t i in
     res
 
   let get_value t i =
     let res = C.Decimal128Array.get_value t i in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module Decimal128ArrayBuilder = struct
   type t = decimal128_array_builder
+  let parent t = t
   let new_ data_type =
     let res = C.Decimal128ArrayBuilder.new_ data_type in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -865,7 +1129,10 @@ module Decimal128ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -877,7 +1144,10 @@ module Decimal128ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -887,52 +1157,79 @@ end
 
 module Decimal128DataType = struct
   type t = decimal128_data_type
+  let parent t = t
 end
 
 module DecimalDataType = struct
   type t = decimal_data_type
+  let parent t = t
 end
 
 module DenseUnionArray = struct
   type t = dense_union_array
+  let parent t = t
 end
 
 module DenseUnionDataType = struct
   type t = dense_union_data_type
+  let parent t = t
 end
 
 module DictionaryArray = struct
   type t = dictionary_array
+  let parent t = t
   let new_ data_type indices =
     let res = C.DictionaryArray.new_ data_type indices in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_dictionary t =
     let res = C.DictionaryArray.get_dictionary t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_dictionary_data_type t =
     let res = C.DictionaryArray.get_dictionary_data_type t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_indices t =
     let res = C.DictionaryArray.get_indices t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module DictionaryDataType = struct
   type t = dictionary_data_type
+  let parent t = t
   let new_ index_data_type dictionary ordered =
     let res = C.DictionaryDataType.new_ index_data_type dictionary ordered in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_dictionary t =
     let res = C.DictionaryDataType.get_dictionary t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_index_data_type t =
     let res = C.DictionaryDataType.get_index_data_type t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let is_ordered t =
@@ -943,8 +1240,12 @@ end
 
 module DoubleArray = struct
   type t = double_array
+  let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.DoubleArray.new_ length data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_value t i =
@@ -957,7 +1258,10 @@ module DoubleArray = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -967,8 +1271,12 @@ end
 
 module DoubleArrayBuilder = struct
   type t = double_array_builder
+  let parent t = t
   let new_ () =
     let res = C.DoubleArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -977,7 +1285,10 @@ module DoubleArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -989,7 +1300,10 @@ module DoubleArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1001,7 +1315,10 @@ module DoubleArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1011,8 +1328,12 @@ end
 
 module DoubleDataType = struct
   type t = double_data_type
+  let parent t = t
   let new_ () =
     let res = C.DoubleDataType.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
@@ -1025,10 +1346,16 @@ module FeatherFileReader = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_description t =
@@ -1053,10 +1380,16 @@ module FeatherFileReader = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
@@ -1069,10 +1402,16 @@ module FeatherFileWriter = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append t name array =
@@ -1081,7 +1420,10 @@ module FeatherFileWriter = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1093,7 +1435,10 @@ module FeatherFileWriter = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1105,7 +1450,10 @@ module FeatherFileWriter = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1117,10 +1465,16 @@ module Field = struct
   type t = field
   let new_ name data_type =
     let res = C.Field.new_ name data_type in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let new_full name data_type nullable =
     let res = C.Field.new_full name data_type nullable in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let equal t other_field =
@@ -1129,6 +1483,9 @@ module Field = struct
 
   let get_data_type t =
     let res = C.Field.get_data_type t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_name t =
@@ -1147,36 +1504,50 @@ end
 
 module FileOutputStream = struct
   type t = file_output_stream
+  let parent t = t
   let new_ path append =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.FileOutputStream.new_ path append (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module FixedSizeBinaryArray = struct
   type t = fixed_size_binary_array
+  let parent t = t
 end
 
 module FixedSizeBinaryDataType = struct
   type t = fixed_size_binary_data_type
+  let parent t = t
 end
 
 module FixedWidthDataType = struct
   type t = fixed_width_data_type
+  let parent t = t
 end
 
 module FloatArray = struct
   type t = float_array
+  let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.FloatArray.new_ length data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_value t i =
@@ -1189,7 +1560,10 @@ module FloatArray = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1199,8 +1573,12 @@ end
 
 module FloatArrayBuilder = struct
   type t = float_array_builder
+  let parent t = t
   let new_ () =
     let res = C.FloatArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -1209,7 +1587,10 @@ module FloatArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1221,7 +1602,10 @@ module FloatArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1233,7 +1617,10 @@ module FloatArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1243,41 +1630,58 @@ end
 
 module FloatDataType = struct
   type t = float_data_type
+  let parent t = t
   let new_ () =
     let res = C.FloatDataType.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module FloatingPointDataType = struct
   type t = floating_point_data_type
+  let parent t = t
 end
 
 module GIOInputStream = struct
   type t = gio_input_stream
+  let parent t = t
   let new_ gio_input_stream =
     let res = C.GIOInputStream.new_ gio_input_stream in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module GIOOutputStream = struct
   type t = gio_output_stream
+  let parent t = t
   let new_ gio_output_stream =
     let res = C.GIOOutputStream.new_ gio_output_stream in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module InputStream = struct
   type t = input_stream
+  let parent t = t
   let advance t n_bytes =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.InputStream.advance t n_bytes (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1289,18 +1693,28 @@ module InputStream = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module Int16Array = struct
   type t = int16_array
+  let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.Int16Array.new_ length data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let sum t =
@@ -1309,7 +1723,10 @@ module Int16Array = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1319,8 +1736,12 @@ end
 
 module Int16ArrayBuilder = struct
   type t = int16_array_builder
+  let parent t = t
   let new_ () =
     let res = C.Int16ArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -1329,7 +1750,10 @@ module Int16ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1341,7 +1765,10 @@ module Int16ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1351,16 +1778,24 @@ end
 
 module Int16DataType = struct
   type t = int16_data_type
+  let parent t = t
   let new_ () =
     let res = C.Int16DataType.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module Int32Array = struct
   type t = int32_array
+  let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.Int32Array.new_ length data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let sum t =
@@ -1369,7 +1804,10 @@ module Int32Array = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1379,8 +1817,12 @@ end
 
 module Int32ArrayBuilder = struct
   type t = int32_array_builder
+  let parent t = t
   let new_ () =
     let res = C.Int32ArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -1389,7 +1831,10 @@ module Int32ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1401,7 +1846,10 @@ module Int32ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1411,16 +1859,24 @@ end
 
 module Int32DataType = struct
   type t = int32_data_type
+  let parent t = t
   let new_ () =
     let res = C.Int32DataType.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module Int64Array = struct
   type t = int64_array
+  let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.Int64Array.new_ length data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_value t i =
@@ -1433,7 +1889,10 @@ module Int64Array = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1443,8 +1902,12 @@ end
 
 module Int64ArrayBuilder = struct
   type t = int64_array_builder
+  let parent t = t
   let new_ () =
     let res = C.Int64ArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -1453,7 +1916,10 @@ module Int64ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1465,7 +1931,10 @@ module Int64ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1477,7 +1946,10 @@ module Int64ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1487,16 +1959,24 @@ end
 
 module Int64DataType = struct
   type t = int64_data_type
+  let parent t = t
   let new_ () =
     let res = C.Int64DataType.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module Int8Array = struct
   type t = int8_array
+  let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.Int8Array.new_ length data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let sum t =
@@ -1505,7 +1985,10 @@ module Int8Array = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1515,8 +1998,12 @@ end
 
 module Int8ArrayBuilder = struct
   type t = int8_array_builder
+  let parent t = t
   let new_ () =
     let res = C.Int8ArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -1525,7 +2012,10 @@ module Int8ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1537,7 +2027,10 @@ module Int8ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1547,16 +2040,24 @@ end
 
 module Int8DataType = struct
   type t = int8_data_type
+  let parent t = t
   let new_ () =
     let res = C.Int8DataType.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module IntArrayBuilder = struct
   type t = int_array_builder
+  let parent t = t
   let new_ () =
     let res = C.IntArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -1565,7 +2066,10 @@ module IntArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1577,7 +2081,10 @@ module IntArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1589,7 +2096,10 @@ module IntArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1599,36 +2109,54 @@ end
 
 module IntegerDataType = struct
   type t = integer_data_type
+  let parent t = t
 end
 
 module ListArray = struct
   type t = list_array
+  let parent t = t
   let new_ data_type length value_offsets values null_bitmap n_nulls =
     let res = C.ListArray.new_ data_type length value_offsets values null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_value t i =
     let res = C.ListArray.get_value t i in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_value_type t =
     let res = C.ListArray.get_value_type t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module ListArrayBuilder = struct
   type t = list_array_builder
+  let parent t = t
   let new_ data_type =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.ListArrayBuilder.new_ data_type (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -1637,7 +2165,10 @@ module ListArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1649,7 +2180,10 @@ module ListArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1657,58 +2191,87 @@ module ListArrayBuilder = struct
 
   let get_value_builder t =
     let res = C.ListArrayBuilder.get_value_builder t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module ListDataType = struct
   type t = list_data_type
+  let parent t = t
   let new_ field =
     let res = C.ListDataType.new_ field in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_field t =
     let res = C.ListDataType.get_field t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module MemoryMappedInputStream = struct
   type t = memory_mapped_input_stream
+  let parent t = t
   let new_ path =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.MemoryMappedInputStream.new_ path (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module MutableBuffer = struct
   type t = mutable_buffer
+  let parent t = t
   let slice t offset size =
     let res = C.MutableBuffer.slice t offset size in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module NullArray = struct
   type t = null_array
+  let parent t = t
   let new_ length =
     let res = C.NullArray.new_ length in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module NullArrayBuilder = struct
   type t = null_array_builder
+  let parent t = t
   let new_ () =
     let res = C.NullArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -1717,7 +2280,10 @@ module NullArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1729,7 +2295,10 @@ module NullArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1739,21 +2308,29 @@ end
 
 module NullDataType = struct
   type t = null_data_type
+  let parent t = t
   let new_ () =
     let res = C.NullDataType.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module NumericArray = struct
   type t = numeric_array
+  let parent t = t
   let mean t =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.NumericArray.mean t (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1763,6 +2340,7 @@ end
 
 module NumericDataType = struct
   type t = numeric_data_type
+  let parent t = t
 end
 
 module OutputStream = struct
@@ -1773,7 +2351,10 @@ module OutputStream = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1783,8 +2364,12 @@ end
 
 module PrimitiveArray = struct
   type t = primitive_array
+  let parent t = t
   let get_buffer t =
     let res = C.PrimitiveArray.get_buffer t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
@@ -1801,10 +2386,16 @@ module RecordBatch = struct
 
   let get_schema t =
     let res = C.RecordBatch.get_schema t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let slice t offset length =
     let res = C.RecordBatch.slice t offset length in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let to_string t =
@@ -1813,7 +2404,10 @@ module RecordBatch = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1829,10 +2423,16 @@ module RecordBatchBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let flush t =
@@ -1841,10 +2441,16 @@ module RecordBatchBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_initial_capacity t =
@@ -1853,6 +2459,9 @@ module RecordBatchBuilder = struct
 
   let get_schema t =
     let res = C.RecordBatchBuilder.get_schema t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
@@ -1865,30 +2474,46 @@ module RecordBatchFileReader = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_schema t =
     let res = C.RecordBatchFileReader.get_schema t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module RecordBatchFileWriter = struct
   type t = record_batch_file_writer
+  let parent t = t
   let new_ sink schema =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.RecordBatchFileWriter.new_ sink schema (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
@@ -1897,6 +2522,9 @@ module RecordBatchReader = struct
   type t = record_batch_reader
   let get_schema t =
     let res = C.RecordBatchReader.get_schema t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let read_next t =
@@ -1905,42 +2533,62 @@ module RecordBatchReader = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module RecordBatchStreamReader = struct
   type t = record_batch_stream_reader
+  let parent t = t
   let new_ stream =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.RecordBatchStreamReader.new_ stream (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module RecordBatchStreamWriter = struct
   type t = record_batch_stream_writer
+  let parent t = t
   let new_ sink schema =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.RecordBatchStreamWriter.new_ sink schema (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
@@ -1953,7 +2601,10 @@ module RecordBatchWriter = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1965,7 +2616,10 @@ module RecordBatchWriter = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1977,7 +2631,10 @@ module RecordBatchWriter = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -1987,16 +2644,23 @@ end
 
 module ResizableBuffer = struct
   type t = resizable_buffer
+  let parent t = t
   let new_ initial_size =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.ResizableBuffer.new_ initial_size (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let reserve t new_capacity =
@@ -2005,7 +2669,10 @@ module ResizableBuffer = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2017,7 +2684,10 @@ module ResizableBuffer = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2033,6 +2703,9 @@ module Schema = struct
 
   let get_field_by_name t name =
     let res = C.Schema.get_field_by_name t name in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let to_string t =
@@ -2043,6 +2716,7 @@ end
 
 module SeekableInputStream = struct
   type t = seekable_input_stream
+  let parent t = t
   let get_support_zero_copy t =
     let res = C.SeekableInputStream.get_support_zero_copy t in
     res
@@ -2053,26 +2727,38 @@ module SeekableInputStream = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module SparseUnionArray = struct
   type t = sparse_union_array
+  let parent t = t
 end
 
 module SparseUnionDataType = struct
   type t = sparse_union_data_type
+  let parent t = t
 end
 
 module StringArray = struct
   type t = string_array
+  let parent t = t
   let new_ length value_offsets data null_bitmap n_nulls =
     let res = C.StringArray.new_ length value_offsets data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_string t i =
@@ -2083,8 +2769,12 @@ end
 
 module StringArrayBuilder = struct
   type t = string_array_builder
+  let parent t = t
   let new_ () =
     let res = C.StringArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_value t value =
@@ -2093,7 +2783,10 @@ module StringArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2103,28 +2796,40 @@ end
 
 module StringDataType = struct
   type t = string_data_type
+  let parent t = t
   let new_ () =
     let res = C.StringDataType.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module StructArray = struct
   type t = struct_array
+  let parent t = t
 end
 
 module StructArrayBuilder = struct
   type t = struct_array_builder
+  let parent t = t
   let new_ data_type =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.StructArrayBuilder.new_ data_type (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -2133,7 +2838,10 @@ module StructArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2145,7 +2853,10 @@ module StructArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2155,8 +2866,12 @@ end
 
 module StructDataType = struct
   type t = struct_data_type
+  let parent t = t
   let get_field_by_name t name =
     let res = C.StructDataType.get_field_by_name t name in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
@@ -2169,6 +2884,9 @@ module Table = struct
 
   let get_schema t =
     let res = C.Table.get_schema t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let to_string t =
@@ -2177,7 +2895,10 @@ module Table = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2187,8 +2908,12 @@ end
 
 module TableBatchReader = struct
   type t = table_batch_reader
+  let parent t = t
   let new_ table =
     let res = C.TableBatchReader.new_ table in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
@@ -2201,6 +2926,9 @@ module Tensor = struct
 
   let get_buffer t =
     let res = C.Tensor.get_buffer t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_size t =
@@ -2209,6 +2937,9 @@ module Tensor = struct
 
   let get_value_data_type t =
     let res = C.Tensor.get_value_data_type t in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let is_column_major t =
@@ -2231,16 +2962,24 @@ end
 
 module Time32Array = struct
   type t = time32_array
+  let parent t = t
   let new_ data_type length data null_bitmap n_nulls =
     let res = C.Time32Array.new_ data_type length data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module Time32ArrayBuilder = struct
   type t = time32_array_builder
+  let parent t = t
   let new_ data_type =
     let res = C.Time32ArrayBuilder.new_ data_type in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -2249,7 +2988,10 @@ module Time32ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2261,7 +3003,10 @@ module Time32ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2271,12 +3016,17 @@ end
 
 module Time32DataType = struct
   type t = time32_data_type
+  let parent t = t
 end
 
 module Time64Array = struct
   type t = time64_array
+  let parent t = t
   let new_ data_type length data null_bitmap n_nulls =
     let res = C.Time64Array.new_ data_type length data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_value t i =
@@ -2287,8 +3037,12 @@ end
 
 module Time64ArrayBuilder = struct
   type t = time64_array_builder
+  let parent t = t
   let new_ data_type =
     let res = C.Time64ArrayBuilder.new_ data_type in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -2297,7 +3051,10 @@ module Time64ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2309,7 +3066,10 @@ module Time64ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2321,7 +3081,10 @@ module Time64ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2331,16 +3094,22 @@ end
 
 module Time64DataType = struct
   type t = time64_data_type
+  let parent t = t
 end
 
 module TimeDataType = struct
   type t = time_data_type
+  let parent t = t
 end
 
 module TimestampArray = struct
   type t = timestamp_array
+  let parent t = t
   let new_ data_type length data null_bitmap n_nulls =
     let res = C.TimestampArray.new_ data_type length data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let get_value t i =
@@ -2351,8 +3120,12 @@ end
 
 module TimestampArrayBuilder = struct
   type t = timestamp_array_builder
+  let parent t = t
   let new_ data_type =
     let res = C.TimestampArrayBuilder.new_ data_type in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -2361,7 +3134,10 @@ module TimestampArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2373,7 +3149,10 @@ module TimestampArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2385,7 +3164,10 @@ module TimestampArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2395,20 +3177,29 @@ end
 
 module TimestampDataType = struct
   type t = timestamp_data_type
+  let parent t = t
 end
 
 module UInt16Array = struct
   type t = u_int16_array
+  let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.UInt16Array.new_ length data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module UInt16ArrayBuilder = struct
   type t = u_int16_array_builder
+  let parent t = t
   let new_ () =
     let res = C.UInt16ArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -2417,7 +3208,10 @@ module UInt16ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2429,7 +3223,10 @@ module UInt16ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2439,24 +3236,36 @@ end
 
 module UInt16DataType = struct
   type t = u_int16_data_type
+  let parent t = t
   let new_ () =
     let res = C.UInt16DataType.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module UInt32Array = struct
   type t = u_int32_array
+  let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.UInt32Array.new_ length data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module UInt32ArrayBuilder = struct
   type t = u_int32_array_builder
+  let parent t = t
   let new_ () =
     let res = C.UInt32ArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -2465,7 +3274,10 @@ module UInt32ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2477,7 +3289,10 @@ module UInt32ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2487,24 +3302,36 @@ end
 
 module UInt32DataType = struct
   type t = u_int32_data_type
+  let parent t = t
   let new_ () =
     let res = C.UInt32DataType.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module UInt64Array = struct
   type t = u_int64_array
+  let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.UInt64Array.new_ length data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module UInt64ArrayBuilder = struct
   type t = u_int64_array_builder
+  let parent t = t
   let new_ () =
     let res = C.UInt64ArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -2513,7 +3340,10 @@ module UInt64ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2525,7 +3355,10 @@ module UInt64ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2535,24 +3368,36 @@ end
 
 module UInt64DataType = struct
   type t = u_int64_data_type
+  let parent t = t
   let new_ () =
     let res = C.UInt64DataType.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module UInt8Array = struct
   type t = u_int8_array
+  let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.UInt8Array.new_ length data null_bitmap n_nulls in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module UInt8ArrayBuilder = struct
   type t = u_int8_array_builder
+  let parent t = t
   let new_ () =
     let res = C.UInt8ArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -2561,7 +3406,10 @@ module UInt8ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2573,7 +3421,10 @@ module UInt8ArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2583,16 +3434,24 @@ end
 
 module UInt8DataType = struct
   type t = u_int8_data_type
+  let parent t = t
   let new_ () =
     let res = C.UInt8DataType.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
 end
 
 module UIntArrayBuilder = struct
   type t = u_int_array_builder
+  let parent t = t
   let new_ () =
     let res = C.UIntArrayBuilder.new_ () in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
     res
 
   let append_null t =
@@ -2601,7 +3460,10 @@ module UIntArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2613,7 +3475,10 @@ module UIntArrayBuilder = struct
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
-      let msg = getf (!@ gerr__) C.GError.message |> C.strdup in
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
       C.GError.free gerr__;
       failwith msg
     end;
@@ -2623,9 +3488,11 @@ end
 
 module UnionArray = struct
   type t = union_array
+  let parent t = t
 end
 
 module UnionDataType = struct
   type t = union_data_type
+  let parent t = t
 end
 

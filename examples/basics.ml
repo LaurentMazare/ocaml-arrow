@@ -1,10 +1,9 @@
-module C = Arrow_core.Wrapper.C
+module C = Arrow_core.Wrapper_generated
 
 let hello_world () =
   let arr = C.NullArray.new_ (Int64.of_int 42) in
-  let len = C.Array.get_length arr in
-  Stdio.printf "Hello World! %d\n%!" (Int64.to_int len);
-  C.object_unref arr
+  let len = C.Array.get_length (C.NullArray.parent arr) in
+  Stdio.printf "Hello World! %d\n%!" (Int64.to_int len)
 
 (* Similar to arrow-glib/example/build.c *)
 let build () =
@@ -12,6 +11,11 @@ let build () =
   (* let array = C.ArrayBuilder.finish builder in *)
   ignore (builder, ())
 
+let read () =
+  let _file = C.MemoryMappedInputStream.new_ "/tmp/a.csv" in
+  ()
+
 let () =
   hello_world ();
-  build ()
+  build ();
+  read ()
