@@ -12,6 +12,11 @@
   (action  (copy ../stubs/arrow_bindings.ml arrow_bindings.ml)))
 
 (rule
+  (targets stubs_generated.ml)
+  (deps    ../stubs/stubs_generated.ml)
+  (action  (copy ../stubs/stubs_generated.ml stubs_generated.ml)))
+
+(rule
   (targets arrow_stubs.c arrow_generated.ml)
   (deps    (:arrow_gen ../stubs/arrow_gen.exe))
   (action  (run %{arrow_gen})))
