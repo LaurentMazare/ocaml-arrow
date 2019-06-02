@@ -2,11 +2,9 @@ import os
 import re
 os.environ['GI_TYPELIB_PATH'] = 'gen'
 
-type_names = {
+snake_exceptions = {
     'array': 'array_',
-}
-
-func_names = {
+    'type': 'type_',
     'new': 'new_',
 }
 
@@ -20,7 +18,7 @@ ctypes = {
 def snake_case(name):
   s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
   res = re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
-  return type_names.get(res, res)
+  return snake_exceptions.get(res, res)
 
 import xml.etree.ElementTree as ET
 tree = ET.parse('gen/Arrow-1.0.gir')
@@ -38,19 +36,22 @@ def ctype(type_):
   ctype = ctypes.get(t, None)
   if ctype is not None: return ctype
   if t == 'interface':
-    return snake_case(type_.get_interface().get_name())
+    t = type_.get_interface().get_name()
+    if t in [ 'bytes', 'type' ]:
+      return None
+    return snake_case(t)
 
 def handle_object_info(oinfo, fobj):
   oname = oinfo.get_name()
   # ctype: oinfo.get_type_name()
   fobj.write('  module %s = struct\n' % oname)
-  fobj.write('    type t = %s\n\n' % snake_case(oname))
+  fobj.write('    type t = %s\n' % snake_case(oname))
+  fobj.write('    let t : t typ = %s\n\n' % snake_case(oname))
 
   for m in oinfo.get_methods():
     if m.is_deprecated(): continue
     try:
-      mname = m.get_name()
-      mname = func_names.get(mname, mname)
+      mname = snake_case(m.get_name())
       args = m.get_arguments()
       type_ = []
       if m.is_method(): type_.append('t')
@@ -61,7 +62,7 @@ def handle_object_info(oinfo, fobj):
           raise ValueError('unhandled type for %s %s' % (arg, m))
         type_.append(arg_type)
       if m.can_throw_gerror():
-        type_.append('ptr ptr void')
+        type_.append('ptr (ptr void)')
       if m.is_constructor():
         type_.append('returning t')
       else:

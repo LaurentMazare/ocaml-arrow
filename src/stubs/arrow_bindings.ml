@@ -10,4 +10,6 @@ module C (F : Cstubs.FOREIGN) = struct
   let array_builder = foreign "GARROW_ARRAY_BUILDER" (t @-> returning t)
   let null_array_new = foreign "garrow_null_array_new" (int64_t @-> returning t)
   let object_unref = foreign "g_object_unref" (t @-> returning void)
+
+  include Stubs_generated.C (F)
 end
