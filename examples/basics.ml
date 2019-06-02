@@ -16,8 +16,13 @@ let build () =
   Stdio.printf "%s\n%!" (C.Array.to_string array)
 
 let read () =
-  let _file = C.MemoryMappedInputStream.new_ "/tmp/a.csv" in
-  ()
+  let input_stream = C.MemoryMappedInputStream.new_ "/tmp/a.csv" in
+  let input_stream = C.MemoryMappedInputStream.parent input_stream in
+  let input_stream = C.SeekableInputStream.parent input_stream in
+  let csv_read_options = C.CSVReadOptions.new_ () in
+  let csv_reader = C.CSVReader.new_ input_stream csv_read_options in
+  let table = C.CSVReader.read csv_reader in
+  Stdio.printf "%s\n%!" (C.Table.to_string table)
 
 let () =
   hello_world ();
