@@ -3,7 +3,7 @@
   (public_name arrow.core)
   (c_names arrow_stubs)
   (c_flags :standard -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include)
-  (c_library_flags :standard -lgobject-2.0 -larrow -larrow-glib)
+  (c_library_flags :standard -lgobject-2.0 -lglib-2.0 -larrow -larrow-glib)
   (libraries bigarray ctypes.foreign ctypes.stubs ctypes))
 
 (rule
@@ -12,9 +12,9 @@
   (action  (copy ../stubs/arrow_bindings.ml arrow_bindings.ml)))
 
 (rule
-  (targets stubs_generated.ml)
-  (deps    ../stubs/stubs_generated.ml)
-  (action  (copy ../stubs/stubs_generated.ml stubs_generated.ml)))
+  (targets base_bindings.ml)
+  (deps    ../stubs/base_bindings.ml)
+  (action  (copy ../stubs/base_bindings.ml base_bindings.ml)))
 
 (rule
   (targets arrow_stubs.c arrow_generated.ml)
