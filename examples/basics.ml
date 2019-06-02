@@ -1,8 +1,8 @@
-module C = Arrow_core.Wrapper_generated
+module C = Arrow_core.Wrapper
 
 let hello_world () =
   let arr = C.NullArray.new_ (Int64.of_int 42) in
-  let len = C.Array.get_length (C.NullArray.parent arr) in
+  let len = C.Array.get_length arr in
   Stdio.printf "Hello World! %d\n%!" (Int64.to_int len)
 
 (* Similar to arrow-glib/example/build.c *)
@@ -12,7 +12,7 @@ let build () =
     let ok = C.Int32ArrayBuilder.append_value builder (Int32.of_int i) in
     assert ok
   done;
-  let array = C.ArrayBuilder.finish (C.Int32ArrayBuilder.parent builder) in
+  let array = C.ArrayBuilder.finish builder in
   Stdio.printf "%s\n%!" (C.Array.to_string array)
 
 let read () =

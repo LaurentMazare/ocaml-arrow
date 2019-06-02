@@ -8,10 +8,9 @@ type _ gobject = C.gobject
 
 module Array = struct
   type t = [ `array_ ] gobject
-  let of_gobject t = t
-  let cast t target_data_type options =
+  let cast t__ target_data_type options =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Array.cast t target_data_type options (CArray.start gerr__) in
+    let res = C.Array.cast t__ target_data_type options (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -27,9 +26,9 @@ module Array = struct
     Gc.finalise C.object_unref res;
     res
 
-  let count t options =
+  let count t__ options =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Array.count t options (CArray.start gerr__) in
+    let res = C.Array.count t__ options (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -42,27 +41,9 @@ module Array = struct
     end;
     res
 
-  let count_values t =
+  let count_values t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Array.count_values t (CArray.start gerr__) in
-    let gerr__ = CArray.get gerr__ 0 in
-    if not (Ctypes.is_null gerr__)
-    then begin
-      let msg = getf (!@ gerr__) C.GError.message in
-      if Ctypes.is_null msg
-      then failwith "failed with null error message";
-      let msg = C.strdup msg in
-      C.GError.free gerr__;
-      failwith msg
-    end;
-    if Ctypes.is_null res
-    then failwith "returned null";
-    Gc.finalise C.object_unref res;
-    res
-
-  let dictionary_encode t =
-    let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Array.dictionary_encode t (CArray.start gerr__) in
+    let res = C.Array.count_values t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -78,62 +59,80 @@ module Array = struct
     Gc.finalise C.object_unref res;
     res
 
-  let equal t other_array =
-    let res = C.Array.equal t other_array in
-    res
-
-  let equal_approx t other_array =
-    let res = C.Array.equal_approx t other_array in
-    res
-
-  let equal_range t start_index other_array other_start_index end_index =
-    let res = C.Array.equal_range t start_index other_array other_start_index end_index in
-    res
-
-  let get_length t =
-    let res = C.Array.get_length t in
-    res
-
-  let get_n_nulls t =
-    let res = C.Array.get_n_nulls t in
-    res
-
-  let get_null_bitmap t =
-    let res = C.Array.get_null_bitmap t in
-    if Ctypes.is_null res
-    then failwith "returned null";
-    Gc.finalise C.object_unref res;
-    res
-
-  let get_offset t =
-    let res = C.Array.get_offset t in
-    res
-
-  let get_value_data_type t =
-    let res = C.Array.get_value_data_type t in
-    if Ctypes.is_null res
-    then failwith "returned null";
-    Gc.finalise C.object_unref res;
-    res
-
-  let is_null t i =
-    let res = C.Array.is_null t i in
-    res
-
-  let is_valid t i =
-    let res = C.Array.is_valid t i in
-    res
-
-  let slice t offset length =
-    let res = C.Array.slice t offset length in
-    if Ctypes.is_null res
-    then failwith "returned null";
-    Gc.finalise C.object_unref res;
-    res
-
-  let to_string t =
+  let dictionary_encode t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Array.to_string t (CArray.start gerr__) in
+    let res = C.Array.dictionary_encode t__ (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let equal t__ other_array =
+    let res = C.Array.equal t__ other_array in
+    res
+
+  let equal_approx t__ other_array =
+    let res = C.Array.equal_approx t__ other_array in
+    res
+
+  let equal_range t__ start_index other_array other_start_index end_index =
+    let res = C.Array.equal_range t__ start_index other_array other_start_index end_index in
+    res
+
+  let get_length t__ =
+    let res = C.Array.get_length t__ in
+    res
+
+  let get_n_nulls t__ =
+    let res = C.Array.get_n_nulls t__ in
+    res
+
+  let get_null_bitmap t__ =
+    let res = C.Array.get_null_bitmap t__ in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let get_offset t__ =
+    let res = C.Array.get_offset t__ in
+    res
+
+  let get_value_data_type t__ =
+    let res = C.Array.get_value_data_type t__ in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let is_null t__ i =
+    let res = C.Array.is_null t__ i in
+    res
+
+  let is_valid t__ i =
+    let res = C.Array.is_valid t__ i in
+    res
+
+  let slice t__ offset length =
+    let res = C.Array.slice t__ offset length in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let to_string t__ =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.Array.to_string t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -146,9 +145,9 @@ module Array = struct
     end;
     res
 
-  let unique t =
+  let unique t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Array.unique t (CArray.start gerr__) in
+    let res = C.Array.unique t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -168,10 +167,9 @@ end
 
 module ArrayBuilder = struct
   type t = [ `array_builder ] gobject
-  let of_gobject t = t
-  let finish t =
+  let finish t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.ArrayBuilder.finish t (CArray.start gerr__) in
+    let res = C.ArrayBuilder.finish t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -187,8 +185,8 @@ module ArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value_data_type t =
-    let res = C.ArrayBuilder.get_value_data_type t in
+  let get_value_data_type t__ =
+    let res = C.ArrayBuilder.get_value_data_type t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -198,7 +196,6 @@ end
 
 module BinaryArray = struct
   type t = [ `binary_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ length value_offsets data null_bitmap n_nulls =
     let res = C.BinaryArray.new_ length value_offsets data null_bitmap n_nulls in
@@ -207,15 +204,15 @@ module BinaryArray = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_buffer t =
-    let res = C.BinaryArray.get_buffer t in
+  let get_buffer t__ =
+    let res = C.BinaryArray.get_buffer t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_offsets_buffer t =
-    let res = C.BinaryArray.get_offsets_buffer t in
+  let get_offsets_buffer t__ =
+    let res = C.BinaryArray.get_offsets_buffer t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -225,7 +222,6 @@ end
 
 module BinaryArrayBuilder = struct
   type t = [ `binary_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.BinaryArrayBuilder.new_ () in
@@ -234,9 +230,9 @@ module BinaryArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.BinaryArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.BinaryArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -253,7 +249,6 @@ end
 
 module BinaryDataType = struct
   type t = [ `binary_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.BinaryDataType.new_ () in
@@ -266,7 +261,6 @@ end
 
 module BooleanArray = struct
   type t = [ `boolean_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.BooleanArray.new_ length data null_bitmap n_nulls in
@@ -275,9 +269,9 @@ module BooleanArray = struct
     Gc.finalise C.object_unref res;
     res
 
-  let and_ t right =
+  let and_ t__ right =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.BooleanArray.and_ t right (CArray.start gerr__) in
+    let res = C.BooleanArray.and_ t__ right (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -293,13 +287,13 @@ module BooleanArray = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value t i =
-    let res = C.BooleanArray.get_value t i in
+  let get_value t__ i =
+    let res = C.BooleanArray.get_value t__ i in
     res
 
-  let invert t =
+  let invert t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.BooleanArray.invert t (CArray.start gerr__) in
+    let res = C.BooleanArray.invert t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -315,9 +309,9 @@ module BooleanArray = struct
     Gc.finalise C.object_unref res;
     res
 
-  let or_ t right =
+  let or_ t__ right =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.BooleanArray.or_ t right (CArray.start gerr__) in
+    let res = C.BooleanArray.or_ t__ right (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -333,9 +327,9 @@ module BooleanArray = struct
     Gc.finalise C.object_unref res;
     res
 
-  let xor t right =
+  let xor t__ right =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.BooleanArray.xor t right (CArray.start gerr__) in
+    let res = C.BooleanArray.xor t__ right (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -355,7 +349,6 @@ end
 
 module BooleanArrayBuilder = struct
   type t = [ `boolean_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.BooleanArrayBuilder.new_ () in
@@ -364,9 +357,9 @@ module BooleanArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.BooleanArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.BooleanArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -379,9 +372,9 @@ module BooleanArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.BooleanArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.BooleanArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -394,9 +387,9 @@ module BooleanArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.BooleanArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.BooleanArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -413,7 +406,6 @@ end
 
 module BooleanDataType = struct
   type t = [ `boolean_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.BooleanDataType.new_ () in
@@ -426,10 +418,9 @@ end
 
 module Buffer = struct
   type t = [ `buffer ] gobject
-  let of_gobject t = t
-  let copy t start size =
+  let copy t__ start size =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Buffer.copy t start size (CArray.start gerr__) in
+    let res = C.Buffer.copy t__ start size (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -445,35 +436,35 @@ module Buffer = struct
     Gc.finalise C.object_unref res;
     res
 
-  let equal t other_buffer =
-    let res = C.Buffer.equal t other_buffer in
+  let equal t__ other_buffer =
+    let res = C.Buffer.equal t__ other_buffer in
     res
 
-  let equal_n_bytes t other_buffer n_bytes =
-    let res = C.Buffer.equal_n_bytes t other_buffer n_bytes in
+  let equal_n_bytes t__ other_buffer n_bytes =
+    let res = C.Buffer.equal_n_bytes t__ other_buffer n_bytes in
     res
 
-  let get_capacity t =
-    let res = C.Buffer.get_capacity t in
+  let get_capacity t__ =
+    let res = C.Buffer.get_capacity t__ in
     res
 
-  let get_parent t =
-    let res = C.Buffer.get_parent t in
+  let get_parent t__ =
+    let res = C.Buffer.get_parent t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_size t =
-    let res = C.Buffer.get_size t in
+  let get_size t__ =
+    let res = C.Buffer.get_size t__ in
     res
 
-  let is_mutable t =
-    let res = C.Buffer.is_mutable t in
+  let is_mutable t__ =
+    let res = C.Buffer.is_mutable t__ in
     res
 
-  let slice t offset size =
-    let res = C.Buffer.slice t offset size in
+  let slice t__ offset size =
+    let res = C.Buffer.slice t__ offset size in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -483,7 +474,6 @@ end
 
 module BufferInputStream = struct
   type t = [ `buffer_input_stream ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ buffer =
     let res = C.BufferInputStream.new_ buffer in
@@ -492,8 +482,8 @@ module BufferInputStream = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_buffer t =
-    let res = C.BufferInputStream.get_buffer t in
+  let get_buffer t__ =
+    let res = C.BufferInputStream.get_buffer t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -503,7 +493,6 @@ end
 
 module BufferOutputStream = struct
   type t = [ `buffer_output_stream ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ buffer =
     let res = C.BufferOutputStream.new_ buffer in
@@ -516,7 +505,6 @@ end
 
 module CSVReadOptions = struct
   type t = [ `csv_read_options ] gobject
-  let of_gobject t = t
   let new_ () =
     let res = C.CSVReadOptions.new_ () in
     if Ctypes.is_null res
@@ -528,7 +516,6 @@ end
 
 module CSVReader = struct
   type t = [ `csv_reader ] gobject
-  let of_gobject t = t
   let new_ input options =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.CSVReader.new_ input options (CArray.start gerr__) in
@@ -547,9 +534,9 @@ module CSVReader = struct
     Gc.finalise C.object_unref res;
     res
 
-  let read t =
+  let read t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.CSVReader.read t (CArray.start gerr__) in
+    let res = C.CSVReader.read t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -569,7 +556,6 @@ end
 
 module CastOptions = struct
   type t = [ `cast_options ] gobject
-  let of_gobject t = t
   let new_ () =
     let res = C.CastOptions.new_ () in
     if Ctypes.is_null res
@@ -581,47 +567,46 @@ end
 
 module ChunkedArray = struct
   type t = [ `chunked_array ] gobject
-  let of_gobject t = t
-  let equal t other_chunked_array =
-    let res = C.ChunkedArray.equal t other_chunked_array in
+  let equal t__ other_chunked_array =
+    let res = C.ChunkedArray.equal t__ other_chunked_array in
     res
 
-  let get_chunk t i =
-    let res = C.ChunkedArray.get_chunk t i in
+  let get_chunk t__ i =
+    let res = C.ChunkedArray.get_chunk t__ i in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_length t =
-    let res = C.ChunkedArray.get_length t in
+  let get_length t__ =
+    let res = C.ChunkedArray.get_length t__ in
     res
 
-  let get_n_chunks t =
-    let res = C.ChunkedArray.get_n_chunks t in
+  let get_n_chunks t__ =
+    let res = C.ChunkedArray.get_n_chunks t__ in
     res
 
-  let get_n_nulls t =
-    let res = C.ChunkedArray.get_n_nulls t in
+  let get_n_nulls t__ =
+    let res = C.ChunkedArray.get_n_nulls t__ in
     res
 
-  let get_value_data_type t =
-    let res = C.ChunkedArray.get_value_data_type t in
+  let get_value_data_type t__ =
+    let res = C.ChunkedArray.get_value_data_type t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let slice t offset length =
-    let res = C.ChunkedArray.slice t offset length in
+  let slice t__ offset length =
+    let res = C.ChunkedArray.slice t__ offset length in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let to_string t =
+  let to_string t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.ChunkedArray.to_string t (CArray.start gerr__) in
+    let res = C.ChunkedArray.to_string t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -638,16 +623,14 @@ end
 
 module Codec = struct
   type t = [ `codec ] gobject
-  let of_gobject t = t
-  let get_name t =
-    let res = C.Codec.get_name t in
+  let get_name t__ =
+    let res = C.Codec.get_name t__ in
     res
 
 end
 
 module Column = struct
   type t = [ `column ] gobject
-  let of_gobject t = t
   let new_array field array =
     let res = C.Column.new_array field array in
     if Ctypes.is_null res
@@ -662,53 +645,53 @@ module Column = struct
     Gc.finalise C.object_unref res;
     res
 
-  let equal t other_column =
-    let res = C.Column.equal t other_column in
+  let equal t__ other_column =
+    let res = C.Column.equal t__ other_column in
     res
 
-  let get_data t =
-    let res = C.Column.get_data t in
+  let get_data t__ =
+    let res = C.Column.get_data t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_data_type t =
-    let res = C.Column.get_data_type t in
+  let get_data_type t__ =
+    let res = C.Column.get_data_type t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_field t =
-    let res = C.Column.get_field t in
+  let get_field t__ =
+    let res = C.Column.get_field t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_length t =
-    let res = C.Column.get_length t in
+  let get_length t__ =
+    let res = C.Column.get_length t__ in
     res
 
-  let get_n_nulls t =
-    let res = C.Column.get_n_nulls t in
+  let get_n_nulls t__ =
+    let res = C.Column.get_n_nulls t__ in
     res
 
-  let get_name t =
-    let res = C.Column.get_name t in
+  let get_name t__ =
+    let res = C.Column.get_name t__ in
     res
 
-  let slice t offset length =
-    let res = C.Column.slice t offset length in
+  let slice t__ offset length =
+    let res = C.Column.slice t__ offset length in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let to_string t =
+  let to_string t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Column.to_string t (CArray.start gerr__) in
+    let res = C.Column.to_string t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -725,7 +708,6 @@ end
 
 module CompressedInputStream = struct
   type t = [ `compressed_input_stream ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ codec raw =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -749,7 +731,6 @@ end
 
 module CompressedOutputStream = struct
   type t = [ `compressed_output_stream ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ codec raw =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -773,7 +754,6 @@ end
 
 module CountOptions = struct
   type t = [ `count_options ] gobject
-  let of_gobject t = t
   let new_ () =
     let res = C.CountOptions.new_ () in
     if Ctypes.is_null res
@@ -785,20 +765,18 @@ end
 
 module DataType = struct
   type t = [ `data_type ] gobject
-  let of_gobject t = t
-  let equal t other_data_type =
-    let res = C.DataType.equal t other_data_type in
+  let equal t__ other_data_type =
+    let res = C.DataType.equal t__ other_data_type in
     res
 
-  let to_string t =
-    let res = C.DataType.to_string t in
+  let to_string t__ =
+    let res = C.DataType.to_string t__ in
     res
 
 end
 
 module Date32Array = struct
   type t = [ `date32_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.Date32Array.new_ length data null_bitmap n_nulls in
@@ -807,15 +785,14 @@ module Date32Array = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value t i =
-    let res = C.Date32Array.get_value t i in
+  let get_value t__ i =
+    let res = C.Date32Array.get_value t__ i in
     res
 
 end
 
 module Date32ArrayBuilder = struct
   type t = [ `date32_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.Date32ArrayBuilder.new_ () in
@@ -824,9 +801,9 @@ module Date32ArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Date32ArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.Date32ArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -839,9 +816,9 @@ module Date32ArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Date32ArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.Date32ArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -854,9 +831,9 @@ module Date32ArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Date32ArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.Date32ArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -873,7 +850,6 @@ end
 
 module Date32DataType = struct
   type t = [ `date32_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.Date32DataType.new_ () in
@@ -886,7 +862,6 @@ end
 
 module Date64Array = struct
   type t = [ `date64_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.Date64Array.new_ length data null_bitmap n_nulls in
@@ -895,15 +870,14 @@ module Date64Array = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value t i =
-    let res = C.Date64Array.get_value t i in
+  let get_value t__ i =
+    let res = C.Date64Array.get_value t__ i in
     res
 
 end
 
 module Date64ArrayBuilder = struct
   type t = [ `date64_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.Date64ArrayBuilder.new_ () in
@@ -912,9 +886,9 @@ module Date64ArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Date64ArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.Date64ArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -927,9 +901,9 @@ module Date64ArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Date64ArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.Date64ArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -942,9 +916,9 @@ module Date64ArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Date64ArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.Date64ArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -961,7 +935,6 @@ end
 
 module Date64DataType = struct
   type t = [ `date64_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.Date64DataType.new_ () in
@@ -974,7 +947,6 @@ end
 
 module Decimal128 = struct
   type t = [ `decimal128 ] gobject
-  let of_gobject t = t
   let new_integer data =
     let res = C.Decimal128.new_integer data in
     if Ctypes.is_null res
@@ -989,9 +961,9 @@ module Decimal128 = struct
     Gc.finalise C.object_unref res;
     res
 
-  let divide t right remainder =
+  let divide t__ right remainder =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Decimal128.divide t right remainder (CArray.start gerr__) in
+    let res = C.Decimal128.divide t__ right remainder (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1007,75 +979,74 @@ module Decimal128 = struct
     Gc.finalise C.object_unref res;
     res
 
-  let equal t other_decimal =
-    let res = C.Decimal128.equal t other_decimal in
+  let equal t__ other_decimal =
+    let res = C.Decimal128.equal t__ other_decimal in
     res
 
-  let greater_than t other_decimal =
-    let res = C.Decimal128.greater_than t other_decimal in
+  let greater_than t__ other_decimal =
+    let res = C.Decimal128.greater_than t__ other_decimal in
     res
 
-  let greater_than_or_equal t other_decimal =
-    let res = C.Decimal128.greater_than_or_equal t other_decimal in
+  let greater_than_or_equal t__ other_decimal =
+    let res = C.Decimal128.greater_than_or_equal t__ other_decimal in
     res
 
-  let less_than t other_decimal =
-    let res = C.Decimal128.less_than t other_decimal in
+  let less_than t__ other_decimal =
+    let res = C.Decimal128.less_than t__ other_decimal in
     res
 
-  let less_than_or_equal t other_decimal =
-    let res = C.Decimal128.less_than_or_equal t other_decimal in
+  let less_than_or_equal t__ other_decimal =
+    let res = C.Decimal128.less_than_or_equal t__ other_decimal in
     res
 
-  let minus t right =
-    let res = C.Decimal128.minus t right in
+  let minus t__ right =
+    let res = C.Decimal128.minus t__ right in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let multiply t right =
-    let res = C.Decimal128.multiply t right in
+  let multiply t__ right =
+    let res = C.Decimal128.multiply t__ right in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let not_equal t other_decimal =
-    let res = C.Decimal128.not_equal t other_decimal in
+  let not_equal t__ other_decimal =
+    let res = C.Decimal128.not_equal t__ other_decimal in
     res
 
-  let plus t right =
-    let res = C.Decimal128.plus t right in
+  let plus t__ right =
+    let res = C.Decimal128.plus t__ right in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let to_integer t =
-    let res = C.Decimal128.to_integer t in
+  let to_integer t__ =
+    let res = C.Decimal128.to_integer t__ in
     res
 
-  let to_string t =
-    let res = C.Decimal128.to_string t in
+  let to_string t__ =
+    let res = C.Decimal128.to_string t__ in
     res
 
-  let to_string_scale t scale =
-    let res = C.Decimal128.to_string_scale t scale in
+  let to_string_scale t__ scale =
+    let res = C.Decimal128.to_string_scale t__ scale in
     res
 
 end
 
 module Decimal128Array = struct
   type t = [ `decimal128_array ] gobject
-  let of_gobject t = t
   let parent t = t
-  let format_value t i =
-    let res = C.Decimal128Array.format_value t i in
+  let format_value t__ i =
+    let res = C.Decimal128Array.format_value t__ i in
     res
 
-  let get_value t i =
-    let res = C.Decimal128Array.get_value t i in
+  let get_value t__ i =
+    let res = C.Decimal128Array.get_value t__ i in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -1085,7 +1056,6 @@ end
 
 module Decimal128ArrayBuilder = struct
   type t = [ `decimal128_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ data_type =
     let res = C.Decimal128ArrayBuilder.new_ data_type in
@@ -1094,9 +1064,9 @@ module Decimal128ArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Decimal128ArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.Decimal128ArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1109,9 +1079,9 @@ module Decimal128ArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Decimal128ArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.Decimal128ArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1128,7 +1098,6 @@ end
 
 module Decimal128DataType = struct
   type t = [ `decimal128_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ precision scale =
     let res = C.Decimal128DataType.new_ precision scale in
@@ -1141,33 +1110,29 @@ end
 
 module DecimalDataType = struct
   type t = [ `decimal_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
-  let get_precision t =
-    let res = C.DecimalDataType.get_precision t in
+  let get_precision t__ =
+    let res = C.DecimalDataType.get_precision t__ in
     res
 
-  let get_scale t =
-    let res = C.DecimalDataType.get_scale t in
+  let get_scale t__ =
+    let res = C.DecimalDataType.get_scale t__ in
     res
 
 end
 
 module DenseUnionArray = struct
   type t = [ `dense_union_array ] gobject
-  let of_gobject t = t
   let parent t = t
 end
 
 module DenseUnionDataType = struct
   type t = [ `dense_union_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
 end
 
 module DictionaryArray = struct
   type t = [ `dictionary_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ data_type indices =
     let res = C.DictionaryArray.new_ data_type indices in
@@ -1176,22 +1141,22 @@ module DictionaryArray = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_dictionary t =
-    let res = C.DictionaryArray.get_dictionary t in
+  let get_dictionary t__ =
+    let res = C.DictionaryArray.get_dictionary t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_dictionary_data_type t =
-    let res = C.DictionaryArray.get_dictionary_data_type t in
+  let get_dictionary_data_type t__ =
+    let res = C.DictionaryArray.get_dictionary_data_type t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_indices t =
-    let res = C.DictionaryArray.get_indices t in
+  let get_indices t__ =
+    let res = C.DictionaryArray.get_indices t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -1201,7 +1166,6 @@ end
 
 module DictionaryDataType = struct
   type t = [ `dictionary_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ index_data_type dictionary ordered =
     let res = C.DictionaryDataType.new_ index_data_type dictionary ordered in
@@ -1210,29 +1174,28 @@ module DictionaryDataType = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_dictionary t =
-    let res = C.DictionaryDataType.get_dictionary t in
+  let get_dictionary t__ =
+    let res = C.DictionaryDataType.get_dictionary t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_index_data_type t =
-    let res = C.DictionaryDataType.get_index_data_type t in
+  let get_index_data_type t__ =
+    let res = C.DictionaryDataType.get_index_data_type t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let is_ordered t =
-    let res = C.DictionaryDataType.is_ordered t in
+  let is_ordered t__ =
+    let res = C.DictionaryDataType.is_ordered t__ in
     res
 
 end
 
 module DoubleArray = struct
   type t = [ `double_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.DoubleArray.new_ length data null_bitmap n_nulls in
@@ -1241,13 +1204,13 @@ module DoubleArray = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value t i =
-    let res = C.DoubleArray.get_value t i in
+  let get_value t__ i =
+    let res = C.DoubleArray.get_value t__ i in
     res
 
-  let sum t =
+  let sum t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.DoubleArray.sum t (CArray.start gerr__) in
+    let res = C.DoubleArray.sum t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1264,7 +1227,6 @@ end
 
 module DoubleArrayBuilder = struct
   type t = [ `double_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.DoubleArrayBuilder.new_ () in
@@ -1273,9 +1235,9 @@ module DoubleArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.DoubleArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.DoubleArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1288,9 +1250,9 @@ module DoubleArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.DoubleArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.DoubleArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1303,9 +1265,9 @@ module DoubleArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.DoubleArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.DoubleArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1322,7 +1284,6 @@ end
 
 module DoubleDataType = struct
   type t = [ `double_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.DoubleDataType.new_ () in
@@ -1335,7 +1296,6 @@ end
 
 module FeatherFileReader = struct
   type t = [ `feather_file_reader ] gobject
-  let of_gobject t = t
   let new_ file =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.FeatherFileReader.new_ file (CArray.start gerr__) in
@@ -1354,9 +1314,9 @@ module FeatherFileReader = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_column t i =
+  let get_column t__ i =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.FeatherFileReader.get_column t i (CArray.start gerr__) in
+    let res = C.FeatherFileReader.get_column t__ i (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1372,33 +1332,33 @@ module FeatherFileReader = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_column_name t i =
-    let res = C.FeatherFileReader.get_column_name t i in
+  let get_column_name t__ i =
+    let res = C.FeatherFileReader.get_column_name t__ i in
     res
 
-  let get_description t =
-    let res = C.FeatherFileReader.get_description t in
+  let get_description t__ =
+    let res = C.FeatherFileReader.get_description t__ in
     res
 
-  let get_n_columns t =
-    let res = C.FeatherFileReader.get_n_columns t in
+  let get_n_columns t__ =
+    let res = C.FeatherFileReader.get_n_columns t__ in
     res
 
-  let get_n_rows t =
-    let res = C.FeatherFileReader.get_n_rows t in
+  let get_n_rows t__ =
+    let res = C.FeatherFileReader.get_n_rows t__ in
     res
 
-  let get_version t =
-    let res = C.FeatherFileReader.get_version t in
+  let get_version t__ =
+    let res = C.FeatherFileReader.get_version t__ in
     res
 
-  let has_description t =
-    let res = C.FeatherFileReader.has_description t in
+  let has_description t__ =
+    let res = C.FeatherFileReader.has_description t__ in
     res
 
-  let read t =
+  let read t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.FeatherFileReader.read t (CArray.start gerr__) in
+    let res = C.FeatherFileReader.read t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1418,7 +1378,6 @@ end
 
 module FeatherFileWriter = struct
   type t = [ `feather_file_writer ] gobject
-  let of_gobject t = t
   let new_ sink =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.FeatherFileWriter.new_ sink (CArray.start gerr__) in
@@ -1437,9 +1396,9 @@ module FeatherFileWriter = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append t name array =
+  let append t__ name array =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.FeatherFileWriter.append t name array (CArray.start gerr__) in
+    let res = C.FeatherFileWriter.append t__ name array (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1452,9 +1411,9 @@ module FeatherFileWriter = struct
     end;
     res
 
-  let close t =
+  let close t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.FeatherFileWriter.close t (CArray.start gerr__) in
+    let res = C.FeatherFileWriter.close t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1467,9 +1426,9 @@ module FeatherFileWriter = struct
     end;
     res
 
-  let write t table =
+  let write t__ table =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.FeatherFileWriter.write t table (CArray.start gerr__) in
+    let res = C.FeatherFileWriter.write t__ table (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1486,7 +1445,6 @@ end
 
 module Field = struct
   type t = [ `field ] gobject
-  let of_gobject t = t
   let new_ name data_type =
     let res = C.Field.new_ name data_type in
     if Ctypes.is_null res
@@ -1501,34 +1459,33 @@ module Field = struct
     Gc.finalise C.object_unref res;
     res
 
-  let equal t other_field =
-    let res = C.Field.equal t other_field in
+  let equal t__ other_field =
+    let res = C.Field.equal t__ other_field in
     res
 
-  let get_data_type t =
-    let res = C.Field.get_data_type t in
+  let get_data_type t__ =
+    let res = C.Field.get_data_type t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_name t =
-    let res = C.Field.get_name t in
+  let get_name t__ =
+    let res = C.Field.get_name t__ in
     res
 
-  let is_nullable t =
-    let res = C.Field.is_nullable t in
+  let is_nullable t__ =
+    let res = C.Field.is_nullable t__ in
     res
 
-  let to_string t =
-    let res = C.Field.to_string t in
+  let to_string t__ =
+    let res = C.Field.to_string t__ in
     res
 
 end
 
 module FileOutputStream = struct
   type t = [ `file_output_stream ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ path append =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -1552,13 +1509,11 @@ end
 
 module FixedSizeBinaryArray = struct
   type t = [ `fixed_size_binary_array ] gobject
-  let of_gobject t = t
   let parent t = t
 end
 
 module FixedSizeBinaryDataType = struct
   type t = [ `fixed_size_binary_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ byte_width =
     let res = C.FixedSizeBinaryDataType.new_ byte_width in
@@ -1567,25 +1522,23 @@ module FixedSizeBinaryDataType = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_byte_width t =
-    let res = C.FixedSizeBinaryDataType.get_byte_width t in
+  let get_byte_width t__ =
+    let res = C.FixedSizeBinaryDataType.get_byte_width t__ in
     res
 
 end
 
 module FixedWidthDataType = struct
   type t = [ `fixed_width_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
-  let get_bit_width t =
-    let res = C.FixedWidthDataType.get_bit_width t in
+  let get_bit_width t__ =
+    let res = C.FixedWidthDataType.get_bit_width t__ in
     res
 
 end
 
 module FloatArray = struct
   type t = [ `float_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.FloatArray.new_ length data null_bitmap n_nulls in
@@ -1594,13 +1547,13 @@ module FloatArray = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value t i =
-    let res = C.FloatArray.get_value t i in
+  let get_value t__ i =
+    let res = C.FloatArray.get_value t__ i in
     res
 
-  let sum t =
+  let sum t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.FloatArray.sum t (CArray.start gerr__) in
+    let res = C.FloatArray.sum t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1617,7 +1570,6 @@ end
 
 module FloatArrayBuilder = struct
   type t = [ `float_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.FloatArrayBuilder.new_ () in
@@ -1626,9 +1578,9 @@ module FloatArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.FloatArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.FloatArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1641,9 +1593,9 @@ module FloatArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.FloatArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.FloatArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1656,9 +1608,9 @@ module FloatArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.FloatArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.FloatArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1675,7 +1627,6 @@ end
 
 module FloatDataType = struct
   type t = [ `float_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.FloatDataType.new_ () in
@@ -1688,13 +1639,11 @@ end
 
 module FloatingPointDataType = struct
   type t = [ `floating_point_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
 end
 
 module GIOInputStream = struct
   type t = [ `gio_input_stream ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ gio_input_stream =
     let res = C.GIOInputStream.new_ gio_input_stream in
@@ -1707,7 +1656,6 @@ end
 
 module GIOOutputStream = struct
   type t = [ `gio_output_stream ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ gio_output_stream =
     let res = C.GIOOutputStream.new_ gio_output_stream in
@@ -1720,11 +1668,10 @@ end
 
 module InputStream = struct
   type t = [ `input_stream ] gobject
-  let of_gobject t = t
   let parent t = t
-  let advance t n_bytes =
+  let advance t__ n_bytes =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.InputStream.advance t n_bytes (CArray.start gerr__) in
+    let res = C.InputStream.advance t__ n_bytes (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1737,9 +1684,9 @@ module InputStream = struct
     end;
     res
 
-  let align t alignment =
+  let align t__ alignment =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.InputStream.align t alignment (CArray.start gerr__) in
+    let res = C.InputStream.align t__ alignment (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1752,9 +1699,9 @@ module InputStream = struct
     end;
     res
 
-  let read_tensor t =
+  let read_tensor t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.InputStream.read_tensor t (CArray.start gerr__) in
+    let res = C.InputStream.read_tensor t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1774,7 +1721,6 @@ end
 
 module Int16Array = struct
   type t = [ `int16_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.Int16Array.new_ length data null_bitmap n_nulls in
@@ -1783,13 +1729,13 @@ module Int16Array = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value t i =
-    let res = C.Int16Array.get_value t i in
+  let get_value t__ i =
+    let res = C.Int16Array.get_value t__ i in
     res
 
-  let sum t =
+  let sum t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int16Array.sum t (CArray.start gerr__) in
+    let res = C.Int16Array.sum t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1806,7 +1752,6 @@ end
 
 module Int16ArrayBuilder = struct
   type t = [ `int16_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.Int16ArrayBuilder.new_ () in
@@ -1815,9 +1760,9 @@ module Int16ArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int16ArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.Int16ArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1830,9 +1775,9 @@ module Int16ArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int16ArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.Int16ArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1845,9 +1790,9 @@ module Int16ArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int16ArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.Int16ArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1864,7 +1809,6 @@ end
 
 module Int16DataType = struct
   type t = [ `int16_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.Int16DataType.new_ () in
@@ -1877,7 +1821,6 @@ end
 
 module Int32Array = struct
   type t = [ `int32_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.Int32Array.new_ length data null_bitmap n_nulls in
@@ -1886,13 +1829,13 @@ module Int32Array = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value t i =
-    let res = C.Int32Array.get_value t i in
+  let get_value t__ i =
+    let res = C.Int32Array.get_value t__ i in
     res
 
-  let sum t =
+  let sum t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int32Array.sum t (CArray.start gerr__) in
+    let res = C.Int32Array.sum t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1909,7 +1852,6 @@ end
 
 module Int32ArrayBuilder = struct
   type t = [ `int32_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.Int32ArrayBuilder.new_ () in
@@ -1918,9 +1860,9 @@ module Int32ArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int32ArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.Int32ArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1933,9 +1875,9 @@ module Int32ArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int32ArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.Int32ArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1948,9 +1890,9 @@ module Int32ArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int32ArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.Int32ArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1967,7 +1909,6 @@ end
 
 module Int32DataType = struct
   type t = [ `int32_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.Int32DataType.new_ () in
@@ -1980,7 +1921,6 @@ end
 
 module Int64Array = struct
   type t = [ `int64_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.Int64Array.new_ length data null_bitmap n_nulls in
@@ -1989,13 +1929,13 @@ module Int64Array = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value t i =
-    let res = C.Int64Array.get_value t i in
+  let get_value t__ i =
+    let res = C.Int64Array.get_value t__ i in
     res
 
-  let sum t =
+  let sum t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int64Array.sum t (CArray.start gerr__) in
+    let res = C.Int64Array.sum t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2012,7 +1952,6 @@ end
 
 module Int64ArrayBuilder = struct
   type t = [ `int64_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.Int64ArrayBuilder.new_ () in
@@ -2021,9 +1960,9 @@ module Int64ArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int64ArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.Int64ArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2036,9 +1975,9 @@ module Int64ArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int64ArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.Int64ArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2051,9 +1990,9 @@ module Int64ArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int64ArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.Int64ArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2070,7 +2009,6 @@ end
 
 module Int64DataType = struct
   type t = [ `int64_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.Int64DataType.new_ () in
@@ -2083,7 +2021,6 @@ end
 
 module Int8Array = struct
   type t = [ `int8_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.Int8Array.new_ length data null_bitmap n_nulls in
@@ -2092,13 +2029,13 @@ module Int8Array = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value t i =
-    let res = C.Int8Array.get_value t i in
+  let get_value t__ i =
+    let res = C.Int8Array.get_value t__ i in
     res
 
-  let sum t =
+  let sum t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int8Array.sum t (CArray.start gerr__) in
+    let res = C.Int8Array.sum t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2115,7 +2052,6 @@ end
 
 module Int8ArrayBuilder = struct
   type t = [ `int8_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.Int8ArrayBuilder.new_ () in
@@ -2124,9 +2060,9 @@ module Int8ArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int8ArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.Int8ArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2139,9 +2075,9 @@ module Int8ArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int8ArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.Int8ArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2154,9 +2090,9 @@ module Int8ArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int8ArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.Int8ArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2173,7 +2109,6 @@ end
 
 module Int8DataType = struct
   type t = [ `int8_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.Int8DataType.new_ () in
@@ -2186,7 +2121,6 @@ end
 
 module IntArrayBuilder = struct
   type t = [ `int_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.IntArrayBuilder.new_ () in
@@ -2195,9 +2129,9 @@ module IntArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.IntArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.IntArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2210,9 +2144,9 @@ module IntArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.IntArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.IntArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2225,9 +2159,9 @@ module IntArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.IntArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.IntArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2244,13 +2178,11 @@ end
 
 module IntegerDataType = struct
   type t = [ `integer_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
 end
 
 module ListArray = struct
   type t = [ `list_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ data_type length value_offsets values null_bitmap n_nulls =
     let res = C.ListArray.new_ data_type length value_offsets values null_bitmap n_nulls in
@@ -2259,15 +2191,15 @@ module ListArray = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value t i =
-    let res = C.ListArray.get_value t i in
+  let get_value t__ i =
+    let res = C.ListArray.get_value t__ i in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_value_type t =
-    let res = C.ListArray.get_value_type t in
+  let get_value_type t__ =
+    let res = C.ListArray.get_value_type t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -2277,7 +2209,6 @@ end
 
 module ListArrayBuilder = struct
   type t = [ `list_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ data_type =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2297,9 +2228,9 @@ module ListArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.ListArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.ListArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2312,9 +2243,9 @@ module ListArrayBuilder = struct
     end;
     res
 
-  let append_value t =
+  let append_value t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.ListArrayBuilder.append_value t (CArray.start gerr__) in
+    let res = C.ListArrayBuilder.append_value t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2327,8 +2258,8 @@ module ListArrayBuilder = struct
     end;
     res
 
-  let get_value_builder t =
-    let res = C.ListArrayBuilder.get_value_builder t in
+  let get_value_builder t__ =
+    let res = C.ListArrayBuilder.get_value_builder t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -2338,7 +2269,6 @@ end
 
 module ListDataType = struct
   type t = [ `list_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ field =
     let res = C.ListDataType.new_ field in
@@ -2347,8 +2277,8 @@ module ListDataType = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_field t =
-    let res = C.ListDataType.get_field t in
+  let get_field t__ =
+    let res = C.ListDataType.get_field t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -2358,7 +2288,6 @@ end
 
 module MemoryMappedInputStream = struct
   type t = [ `memory_mapped_input_stream ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ path =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2382,10 +2311,9 @@ end
 
 module MutableBuffer = struct
   type t = [ `mutable_buffer ] gobject
-  let of_gobject t = t
   let parent t = t
-  let slice t offset size =
-    let res = C.MutableBuffer.slice t offset size in
+  let slice t__ offset size =
+    let res = C.MutableBuffer.slice t__ offset size in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -2395,7 +2323,6 @@ end
 
 module NullArray = struct
   type t = [ `null_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ length =
     let res = C.NullArray.new_ length in
@@ -2408,7 +2335,6 @@ end
 
 module NullArrayBuilder = struct
   type t = [ `null_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.NullArrayBuilder.new_ () in
@@ -2417,9 +2343,9 @@ module NullArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.NullArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.NullArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2432,9 +2358,9 @@ module NullArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.NullArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.NullArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2451,7 +2377,6 @@ end
 
 module NullDataType = struct
   type t = [ `null_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.NullDataType.new_ () in
@@ -2464,11 +2389,10 @@ end
 
 module NumericArray = struct
   type t = [ `numeric_array ] gobject
-  let of_gobject t = t
   let parent t = t
-  let mean t =
+  let mean t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.NumericArray.mean t (CArray.start gerr__) in
+    let res = C.NumericArray.mean t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2485,16 +2409,14 @@ end
 
 module NumericDataType = struct
   type t = [ `numeric_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
 end
 
 module OutputStream = struct
   type t = [ `output_stream ] gobject
-  let of_gobject t = t
-  let align t alignment =
+  let align t__ alignment =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.OutputStream.align t alignment (CArray.start gerr__) in
+    let res = C.OutputStream.align t__ alignment (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2507,9 +2429,9 @@ module OutputStream = struct
     end;
     res
 
-  let write_tensor t tensor =
+  let write_tensor t__ tensor =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.OutputStream.write_tensor t tensor (CArray.start gerr__) in
+    let res = C.OutputStream.write_tensor t__ tensor (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2526,10 +2448,9 @@ end
 
 module PrimitiveArray = struct
   type t = [ `primitive_array ] gobject
-  let of_gobject t = t
   let parent t = t
-  let get_buffer t =
-    let res = C.PrimitiveArray.get_buffer t in
+  let get_buffer t__ =
+    let res = C.PrimitiveArray.get_buffer t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -2539,10 +2460,9 @@ end
 
 module RecordBatch = struct
   type t = [ `record_batch ] gobject
-  let of_gobject t = t
-  let add_column t i field column =
+  let add_column t__ i field column =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.RecordBatch.add_column t i field column (CArray.start gerr__) in
+    let res = C.RecordBatch.add_column t__ i field column (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2558,39 +2478,39 @@ module RecordBatch = struct
     Gc.finalise C.object_unref res;
     res
 
-  let equal t other_record_batch =
-    let res = C.RecordBatch.equal t other_record_batch in
+  let equal t__ other_record_batch =
+    let res = C.RecordBatch.equal t__ other_record_batch in
     res
 
-  let get_column t i =
-    let res = C.RecordBatch.get_column t i in
+  let get_column t__ i =
+    let res = C.RecordBatch.get_column t__ i in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_column_name t i =
-    let res = C.RecordBatch.get_column_name t i in
+  let get_column_name t__ i =
+    let res = C.RecordBatch.get_column_name t__ i in
     res
 
-  let get_n_columns t =
-    let res = C.RecordBatch.get_n_columns t in
+  let get_n_columns t__ =
+    let res = C.RecordBatch.get_n_columns t__ in
     res
 
-  let get_n_rows t =
-    let res = C.RecordBatch.get_n_rows t in
+  let get_n_rows t__ =
+    let res = C.RecordBatch.get_n_rows t__ in
     res
 
-  let get_schema t =
-    let res = C.RecordBatch.get_schema t in
+  let get_schema t__ =
+    let res = C.RecordBatch.get_schema t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let remove_column t i =
+  let remove_column t__ i =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.RecordBatch.remove_column t i (CArray.start gerr__) in
+    let res = C.RecordBatch.remove_column t__ i (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2606,16 +2526,16 @@ module RecordBatch = struct
     Gc.finalise C.object_unref res;
     res
 
-  let slice t offset length =
-    let res = C.RecordBatch.slice t offset length in
+  let slice t__ offset length =
+    let res = C.RecordBatch.slice t__ offset length in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let to_string t =
+  let to_string t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.RecordBatch.to_string t (CArray.start gerr__) in
+    let res = C.RecordBatch.to_string t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2632,7 +2552,6 @@ end
 
 module RecordBatchBuilder = struct
   type t = [ `record_batch_builder ] gobject
-  let of_gobject t = t
   let new_ schema =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.RecordBatchBuilder.new_ schema (CArray.start gerr__) in
@@ -2651,9 +2570,9 @@ module RecordBatchBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let flush t =
+  let flush t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.RecordBatchBuilder.flush t (CArray.start gerr__) in
+    let res = C.RecordBatchBuilder.flush t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2669,23 +2588,23 @@ module RecordBatchBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_column_builder t i =
-    let res = C.RecordBatchBuilder.get_column_builder t i in
+  let get_column_builder t__ i =
+    let res = C.RecordBatchBuilder.get_column_builder t__ i in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_initial_capacity t =
-    let res = C.RecordBatchBuilder.get_initial_capacity t in
+  let get_initial_capacity t__ =
+    let res = C.RecordBatchBuilder.get_initial_capacity t__ in
     res
 
-  let get_n_columns t =
-    let res = C.RecordBatchBuilder.get_n_columns t in
+  let get_n_columns t__ =
+    let res = C.RecordBatchBuilder.get_n_columns t__ in
     res
 
-  let get_schema t =
-    let res = C.RecordBatchBuilder.get_schema t in
+  let get_schema t__ =
+    let res = C.RecordBatchBuilder.get_schema t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -2695,7 +2614,6 @@ end
 
 module RecordBatchFileReader = struct
   type t = [ `record_batch_file_reader ] gobject
-  let of_gobject t = t
   let new_ file =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.RecordBatchFileReader.new_ file (CArray.start gerr__) in
@@ -2714,20 +2632,20 @@ module RecordBatchFileReader = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_n_record_batches t =
-    let res = C.RecordBatchFileReader.get_n_record_batches t in
+  let get_n_record_batches t__ =
+    let res = C.RecordBatchFileReader.get_n_record_batches t__ in
     res
 
-  let get_schema t =
-    let res = C.RecordBatchFileReader.get_schema t in
+  let get_schema t__ =
+    let res = C.RecordBatchFileReader.get_schema t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let read_record_batch t i =
+  let read_record_batch t__ i =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.RecordBatchFileReader.read_record_batch t i (CArray.start gerr__) in
+    let res = C.RecordBatchFileReader.read_record_batch t__ i (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2747,7 +2665,6 @@ end
 
 module RecordBatchFileWriter = struct
   type t = [ `record_batch_file_writer ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ sink schema =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2771,17 +2688,16 @@ end
 
 module RecordBatchReader = struct
   type t = [ `record_batch_reader ] gobject
-  let of_gobject t = t
-  let get_schema t =
-    let res = C.RecordBatchReader.get_schema t in
+  let get_schema t__ =
+    let res = C.RecordBatchReader.get_schema t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let read_next t =
+  let read_next t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.RecordBatchReader.read_next t (CArray.start gerr__) in
+    let res = C.RecordBatchReader.read_next t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2801,7 +2717,6 @@ end
 
 module RecordBatchStreamReader = struct
   type t = [ `record_batch_stream_reader ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ stream =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2825,7 +2740,6 @@ end
 
 module RecordBatchStreamWriter = struct
   type t = [ `record_batch_stream_writer ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ sink schema =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2849,10 +2763,9 @@ end
 
 module RecordBatchWriter = struct
   type t = [ `record_batch_writer ] gobject
-  let of_gobject t = t
-  let close t =
+  let close t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.RecordBatchWriter.close t (CArray.start gerr__) in
+    let res = C.RecordBatchWriter.close t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2865,9 +2778,9 @@ module RecordBatchWriter = struct
     end;
     res
 
-  let write_record_batch t record_batch =
+  let write_record_batch t__ record_batch =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.RecordBatchWriter.write_record_batch t record_batch (CArray.start gerr__) in
+    let res = C.RecordBatchWriter.write_record_batch t__ record_batch (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2880,9 +2793,9 @@ module RecordBatchWriter = struct
     end;
     res
 
-  let write_table t table =
+  let write_table t__ table =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.RecordBatchWriter.write_table t table (CArray.start gerr__) in
+    let res = C.RecordBatchWriter.write_table t__ table (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2899,7 +2812,6 @@ end
 
 module ResizableBuffer = struct
   type t = [ `resizable_buffer ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ initial_size =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2919,9 +2831,9 @@ module ResizableBuffer = struct
     Gc.finalise C.object_unref res;
     res
 
-  let reserve t new_capacity =
+  let reserve t__ new_capacity =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.ResizableBuffer.reserve t new_capacity (CArray.start gerr__) in
+    let res = C.ResizableBuffer.reserve t__ new_capacity (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2934,9 +2846,9 @@ module ResizableBuffer = struct
     end;
     res
 
-  let resize t new_size =
+  let resize t__ new_size =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.ResizableBuffer.resize t new_size (CArray.start gerr__) in
+    let res = C.ResizableBuffer.resize t__ new_size (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2953,10 +2865,9 @@ end
 
 module Schema = struct
   type t = [ `schema ] gobject
-  let of_gobject t = t
-  let add_field t i field =
+  let add_field t__ i field =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Schema.add_field t i field (CArray.start gerr__) in
+    let res = C.Schema.add_field t__ i field (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2972,31 +2883,31 @@ module Schema = struct
     Gc.finalise C.object_unref res;
     res
 
-  let equal t other_schema =
-    let res = C.Schema.equal t other_schema in
+  let equal t__ other_schema =
+    let res = C.Schema.equal t__ other_schema in
     res
 
-  let get_field t i =
-    let res = C.Schema.get_field t i in
+  let get_field t__ i =
+    let res = C.Schema.get_field t__ i in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_field_by_name t name =
-    let res = C.Schema.get_field_by_name t name in
+  let get_field_by_name t__ name =
+    let res = C.Schema.get_field_by_name t__ name in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let n_fields t =
-    let res = C.Schema.n_fields t in
+  let n_fields t__ =
+    let res = C.Schema.n_fields t__ in
     res
 
-  let remove_field t i =
+  let remove_field t__ i =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Schema.remove_field t i (CArray.start gerr__) in
+    let res = C.Schema.remove_field t__ i (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3012,9 +2923,9 @@ module Schema = struct
     Gc.finalise C.object_unref res;
     res
 
-  let replace_field t i field =
+  let replace_field t__ i field =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Schema.replace_field t i field (CArray.start gerr__) in
+    let res = C.Schema.replace_field t__ i field (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3030,19 +2941,18 @@ module Schema = struct
     Gc.finalise C.object_unref res;
     res
 
-  let to_string t =
-    let res = C.Schema.to_string t in
+  let to_string t__ =
+    let res = C.Schema.to_string t__ in
     res
 
 end
 
 module SeekableInputStream = struct
   type t = [ `seekable_input_stream ] gobject
-  let of_gobject t = t
   let parent t = t
-  let get_size t =
+  let get_size t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.SeekableInputStream.get_size t (CArray.start gerr__) in
+    let res = C.SeekableInputStream.get_size t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3055,13 +2965,13 @@ module SeekableInputStream = struct
     end;
     res
 
-  let get_support_zero_copy t =
-    let res = C.SeekableInputStream.get_support_zero_copy t in
+  let get_support_zero_copy t__ =
+    let res = C.SeekableInputStream.get_support_zero_copy t__ in
     res
 
-  let read_at t position n_bytes =
+  let read_at t__ position n_bytes =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.SeekableInputStream.read_at t position n_bytes (CArray.start gerr__) in
+    let res = C.SeekableInputStream.read_at t__ position n_bytes (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3081,19 +2991,16 @@ end
 
 module SparseUnionArray = struct
   type t = [ `sparse_union_array ] gobject
-  let of_gobject t = t
   let parent t = t
 end
 
 module SparseUnionDataType = struct
   type t = [ `sparse_union_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
 end
 
 module StringArray = struct
   type t = [ `string_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ length value_offsets data null_bitmap n_nulls =
     let res = C.StringArray.new_ length value_offsets data null_bitmap n_nulls in
@@ -3102,15 +3009,14 @@ module StringArray = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_string t i =
-    let res = C.StringArray.get_string t i in
+  let get_string t__ i =
+    let res = C.StringArray.get_string t__ i in
     res
 
 end
 
 module StringArrayBuilder = struct
   type t = [ `string_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.StringArrayBuilder.new_ () in
@@ -3119,9 +3025,9 @@ module StringArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.StringArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.StringArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3138,7 +3044,6 @@ end
 
 module StringDataType = struct
   type t = [ `string_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.StringDataType.new_ () in
@@ -3151,10 +3056,9 @@ end
 
 module StructArray = struct
   type t = [ `struct_array ] gobject
-  let of_gobject t = t
   let parent t = t
-  let get_field t i =
-    let res = C.StructArray.get_field t i in
+  let get_field t__ i =
+    let res = C.StructArray.get_field t__ i in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -3164,7 +3068,6 @@ end
 
 module StructArrayBuilder = struct
   type t = [ `struct_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ data_type =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -3184,9 +3087,9 @@ module StructArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.StructArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.StructArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3199,9 +3102,9 @@ module StructArrayBuilder = struct
     end;
     res
 
-  let append_value t =
+  let append_value t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.StructArrayBuilder.append_value t (CArray.start gerr__) in
+    let res = C.StructArrayBuilder.append_value t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3214,8 +3117,8 @@ module StructArrayBuilder = struct
     end;
     res
 
-  let get_field_builder t i =
-    let res = C.StructArrayBuilder.get_field_builder t i in
+  let get_field_builder t__ i =
+    let res = C.StructArrayBuilder.get_field_builder t__ i in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -3225,38 +3128,36 @@ end
 
 module StructDataType = struct
   type t = [ `struct_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
-  let get_field t i =
-    let res = C.StructDataType.get_field t i in
+  let get_field t__ i =
+    let res = C.StructDataType.get_field t__ i in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_field_by_name t name =
-    let res = C.StructDataType.get_field_by_name t name in
+  let get_field_by_name t__ name =
+    let res = C.StructDataType.get_field_by_name t__ name in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_field_index t name =
-    let res = C.StructDataType.get_field_index t name in
+  let get_field_index t__ name =
+    let res = C.StructDataType.get_field_index t__ name in
     res
 
-  let get_n_fields t =
-    let res = C.StructDataType.get_n_fields t in
+  let get_n_fields t__ =
+    let res = C.StructDataType.get_n_fields t__ in
     res
 
 end
 
 module Table = struct
   type t = [ `table ] gobject
-  let of_gobject t = t
-  let add_column t i column =
+  let add_column t__ i column =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Table.add_column t i column (CArray.start gerr__) in
+    let res = C.Table.add_column t__ i column (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3272,35 +3173,35 @@ module Table = struct
     Gc.finalise C.object_unref res;
     res
 
-  let equal t other_table =
-    let res = C.Table.equal t other_table in
+  let equal t__ other_table =
+    let res = C.Table.equal t__ other_table in
     res
 
-  let get_column t i =
-    let res = C.Table.get_column t i in
+  let get_column t__ i =
+    let res = C.Table.get_column t__ i in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_n_columns t =
-    let res = C.Table.get_n_columns t in
+  let get_n_columns t__ =
+    let res = C.Table.get_n_columns t__ in
     res
 
-  let get_n_rows t =
-    let res = C.Table.get_n_rows t in
+  let get_n_rows t__ =
+    let res = C.Table.get_n_rows t__ in
     res
 
-  let get_schema t =
-    let res = C.Table.get_schema t in
+  let get_schema t__ =
+    let res = C.Table.get_schema t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let remove_column t i =
+  let remove_column t__ i =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Table.remove_column t i (CArray.start gerr__) in
+    let res = C.Table.remove_column t__ i (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3316,9 +3217,9 @@ module Table = struct
     Gc.finalise C.object_unref res;
     res
 
-  let replace_column t i column =
+  let replace_column t__ i column =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Table.replace_column t i column (CArray.start gerr__) in
+    let res = C.Table.replace_column t__ i column (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3334,9 +3235,9 @@ module Table = struct
     Gc.finalise C.object_unref res;
     res
 
-  let to_string t =
+  let to_string t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Table.to_string t (CArray.start gerr__) in
+    let res = C.Table.to_string t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3353,7 +3254,6 @@ end
 
 module TableBatchReader = struct
   type t = [ `table_batch_reader ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ table =
     let res = C.TableBatchReader.new_ table in
@@ -3366,58 +3266,56 @@ end
 
 module Tensor = struct
   type t = [ `tensor ] gobject
-  let of_gobject t = t
-  let equal t other_tensor =
-    let res = C.Tensor.equal t other_tensor in
+  let equal t__ other_tensor =
+    let res = C.Tensor.equal t__ other_tensor in
     res
 
-  let get_buffer t =
-    let res = C.Tensor.get_buffer t in
+  let get_buffer t__ =
+    let res = C.Tensor.get_buffer t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_dimension_name t i =
-    let res = C.Tensor.get_dimension_name t i in
+  let get_dimension_name t__ i =
+    let res = C.Tensor.get_dimension_name t__ i in
     res
 
-  let get_n_dimensions t =
-    let res = C.Tensor.get_n_dimensions t in
+  let get_n_dimensions t__ =
+    let res = C.Tensor.get_n_dimensions t__ in
     res
 
-  let get_size t =
-    let res = C.Tensor.get_size t in
+  let get_size t__ =
+    let res = C.Tensor.get_size t__ in
     res
 
-  let get_value_data_type t =
-    let res = C.Tensor.get_value_data_type t in
+  let get_value_data_type t__ =
+    let res = C.Tensor.get_value_data_type t__ in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let is_column_major t =
-    let res = C.Tensor.is_column_major t in
+  let is_column_major t__ =
+    let res = C.Tensor.is_column_major t__ in
     res
 
-  let is_contiguous t =
-    let res = C.Tensor.is_contiguous t in
+  let is_contiguous t__ =
+    let res = C.Tensor.is_contiguous t__ in
     res
 
-  let is_mutable t =
-    let res = C.Tensor.is_mutable t in
+  let is_mutable t__ =
+    let res = C.Tensor.is_mutable t__ in
     res
 
-  let is_row_major t =
-    let res = C.Tensor.is_row_major t in
+  let is_row_major t__ =
+    let res = C.Tensor.is_row_major t__ in
     res
 
 end
 
 module Time32Array = struct
   type t = [ `time32_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ data_type length data null_bitmap n_nulls =
     let res = C.Time32Array.new_ data_type length data null_bitmap n_nulls in
@@ -3426,15 +3324,14 @@ module Time32Array = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value t i =
-    let res = C.Time32Array.get_value t i in
+  let get_value t__ i =
+    let res = C.Time32Array.get_value t__ i in
     res
 
 end
 
 module Time32ArrayBuilder = struct
   type t = [ `time32_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ data_type =
     let res = C.Time32ArrayBuilder.new_ data_type in
@@ -3443,9 +3340,9 @@ module Time32ArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Time32ArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.Time32ArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3458,9 +3355,9 @@ module Time32ArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Time32ArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.Time32ArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3473,9 +3370,9 @@ module Time32ArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Time32ArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.Time32ArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3492,13 +3389,11 @@ end
 
 module Time32DataType = struct
   type t = [ `time32_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
 end
 
 module Time64Array = struct
   type t = [ `time64_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ data_type length data null_bitmap n_nulls =
     let res = C.Time64Array.new_ data_type length data null_bitmap n_nulls in
@@ -3507,15 +3402,14 @@ module Time64Array = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value t i =
-    let res = C.Time64Array.get_value t i in
+  let get_value t__ i =
+    let res = C.Time64Array.get_value t__ i in
     res
 
 end
 
 module Time64ArrayBuilder = struct
   type t = [ `time64_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ data_type =
     let res = C.Time64ArrayBuilder.new_ data_type in
@@ -3524,9 +3418,9 @@ module Time64ArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Time64ArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.Time64ArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3539,9 +3433,9 @@ module Time64ArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Time64ArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.Time64ArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3554,9 +3448,9 @@ module Time64ArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Time64ArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.Time64ArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3573,19 +3467,16 @@ end
 
 module Time64DataType = struct
   type t = [ `time64_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
 end
 
 module TimeDataType = struct
   type t = [ `time_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
 end
 
 module TimestampArray = struct
   type t = [ `timestamp_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ data_type length data null_bitmap n_nulls =
     let res = C.TimestampArray.new_ data_type length data null_bitmap n_nulls in
@@ -3594,15 +3485,14 @@ module TimestampArray = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value t i =
-    let res = C.TimestampArray.get_value t i in
+  let get_value t__ i =
+    let res = C.TimestampArray.get_value t__ i in
     res
 
 end
 
 module TimestampArrayBuilder = struct
   type t = [ `timestamp_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ data_type =
     let res = C.TimestampArrayBuilder.new_ data_type in
@@ -3611,9 +3501,9 @@ module TimestampArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.TimestampArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.TimestampArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3626,9 +3516,9 @@ module TimestampArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.TimestampArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.TimestampArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3641,9 +3531,9 @@ module TimestampArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.TimestampArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.TimestampArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3660,13 +3550,11 @@ end
 
 module TimestampDataType = struct
   type t = [ `timestamp_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
 end
 
 module UInt16Array = struct
   type t = [ `u_int16_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.UInt16Array.new_ length data null_bitmap n_nulls in
@@ -3675,13 +3563,13 @@ module UInt16Array = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value t i =
-    let res = C.UInt16Array.get_value t i in
+  let get_value t__ i =
+    let res = C.UInt16Array.get_value t__ i in
     res
 
-  let sum t =
+  let sum t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt16Array.sum t (CArray.start gerr__) in
+    let res = C.UInt16Array.sum t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3698,7 +3586,6 @@ end
 
 module UInt16ArrayBuilder = struct
   type t = [ `u_int16_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.UInt16ArrayBuilder.new_ () in
@@ -3707,9 +3594,9 @@ module UInt16ArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt16ArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.UInt16ArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3722,9 +3609,9 @@ module UInt16ArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt16ArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.UInt16ArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3737,9 +3624,9 @@ module UInt16ArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt16ArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.UInt16ArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3756,7 +3643,6 @@ end
 
 module UInt16DataType = struct
   type t = [ `u_int16_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.UInt16DataType.new_ () in
@@ -3769,7 +3655,6 @@ end
 
 module UInt32Array = struct
   type t = [ `u_int32_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.UInt32Array.new_ length data null_bitmap n_nulls in
@@ -3778,13 +3663,13 @@ module UInt32Array = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value t i =
-    let res = C.UInt32Array.get_value t i in
+  let get_value t__ i =
+    let res = C.UInt32Array.get_value t__ i in
     res
 
-  let sum t =
+  let sum t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt32Array.sum t (CArray.start gerr__) in
+    let res = C.UInt32Array.sum t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3801,7 +3686,6 @@ end
 
 module UInt32ArrayBuilder = struct
   type t = [ `u_int32_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.UInt32ArrayBuilder.new_ () in
@@ -3810,9 +3694,9 @@ module UInt32ArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt32ArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.UInt32ArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3825,9 +3709,9 @@ module UInt32ArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt32ArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.UInt32ArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3840,9 +3724,9 @@ module UInt32ArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt32ArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.UInt32ArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3859,7 +3743,6 @@ end
 
 module UInt32DataType = struct
   type t = [ `u_int32_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.UInt32DataType.new_ () in
@@ -3872,7 +3755,6 @@ end
 
 module UInt64Array = struct
   type t = [ `u_int64_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.UInt64Array.new_ length data null_bitmap n_nulls in
@@ -3881,13 +3763,13 @@ module UInt64Array = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value t i =
-    let res = C.UInt64Array.get_value t i in
+  let get_value t__ i =
+    let res = C.UInt64Array.get_value t__ i in
     res
 
-  let sum t =
+  let sum t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt64Array.sum t (CArray.start gerr__) in
+    let res = C.UInt64Array.sum t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3904,7 +3786,6 @@ end
 
 module UInt64ArrayBuilder = struct
   type t = [ `u_int64_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.UInt64ArrayBuilder.new_ () in
@@ -3913,9 +3794,9 @@ module UInt64ArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt64ArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.UInt64ArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3928,9 +3809,9 @@ module UInt64ArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt64ArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.UInt64ArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3943,9 +3824,9 @@ module UInt64ArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt64ArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.UInt64ArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -3962,7 +3843,6 @@ end
 
 module UInt64DataType = struct
   type t = [ `u_int64_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.UInt64DataType.new_ () in
@@ -3975,7 +3855,6 @@ end
 
 module UInt8Array = struct
   type t = [ `u_int8_array ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ length data null_bitmap n_nulls =
     let res = C.UInt8Array.new_ length data null_bitmap n_nulls in
@@ -3984,13 +3863,13 @@ module UInt8Array = struct
     Gc.finalise C.object_unref res;
     res
 
-  let get_value t i =
-    let res = C.UInt8Array.get_value t i in
+  let get_value t__ i =
+    let res = C.UInt8Array.get_value t__ i in
     res
 
-  let sum t =
+  let sum t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt8Array.sum t (CArray.start gerr__) in
+    let res = C.UInt8Array.sum t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -4007,7 +3886,6 @@ end
 
 module UInt8ArrayBuilder = struct
   type t = [ `u_int8_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.UInt8ArrayBuilder.new_ () in
@@ -4016,9 +3894,9 @@ module UInt8ArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt8ArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.UInt8ArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -4031,9 +3909,9 @@ module UInt8ArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt8ArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.UInt8ArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -4046,9 +3924,9 @@ module UInt8ArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt8ArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.UInt8ArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -4065,7 +3943,6 @@ end
 
 module UInt8DataType = struct
   type t = [ `u_int8_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.UInt8DataType.new_ () in
@@ -4078,7 +3955,6 @@ end
 
 module UIntArrayBuilder = struct
   type t = [ `u_int_array_builder ] gobject
-  let of_gobject t = t
   let parent t = t
   let new_ () =
     let res = C.UIntArrayBuilder.new_ () in
@@ -4087,9 +3963,9 @@ module UIntArrayBuilder = struct
     Gc.finalise C.object_unref res;
     res
 
-  let append_null t =
+  let append_null t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UIntArrayBuilder.append_null t (CArray.start gerr__) in
+    let res = C.UIntArrayBuilder.append_null t__ (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -4102,9 +3978,9 @@ module UIntArrayBuilder = struct
     end;
     res
 
-  let append_nulls t n =
+  let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UIntArrayBuilder.append_nulls t n (CArray.start gerr__) in
+    let res = C.UIntArrayBuilder.append_nulls t__ n (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -4117,9 +3993,9 @@ module UIntArrayBuilder = struct
     end;
     res
 
-  let append_value t value =
+  let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UIntArrayBuilder.append_value t value (CArray.start gerr__) in
+    let res = C.UIntArrayBuilder.append_value t__ value (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -4136,10 +4012,9 @@ end
 
 module UnionArray = struct
   type t = [ `union_array ] gobject
-  let of_gobject t = t
   let parent t = t
-  let get_field t i =
-    let res = C.UnionArray.get_field t i in
+  let get_field t__ i =
+    let res = C.UnionArray.get_field t__ i in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -4149,17 +4024,16 @@ end
 
 module UnionDataType = struct
   type t = [ `union_data_type ] gobject
-  let of_gobject t = t
   let parent t = t
-  let get_field t i =
-    let res = C.UnionDataType.get_field t i in
+  let get_field t__ i =
+    let res = C.UnionDataType.get_field t__ i in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
     res
 
-  let get_n_fields t =
-    let res = C.UnionDataType.get_n_fields t in
+  let get_n_fields t__ =
+    let res = C.UnionDataType.get_n_fields t__ in
     res
 
 end
