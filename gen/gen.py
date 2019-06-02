@@ -2,9 +2,10 @@ import os
 import re
 os.environ['GI_TYPELIB_PATH'] = 'gen'
 
+verbose = False
+
 snake_exceptions = {
     'array': 'array_',
-    'type': 'type_',
     'new': 'new_',
 }
 
@@ -14,6 +15,9 @@ ctypes = {
     'gfloat': 'float',
     'gboolean': 'bool',
 }
+
+unsupported_types = set([
+  'bytes', 'type', 'compression_type', 'metadata_version', 'time_unit' ])
 
 def snake_case(name):
   s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
@@ -33,13 +37,12 @@ rep = gi.Repository.get_default()
 
 def ctype(type_):
   t = type_.get_tag_as_string()
-  ctype = ctypes.get(t, None)
-  if ctype is not None: return ctype
+  ct = ctypes.get(t, None)
+  if ct is not None: return ct
   if t == 'interface':
-    t = type_.get_interface().get_name()
-    if t in [ 'bytes', 'type' ]:
-      return None
-    return snake_case(t)
+    t = snake_case(type_.get_interface().get_name())
+    if t in unsupported_types: return None
+    return t
 
 def handle_object_info(oinfo, fobj):
   oname = oinfo.get_name()
@@ -63,6 +66,7 @@ def handle_object_info(oinfo, fobj):
         type_.append(arg_type)
       if m.can_throw_gerror():
         type_.append('ptr (ptr void)')
+      if len(type_) == 0: type_.append('void')
       if m.is_constructor():
         type_.append('returning t')
       else:
@@ -74,7 +78,7 @@ def handle_object_info(oinfo, fobj):
       fobj.write('    let %s = foreign "%s"\n' % (mname, m.get_symbol()))
       fobj.write('      (%s)\n' % type_)
     except ValueError as e:
-      print(e)
+      if verbose: print(e)
 
   fobj.write('  end\n\n')
 
