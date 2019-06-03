@@ -8,8 +8,8 @@ module Array : sig
 
   val of_gobject : _ gobject -> t option
 
-  val cast : [> `array_ ] gobject -> [> `data_type ] gobject -> [> `cast_options ] gobject -> [ `array_ ] gobject
-  val count : [> `array_ ] gobject -> [> `count_options ] gobject -> Int64.t
+  val cast : ?options:[> `cast_options ] gobject -> [> `array_ ] gobject -> [> `data_type ] gobject -> [ `array_ ] gobject
+  val count : ?options:[> `count_options ] gobject -> [> `array_ ] gobject -> Int64.t
   val count_values : [> `array_ ] gobject -> [ `struct_array | `array_ ] gobject
   val dictionary_encode : [> `array_ ] gobject -> [ `dictionary_array | `array_ ] gobject
   val equal : [> `array_ ] gobject -> [> `array_ ] gobject -> bool
@@ -41,7 +41,7 @@ module BinaryArray : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_buffer : [> `binary_array ] gobject -> [ `buffer ] gobject
   val get_offsets_buffer : [> `binary_array ] gobject -> [ `buffer ] gobject
 end
@@ -68,7 +68,7 @@ module BooleanArray : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
   val and_ : [> `boolean_array ] gobject -> [> `boolean_array ] gobject -> [ `boolean_array | `primitive_array | `array_ ] gobject
   val get_value : [> `boolean_array ] gobject -> Int64.t -> bool
   val invert : [> `boolean_array ] gobject -> [ `boolean_array | `primitive_array | `array_ ] gobject
@@ -140,7 +140,7 @@ module CSVReader : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : [> `input_stream ] gobject -> [> `csv_read_options ] gobject -> t
+  val new_ : ?options:[> `csv_read_options ] gobject -> [> `input_stream ] gobject -> t
   val read : [> `csv_reader ] gobject -> [ `table ] gobject
 end
 
@@ -231,7 +231,7 @@ module Date32Array : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `date32_array ] gobject -> Int64.t -> Int32.t
 end
 
@@ -259,7 +259,7 @@ module Date64Array : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `date64_array ] gobject -> Int64.t -> Int64.t
 end
 
@@ -289,7 +289,7 @@ module Decimal128 : sig
 
   val new_integer : Int64.t -> t
   val new_string : string -> t
-  val divide : [> `decimal128 ] gobject -> [> `decimal128 ] gobject -> [> `decimal128 ] gobject -> [ `decimal128 ] gobject
+  val divide : ?remainder:[> `decimal128 ] gobject -> [> `decimal128 ] gobject -> [> `decimal128 ] gobject -> [ `decimal128 ] gobject
   val equal : [> `decimal128 ] gobject -> [> `decimal128 ] gobject -> bool
   val greater_than : [> `decimal128 ] gobject -> [> `decimal128 ] gobject -> bool
   val greater_than_or_equal : [> `decimal128 ] gobject -> [> `decimal128 ] gobject -> bool
@@ -381,7 +381,7 @@ module DoubleArray : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `double_array ] gobject -> Int64.t -> float
   val sum : [> `double_array ] gobject -> float
 end
@@ -483,7 +483,7 @@ module FloatArray : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `float_array ] gobject -> Int64.t -> float
   val sum : [> `float_array ] gobject -> float
 end
@@ -545,7 +545,7 @@ module Int16Array : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `int16_array ] gobject -> Int64.t -> int
   val sum : [> `int16_array ] gobject -> Int64.t
 end
@@ -574,7 +574,7 @@ module Int32Array : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `int32_array ] gobject -> Int64.t -> Int32.t
   val sum : [> `int32_array ] gobject -> Int64.t
 end
@@ -603,7 +603,7 @@ module Int64Array : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `int64_array ] gobject -> Int64.t -> Int64.t
   val sum : [> `int64_array ] gobject -> Int64.t
 end
@@ -632,7 +632,7 @@ module Int8Array : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `int8_array ] gobject -> Int64.t -> int
   val sum : [> `int8_array ] gobject -> Int64.t
 end
@@ -679,7 +679,7 @@ module ListArray : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : [> `data_type ] gobject -> Int64.t -> [> `buffer ] gobject -> [> `array_ ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> [> `data_type ] gobject -> Int64.t -> [> `buffer ] gobject -> [> `array_ ] gobject -> Int64.t -> t
   val get_value : [> `list_array ] gobject -> Int64.t -> [ `array_ ] gobject
   val get_value_type : [> `list_array ] gobject -> [ `data_type ] gobject
 end
@@ -916,7 +916,7 @@ module StringArray : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
   val get_string : [> `string_array ] gobject -> Int64.t -> string
 end
 
@@ -1013,7 +1013,7 @@ module Time32Array : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : [> `time32_data_type ] gobject -> Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> [> `time32_data_type ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `time32_array ] gobject -> Int64.t -> Int32.t
 end
 
@@ -1040,7 +1040,7 @@ module Time64Array : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : [> `time64_data_type ] gobject -> Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> [> `time64_data_type ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `time64_array ] gobject -> Int64.t -> Int64.t
 end
 
@@ -1074,7 +1074,7 @@ module TimestampArray : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : [> `timestamp_data_type ] gobject -> Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> [> `timestamp_data_type ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `timestamp_array ] gobject -> Int64.t -> Int64.t
 end
 
@@ -1101,7 +1101,7 @@ module UInt16Array : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `u_int16_array ] gobject -> Int64.t -> Unsigned.uint16
   val sum : [> `u_int16_array ] gobject -> Unsigned.uint64
 end
@@ -1130,7 +1130,7 @@ module UInt32Array : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `u_int32_array ] gobject -> Int64.t -> Unsigned.uint32
   val sum : [> `u_int32_array ] gobject -> Unsigned.uint64
 end
@@ -1159,7 +1159,7 @@ module UInt64Array : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `u_int64_array ] gobject -> Int64.t -> Unsigned.uint64
   val sum : [> `u_int64_array ] gobject -> Unsigned.uint64
 end
@@ -1188,7 +1188,7 @@ module UInt8Array : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
   val get_value : [> `u_int8_array ] gobject -> Int64.t -> Unsigned.uint8
   val sum : [> `u_int8_array ] gobject -> Unsigned.uint64
 end

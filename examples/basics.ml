@@ -21,8 +21,7 @@ let build () =
 
 let read () =
   let input_stream = C.MemoryMappedInputStream.new_ "/tmp/a.csv" in
-  let csv_read_options = C.CSVReadOptions.new_ () in
-  let csv_reader = C.CSVReader.new_ input_stream csv_read_options in
+  let csv_reader = C.CSVReader.new_ input_stream in
   let table = C.CSVReader.read csv_reader in
   Stdio.printf "%s\n%!" (C.Table.to_string table)
 

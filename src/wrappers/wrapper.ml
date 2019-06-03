@@ -12,9 +12,9 @@ module Array = struct
     if C.Array.get_type () = C.gobject_type g
     then Some g else None
 
-  let cast t__ target_data_type options =
+  let cast ?options t__ target_data_type =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Array.cast t__ target_data_type options (CArray.start gerr__) in
+    let res = C.Array.cast t__ target_data_type (match options with | None -> null | Some v -> v) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -30,9 +30,9 @@ module Array = struct
     Gc.finalise C.object_unref res;
     res
 
-  let count t__ options =
+  let count ?options t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Array.count t__ options (CArray.start gerr__) in
+    let res = C.Array.count t__ (match options with | None -> null | Some v -> v) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -208,8 +208,8 @@ module BinaryArray = struct
     if C.BinaryArray.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ length value_offsets data null_bitmap n_nulls =
-    let res = C.BinaryArray.new_ length value_offsets data null_bitmap n_nulls in
+  let new_ ?null_bitmap length value_offsets data n_nulls =
+    let res = C.BinaryArray.new_ length value_offsets data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -282,8 +282,8 @@ module BooleanArray = struct
     if C.BooleanArray.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ length data null_bitmap n_nulls =
-    let res = C.BooleanArray.new_ length data null_bitmap n_nulls in
+  let new_ ?null_bitmap length data n_nulls =
+    let res = C.BooleanArray.new_ length data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -560,9 +560,9 @@ module CSVReader = struct
     if C.CSVReader.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ input options =
+  let new_ ?options input =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.CSVReader.new_ input options (CArray.start gerr__) in
+    let res = C.CSVReader.new_ input (match options with | None -> null | Some v -> v) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -855,8 +855,8 @@ module Date32Array = struct
     if C.Date32Array.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ length data null_bitmap n_nulls =
-    let res = C.Date32Array.new_ length data null_bitmap n_nulls in
+  let new_ ?null_bitmap length data n_nulls =
+    let res = C.Date32Array.new_ length data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -949,8 +949,8 @@ module Date64Array = struct
     if C.Date64Array.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ length data null_bitmap n_nulls =
-    let res = C.Date64Array.new_ length data null_bitmap n_nulls in
+  let new_ ?null_bitmap length data n_nulls =
+    let res = C.Date64Array.new_ length data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -1057,9 +1057,9 @@ module Decimal128 = struct
     Gc.finalise C.object_unref res;
     res
 
-  let divide t__ right remainder =
+  let divide ?remainder t__ right =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Decimal128.divide t__ right remainder (CArray.start gerr__) in
+    let res = C.Decimal128.divide t__ right (match remainder with | None -> null | Some v -> v) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1320,8 +1320,8 @@ module DoubleArray = struct
     if C.DoubleArray.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ length data null_bitmap n_nulls =
-    let res = C.DoubleArray.new_ length data null_bitmap n_nulls in
+  let new_ ?null_bitmap length data n_nulls =
+    let res = C.DoubleArray.new_ length data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -1696,8 +1696,8 @@ module FloatArray = struct
     if C.FloatArray.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ length data null_bitmap n_nulls =
-    let res = C.FloatArray.new_ length data null_bitmap n_nulls in
+  let new_ ?null_bitmap length data n_nulls =
+    let res = C.FloatArray.new_ length data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -1899,8 +1899,8 @@ module Int16Array = struct
     if C.Int16Array.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ length data null_bitmap n_nulls =
-    let res = C.Int16Array.new_ length data null_bitmap n_nulls in
+  let new_ ?null_bitmap length data n_nulls =
+    let res = C.Int16Array.new_ length data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -2008,8 +2008,8 @@ module Int32Array = struct
     if C.Int32Array.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ length data null_bitmap n_nulls =
-    let res = C.Int32Array.new_ length data null_bitmap n_nulls in
+  let new_ ?null_bitmap length data n_nulls =
+    let res = C.Int32Array.new_ length data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -2117,8 +2117,8 @@ module Int64Array = struct
     if C.Int64Array.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ length data null_bitmap n_nulls =
-    let res = C.Int64Array.new_ length data null_bitmap n_nulls in
+  let new_ ?null_bitmap length data n_nulls =
+    let res = C.Int64Array.new_ length data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -2226,8 +2226,8 @@ module Int8Array = struct
     if C.Int8Array.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ length data null_bitmap n_nulls =
-    let res = C.Int8Array.new_ length data null_bitmap n_nulls in
+  let new_ ?null_bitmap length data n_nulls =
+    let res = C.Int8Array.new_ length data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -2403,8 +2403,8 @@ module ListArray = struct
     if C.ListArray.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ data_type length value_offsets values null_bitmap n_nulls =
-    let res = C.ListArray.new_ data_type length value_offsets values null_bitmap n_nulls in
+  let new_ ?null_bitmap data_type length value_offsets values n_nulls =
+    let res = C.ListArray.new_ data_type length value_offsets values (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -3303,8 +3303,8 @@ module StringArray = struct
     if C.StringArray.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ length value_offsets data null_bitmap n_nulls =
-    let res = C.StringArray.new_ length value_offsets data null_bitmap n_nulls in
+  let new_ ?null_bitmap length value_offsets data n_nulls =
+    let res = C.StringArray.new_ length value_offsets data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -3647,8 +3647,8 @@ module Time32Array = struct
     if C.Time32Array.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ data_type length data null_bitmap n_nulls =
-    let res = C.Time32Array.new_ data_type length data null_bitmap n_nulls in
+  let new_ ?null_bitmap data_type length data n_nulls =
+    let res = C.Time32Array.new_ data_type length data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -3734,8 +3734,8 @@ module Time64Array = struct
     if C.Time64Array.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ data_type length data null_bitmap n_nulls =
-    let res = C.Time64Array.new_ data_type length data null_bitmap n_nulls in
+  let new_ ?null_bitmap data_type length data n_nulls =
+    let res = C.Time64Array.new_ data_type length data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -3829,8 +3829,8 @@ module TimestampArray = struct
     if C.TimestampArray.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ data_type length data null_bitmap n_nulls =
-    let res = C.TimestampArray.new_ data_type length data null_bitmap n_nulls in
+  let new_ ?null_bitmap data_type length data n_nulls =
+    let res = C.TimestampArray.new_ data_type length data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -3916,8 +3916,8 @@ module UInt16Array = struct
     if C.UInt16Array.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ length data null_bitmap n_nulls =
-    let res = C.UInt16Array.new_ length data null_bitmap n_nulls in
+  let new_ ?null_bitmap length data n_nulls =
+    let res = C.UInt16Array.new_ length data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -4025,8 +4025,8 @@ module UInt32Array = struct
     if C.UInt32Array.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ length data null_bitmap n_nulls =
-    let res = C.UInt32Array.new_ length data null_bitmap n_nulls in
+  let new_ ?null_bitmap length data n_nulls =
+    let res = C.UInt32Array.new_ length data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -4134,8 +4134,8 @@ module UInt64Array = struct
     if C.UInt64Array.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ length data null_bitmap n_nulls =
-    let res = C.UInt64Array.new_ length data null_bitmap n_nulls in
+  let new_ ?null_bitmap length data n_nulls =
+    let res = C.UInt64Array.new_ length data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -4243,8 +4243,8 @@ module UInt8Array = struct
     if C.UInt8Array.get_type () = C.gobject_type g
     then Some g else None
 
-  let new_ length data null_bitmap n_nulls =
-    let res = C.UInt8Array.new_ length data null_bitmap n_nulls in
+  let new_ ?null_bitmap length data n_nulls =
+    let res = C.UInt8Array.new_ length data (match null_bitmap with | None -> null | Some v -> v) n_nulls in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;

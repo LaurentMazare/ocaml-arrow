@@ -2,9 +2,6 @@
 # applying any macros just by casting the pointer.
 #
 # TODO: check that it is the case.
-# TODO: handle nullable parameters.
-# TODO: handle nullable returns? Currently this would raise maybe
-#       return an option instead.
 # TODO: list/array support, e.g. for [get_values] and [append_values].
 import os
 import re
@@ -39,12 +36,6 @@ def snake_case(name):
   s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
   res = re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
   return snake_exceptions.get(res, res)
-
-import xml.etree.ElementTree as ET
-tree = ET.parse('gen/Arrow-1.0.gir')
-root = tree.getroot()
-for child in root:
-  print(child.tag, child.attrib)
 
 import gi
 gi.require_version('Arrow', '1.0')
@@ -119,8 +110,13 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
         if arg_type is None:
           raise ValueError('unhandled type for %s %s' % (arg, m))
         c_type.append(arg_type['c'])
-        ml_args.append(arg.get_name())
-        ml_type.append(arg_type['ml'])
+        arg_name = arg.get_name()
+        arg_type = arg_type['ml']
+        if arg.may_be_null():
+          arg_type = '?' + arg_name + ':' + arg_type
+          arg_name = '?' + arg_name
+        ml_args.append(arg_name)
+        ml_type.append(arg_type)
 
       if m.can_throw_gerror():
         c_type.append('ptr (ptr GError.t)')
@@ -148,13 +144,14 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
       f_c.write('    let %s = foreign "%s"\n' % (mname, m.get_symbol()))
       f_c.write('      (%s)\n' % c_type)
 
-      ml_type = ' -> '.join(ml_type)
-
-      ml_args = ' '.join(ml_args)
+      call_args = ' '.join(
+          [m if m[0] != '?' else ('(match %s with | None -> null | Some v -> v)' % m[1:])
+            for m in ml_args])
+      ml_args = ' '.join([m for m in ml_args if m[0] == '?'] + [m for m in ml_args if m[0] != '?'])
       f_ml.write('  let %s %s =\n' % (mname, ml_args))
       if m.can_throw_gerror():
         f_ml.write('    let gerr__ = CArray.make (ptr C.GError.t) 1 in\n')
-        f_ml.write('    let res = C.%s.%s %s (CArray.start gerr__) in\n' % (oname, mname, ml_args))
+        f_ml.write('    let res = C.%s.%s %s (CArray.start gerr__) in\n' % (oname, mname, call_args))
         f_ml.write('    let gerr__ = CArray.get gerr__ 0 in\n')
         f_ml.write('    if not (Ctypes.is_null gerr__)\n')
         f_ml.write('    then begin\n')
@@ -166,7 +163,7 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
         f_ml.write('      failwith msg\n')
         f_ml.write('    end;\n')
       else:
-        f_ml.write('    let res = C.%s.%s %s in\n' % (oname, mname, ml_args))
+        f_ml.write('    let res = C.%s.%s %s in\n' % (oname, mname, call_args))
 
       if not return_base_type:
         f_ml.write('    if Ctypes.is_null res\n')
@@ -174,6 +171,7 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
         f_ml.write('    Gc.finalise C.object_unref res;\n')
       f_ml.write('    res\n\n')
 
+      ml_type = ' -> '.join([m for m in ml_type if m[0] == '?'] + [m for m in ml_type if m[0] != '?'])
       f_mli.write('  val %s : %s\n' % (mname, ml_type))
     except ValueError as e:
       if verbose: print(oname, m.get_name(), e)
