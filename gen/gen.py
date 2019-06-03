@@ -2,12 +2,10 @@
 # applying any macros just by casting the pointer.
 #
 # TODO: check that it is the case.
-# TODO: even if so, add some type checks at runtime if possible.
 # TODO: handle nullable parameters.
 # TODO: handle nullable returns? Currently this would raise maybe
 #       return an option instead.
-# TODO: list/array support, e.g. for [get_values].
-# TODO: of_gobject : [ parent-variants gobject -> t option]
+# TODO: list/array support, e.g. for [get_values] and [append_values].
 import os
 import re
 os.environ['GI_TYPELIB_PATH'] = 'gen'
@@ -78,8 +76,6 @@ def c_ml_type(type_, is_arg=None):
     else:
       ml = variant_type(type_.get_interface())
     return { 'c': t, 'ml': ml, 'base': False }
-
-get_type_suffix = '_get_type'
 
 def handle_object_info(oinfo, f_c, f_ml, f_mli):
   oname = oinfo.get_name()
