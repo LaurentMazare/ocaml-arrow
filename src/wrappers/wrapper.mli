@@ -53,6 +53,7 @@ module BinaryArrayBuilder : sig
 
   val new_ : unit -> t
   val append_null : [> `binary_array_builder ] gobject -> bool
+  val append_value : [> `binary_array_builder ] gobject -> Unsigned.uint8 list -> bool
 end
 
 module BinaryDataType : sig
@@ -85,6 +86,7 @@ module BooleanArrayBuilder : sig
   val append_null : [> `boolean_array_builder ] gobject -> bool
   val append_nulls : [> `boolean_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `boolean_array_builder ] gobject -> bool -> bool
+  val append_values : [> `boolean_array_builder ] gobject -> bool list -> bool list -> bool
 end
 
 module BooleanDataType : sig
@@ -100,6 +102,7 @@ module Buffer : sig
 
   val of_gobject : _ gobject -> t option
 
+  val new_ : Unsigned.uint8 list -> t
   val copy : [> `buffer ] gobject -> Int64.t -> Int64.t -> [ `buffer ] gobject
   val equal : [> `buffer ] gobject -> [> `buffer ] gobject -> bool
   val equal_n_bytes : [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> bool
@@ -244,6 +247,7 @@ module Date32ArrayBuilder : sig
   val append_null : [> `date32_array_builder ] gobject -> bool
   val append_nulls : [> `date32_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `date32_array_builder ] gobject -> Int32.t -> bool
+  val append_values : [> `date32_array_builder ] gobject -> Int32.t list -> bool list -> bool
 end
 
 module Date32DataType : sig
@@ -272,6 +276,7 @@ module Date64ArrayBuilder : sig
   val append_null : [> `date64_array_builder ] gobject -> bool
   val append_nulls : [> `date64_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `date64_array_builder ] gobject -> Int64.t -> bool
+  val append_values : [> `date64_array_builder ] gobject -> Int64.t list -> bool list -> bool
 end
 
 module Date64DataType : sig
@@ -395,6 +400,7 @@ module DoubleArrayBuilder : sig
   val append_null : [> `double_array_builder ] gobject -> bool
   val append_nulls : [> `double_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `double_array_builder ] gobject -> float -> bool
+  val append_values : [> `double_array_builder ] gobject -> float list -> bool list -> bool
 end
 
 module DoubleDataType : sig
@@ -419,6 +425,8 @@ module FeatherFileReader : sig
   val get_version : [> `feather_file_reader ] gobject -> Int32.t
   val has_description : [> `feather_file_reader ] gobject -> bool
   val read : [> `feather_file_reader ] gobject -> [ `table ] gobject
+  val read_indices : [> `feather_file_reader ] gobject -> Int32.t list -> [ `table ] gobject
+  val read_names : [> `feather_file_reader ] gobject -> string list -> [ `table ] gobject
 end
 
 module FeatherFileWriter : sig
@@ -497,6 +505,7 @@ module FloatArrayBuilder : sig
   val append_null : [> `float_array_builder ] gobject -> bool
   val append_nulls : [> `float_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `float_array_builder ] gobject -> float -> bool
+  val append_values : [> `float_array_builder ] gobject -> float list -> bool list -> bool
 end
 
 module FloatDataType : sig
@@ -559,6 +568,7 @@ module Int16ArrayBuilder : sig
   val append_null : [> `int16_array_builder ] gobject -> bool
   val append_nulls : [> `int16_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `int16_array_builder ] gobject -> int -> bool
+  val append_values : [> `int16_array_builder ] gobject -> int list -> bool list -> bool
 end
 
 module Int16DataType : sig
@@ -588,6 +598,7 @@ module Int32ArrayBuilder : sig
   val append_null : [> `int32_array_builder ] gobject -> bool
   val append_nulls : [> `int32_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `int32_array_builder ] gobject -> Int32.t -> bool
+  val append_values : [> `int32_array_builder ] gobject -> Int32.t list -> bool list -> bool
 end
 
 module Int32DataType : sig
@@ -617,6 +628,7 @@ module Int64ArrayBuilder : sig
   val append_null : [> `int64_array_builder ] gobject -> bool
   val append_nulls : [> `int64_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `int64_array_builder ] gobject -> Int64.t -> bool
+  val append_values : [> `int64_array_builder ] gobject -> Int64.t list -> bool list -> bool
 end
 
 module Int64DataType : sig
@@ -646,6 +658,7 @@ module Int8ArrayBuilder : sig
   val append_null : [> `int8_array_builder ] gobject -> bool
   val append_nulls : [> `int8_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `int8_array_builder ] gobject -> int -> bool
+  val append_values : [> `int8_array_builder ] gobject -> int list -> bool list -> bool
 end
 
 module Int8DataType : sig
@@ -665,6 +678,7 @@ module IntArrayBuilder : sig
   val append_null : [> `int_array_builder ] gobject -> bool
   val append_nulls : [> `int_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `int_array_builder ] gobject -> Int64.t -> bool
+  val append_values : [> `int_array_builder ] gobject -> Int64.t list -> bool list -> bool
 end
 
 module IntegerDataType : sig
@@ -717,6 +731,8 @@ module MutableBuffer : sig
 
   val of_gobject : _ gobject -> t option
 
+  val new_ : Unsigned.uint8 list -> t
+  val set_data : [> `mutable_buffer ] gobject -> Int64.t -> Unsigned.uint8 list -> bool
   val slice : [> `mutable_buffer ] gobject -> Int64.t -> Int64.t -> [ `mutable_buffer | `buffer ] gobject
 end
 
@@ -927,6 +943,7 @@ module StringArrayBuilder : sig
 
   val new_ : unit -> t
   val append_value : [> `string_array_builder ] gobject -> string -> bool
+  val append_values : [> `string_array_builder ] gobject -> string list -> bool list -> bool
 end
 
 module StringDataType : sig
@@ -996,6 +1013,7 @@ module Tensor : sig
 
   val of_gobject : _ gobject -> t option
 
+  val new_ : [> `data_type ] gobject -> [> `buffer ] gobject -> Int64.t list -> Int64.t list -> string list -> t
   val equal : [> `tensor ] gobject -> [> `tensor ] gobject -> bool
   val get_buffer : [> `tensor ] gobject -> [ `buffer ] gobject
   val get_dimension_name : [> `tensor ] gobject -> Int32.t -> string
@@ -1026,6 +1044,7 @@ module Time32ArrayBuilder : sig
   val append_null : [> `time32_array_builder ] gobject -> bool
   val append_nulls : [> `time32_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `time32_array_builder ] gobject -> Int32.t -> bool
+  val append_values : [> `time32_array_builder ] gobject -> Int32.t list -> bool list -> bool
 end
 
 module Time32DataType : sig
@@ -1053,6 +1072,7 @@ module Time64ArrayBuilder : sig
   val append_null : [> `time64_array_builder ] gobject -> bool
   val append_nulls : [> `time64_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `time64_array_builder ] gobject -> Int64.t -> bool
+  val append_values : [> `time64_array_builder ] gobject -> Int64.t list -> bool list -> bool
 end
 
 module Time64DataType : sig
@@ -1087,6 +1107,7 @@ module TimestampArrayBuilder : sig
   val append_null : [> `timestamp_array_builder ] gobject -> bool
   val append_nulls : [> `timestamp_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `timestamp_array_builder ] gobject -> Int64.t -> bool
+  val append_values : [> `timestamp_array_builder ] gobject -> Int64.t list -> bool list -> bool
 end
 
 module TimestampDataType : sig
@@ -1115,6 +1136,7 @@ module UInt16ArrayBuilder : sig
   val append_null : [> `u_int16_array_builder ] gobject -> bool
   val append_nulls : [> `u_int16_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `u_int16_array_builder ] gobject -> Unsigned.uint16 -> bool
+  val append_values : [> `u_int16_array_builder ] gobject -> Unsigned.uint16 list -> bool list -> bool
 end
 
 module UInt16DataType : sig
@@ -1144,6 +1166,7 @@ module UInt32ArrayBuilder : sig
   val append_null : [> `u_int32_array_builder ] gobject -> bool
   val append_nulls : [> `u_int32_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `u_int32_array_builder ] gobject -> Unsigned.uint32 -> bool
+  val append_values : [> `u_int32_array_builder ] gobject -> Unsigned.uint32 list -> bool list -> bool
 end
 
 module UInt32DataType : sig
@@ -1173,6 +1196,7 @@ module UInt64ArrayBuilder : sig
   val append_null : [> `u_int64_array_builder ] gobject -> bool
   val append_nulls : [> `u_int64_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `u_int64_array_builder ] gobject -> Unsigned.uint64 -> bool
+  val append_values : [> `u_int64_array_builder ] gobject -> Unsigned.uint64 list -> bool list -> bool
 end
 
 module UInt64DataType : sig
@@ -1202,6 +1226,7 @@ module UInt8ArrayBuilder : sig
   val append_null : [> `u_int8_array_builder ] gobject -> bool
   val append_nulls : [> `u_int8_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `u_int8_array_builder ] gobject -> Unsigned.uint8 -> bool
+  val append_values : [> `u_int8_array_builder ] gobject -> Unsigned.uint8 list -> bool list -> bool
 end
 
 module UInt8DataType : sig
@@ -1221,6 +1246,7 @@ module UIntArrayBuilder : sig
   val append_null : [> `u_int_array_builder ] gobject -> bool
   val append_nulls : [> `u_int_array_builder ] gobject -> Int64.t -> bool
   val append_value : [> `u_int_array_builder ] gobject -> Unsigned.uint64 -> bool
+  val append_values : [> `u_int_array_builder ] gobject -> Unsigned.uint64 list -> bool list -> bool
 end
 
 module UnionArray : sig

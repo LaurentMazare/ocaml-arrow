@@ -2,7 +2,8 @@
 # applying any macros just by casting the pointer.
 #
 # TODO: check that it is the case.
-# TODO: list/array support, e.g. for [get_values] and [append_values].
+# TODO: list/array support, e.g. for the result [get_values].
+# TODO: rewrite in ocaml ?
 import os
 import re
 os.environ['GI_TYPELIB_PATH'] = 'gen'
@@ -57,6 +58,12 @@ def c_ml_type(type_, is_arg=None):
   t = type_.get_tag_as_string()
   ct = c_ml_types.get(t, None)
   if ct is not None: return ct
+  if is_arg and t == 'array':
+    l = type_.get_array_length()
+    elt_type = c_ml_type(type_.get_param_type(0), is_arg=is_arg)
+    if elt_type is not None and elt_type['base']:
+      c, ml = elt_type['c'], elt_type['ml']
+      return { 'c': 'ptr ' + c, 'ml': ml, 'base': False, 'len': l }
   if t == 'interface':
     oname = type_.get_interface().get_name()
     t = snake_case(oname)
@@ -98,21 +105,23 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
       c_type = []
       ml_type = []
       ml_args = []
-
-      if m.is_method():
-        c_type.append('t')
-        ml_args.append('t__')
-        ml_type.append('[> `%s ] gobject' %  snake_case(oname))
+      array_type = {}
+      len_indexes = {}
 
       for arg in args:
-        is_opt = arg.is_optional()
         arg_type = c_ml_type(arg.get_type(), is_arg=True)
         if arg_type is None:
           raise ValueError('unhandled type for %s %s' % (arg, m))
         c_type.append(arg_type['c'])
         arg_name = arg.get_name()
-        arg_type = arg_type['ml']
-        if arg.may_be_null():
+        l = arg_type.get('len', None)
+        if l is not None:
+          array_type[arg_name] = arg_type['c'][4:]
+          arg_type = arg_type['ml'] + ' list'
+          len_indexes[l] = arg_name
+        else:
+          arg_type = arg_type['ml']
+        if arg.may_be_null() and l is None:
           arg_type = '?' + arg_name + ':' + arg_type
           arg_name = '?' + arg_name
         ml_args.append(arg_name)
@@ -121,7 +130,7 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
       if m.can_throw_gerror():
         c_type.append('ptr (ptr GError.t)')
 
-      if len(c_type) == 0:
+      if len(c_type) == 0 and not m.is_method():
         c_type.append('void')
         ml_args.append('()')
         ml_type.append('unit')
@@ -140,15 +149,36 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
         # TODO: check whether ownership is passed..., e.g. [m.get_caller_owns] ?
         return_base_type = return_type['base']
 
+      call_args = []
+      for index, arg in enumerate(ml_args):
+        if index in len_indexes:
+          of_int = None
+          if ml_type[index] == 'Int64.t': of_int = 'Int64.of_int'
+          if ml_type[index] == 'Int32.t': of_int = 'Int32.of_int'
+          if ml_type[index] == 'Unsigned.uint32': of_int = 'Unsigned.UInt32.of_int'
+          if ml_type[index] == 'Unsigned.uint64': of_int = 'Unsigned.UInt64.of_int'
+          if of_int is None:
+            raise ValueError('cannot convert to int ' + ml_type[index])
+          call_args.append('(List.length %s |> %s)' % (len_indexes[index], of_int))
+          continue
+        if arg[0] == '?': arg = '(match %s with | None -> null | Some v -> v)' % arg[1:]
+        if arg in array_type:
+          arg = '(CArray.of_list %s %s |> CArray.start)' % (array_type[arg], arg)
+        call_args.append(arg)
+
+      call_args = ' '.join(call_args)
+
       c_type = ' @-> '.join(c_type)
+      if m.is_method():
+        c_type = 't @-> ' + c_type
+        call_args = 't__ ' + call_args
       f_c.write('    let %s = foreign "%s"\n' % (mname, m.get_symbol()))
       f_c.write('      (%s)\n' % c_type)
 
-      call_args = ' '.join(
-          [m if m[0] != '?' else ('(match %s with | None -> null | Some v -> v)' % m[1:])
-            for m in ml_args])
-      ml_args = ' '.join([m for m in ml_args if m[0] == '?'] + [m for m in ml_args if m[0] != '?'])
-      f_ml.write('  let %s %s =\n' % (mname, ml_args))
+      ml_args2 = [m for m in ml_args if m[0] == '?']
+      if m.is_method(): ml_args2.append(' t__ ')
+      ml_args2 += [m for i, m in enumerate(ml_args) if m[0] != '?' and i not in len_indexes]
+      f_ml.write('  let %s %s =\n' % (mname, ' '.join(ml_args2)))
       if m.can_throw_gerror():
         f_ml.write('    let gerr__ = CArray.make (ptr C.GError.t) 1 in\n')
         f_ml.write('    let res = C.%s.%s %s (CArray.start gerr__) in\n' % (oname, mname, call_args))
@@ -171,8 +201,11 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
         f_ml.write('    Gc.finalise C.object_unref res;\n')
       f_ml.write('    res\n\n')
 
-      ml_type = ' -> '.join([m for m in ml_type if m[0] == '?'] + [m for m in ml_type if m[0] != '?'])
-      f_mli.write('  val %s : %s\n' % (mname, ml_type))
+      ml_type2 = [m for m in ml_type if m[0] == '?']
+      if m.is_method(): ml_type2 += ['[> `%s ] gobject' %  snake_case(oname)]
+      ml_type2 += [m for i, m in enumerate(ml_type) if m[0] != '?' and i not in len_indexes]
+
+      f_mli.write('  val %s : %s\n' % (mname, ' -> '.join(ml_type2)))
     except ValueError as e:
       if verbose: print(oname, m.get_name(), e)
 
