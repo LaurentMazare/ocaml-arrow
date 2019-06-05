@@ -15,19 +15,19 @@ snake_exceptions = {
     'new': 'new_',
 }
 
-c_ml_types = {
-    'gint64': { 'c': 'int64_t', 'ml': 'Int64.t', 'base': True },
-    'gint32': { 'c': 'int32_t', 'ml': 'Int32.t', 'base': True },
-    'gint16': { 'c': 'int16_t', 'ml': 'int', 'base': True },
-    'gint8': { 'c': 'int8_t', 'ml': 'int', 'base': True },
-    'guint64': { 'c': 'uint64_t', 'ml': 'Unsigned.uint64', 'base': True },
-    'guint32': { 'c': 'uint32_t', 'ml': 'Unsigned.uint32', 'base': True },
-    'guint16': { 'c': 'uint16_t', 'ml': 'Unsigned.uint16', 'base': True },
-    'guint8': { 'c': 'uint8_t', 'ml': 'Unsigned.uint8', 'base': True },
-    'gdouble': { 'c': 'double', 'ml': 'float', 'base': True },
-    'gfloat': { 'c': 'float', 'ml': 'float', 'base': True },
-    'gboolean': { 'c': 'bool', 'ml': 'bool', 'base': True },
-    'utf8': { 'c': 'string', 'ml': 'string', 'base': True },
+base_types = {
+    'gint64': { 'c': 'int64_t', 'ml': 'Int64.t' },
+    'gint32': { 'c': 'int32_t', 'ml': 'Int32.t' },
+    'gint16': { 'c': 'int16_t', 'ml': 'int' },
+    'gint8': { 'c': 'int8_t', 'ml': 'int' },
+    'guint64': { 'c': 'uint64_t', 'ml': 'Unsigned.uint64' },
+    'guint32': { 'c': 'uint32_t', 'ml': 'Unsigned.uint32' },
+    'guint16': { 'c': 'uint16_t', 'ml': 'Unsigned.uint16' },
+    'guint8': { 'c': 'uint8_t', 'ml': 'Unsigned.uint8' },
+    'gdouble': { 'c': 'double', 'ml': 'float' },
+    'gfloat': { 'c': 'float', 'ml': 'float' },
+    'gboolean': { 'c': 'bool', 'ml': 'bool' },
+    'utf8': { 'c': 'string', 'ml': 'string' },
 }
 
 unsupported_types = set([
@@ -54,26 +54,39 @@ def variant_type(p):
 
   return '[ %s ] gobject' % ' | '.join(onames)
 
-def c_ml_type(type_, is_arg=None):
-  t = type_.get_tag_as_string()
-  ct = c_ml_types.get(t, None)
-  if ct is not None: return ct
-  if is_arg and t == 'array':
-    l = type_.get_array_length()
-    elt_type = c_ml_type(type_.get_param_type(0), is_arg=is_arg)
-    if elt_type is not None and elt_type['base']:
-      c, ml = elt_type['c'], elt_type['ml']
-      return { 'c': 'ptr ' + c, 'ml': ml, 'base': False, 'len': l }
-  if t == 'interface':
-    oname = type_.get_interface().get_name()
-    t = snake_case(oname)
-    if t in unsupported_types: return None
-    assert (is_arg is not None)
-    if is_arg:
-      ml = '[> `%s ] gobject' % t
-    else:
-      ml = variant_type(type_.get_interface())
-    return { 'c': t, 'ml': ml, 'base': False }
+class Type(object):
+  def __init__(self, type_, arg=None):
+    t = type_.get_tag_as_string()
+    base_type = base_types.get(t, None)
+    self._len = None
+    if arg is not None:
+      self._arg_name = arg.get_name()
+      self._nullable = bool(arg.may_be_null())
+    if base_type is not None:
+      self._c = base_type['c']
+      self._ml = base_type['ml']
+      self._base = True
+      return
+    self._base = False
+    if arg is not None and t == 'array':
+      l = type_.get_array_length()
+      elt_type = base_types.get(type_.get_param_type(0).get_tag_as_string(), None)
+      if elt_type is not None:
+        self._elt_c = elt_type['c']
+        self._c = 'ptr ' + elt_type['c']
+        self._ml = elt_type['ml'] + ' list'
+        self._len = l
+        self._nullable = False
+        return
+    if t == 'interface':
+      oname = type_.get_interface().get_name()
+      t = snake_case(oname)
+      if t not in unsupported_types:
+        if arg is not None: self._ml = '[> `%s ] gobject' % t
+        else: self._ml = variant_type(type_.get_interface())
+        self._c = t
+        return
+    raise ValueError('unhandled type %s %s' % (type_, arg))
 
 def handle_object_info(oinfo, f_c, f_ml, f_mli):
   oname = oinfo.get_name()
@@ -102,83 +115,58 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
     try:
       mname = snake_case(m.get_name())
       args = m.get_arguments()
-      c_type = []
-      ml_type = []
-      ml_args = []
-      array_type = {}
+      arg_types = []
       len_indexes = {}
 
       for arg in args:
-        arg_type = c_ml_type(arg.get_type(), is_arg=True)
-        if arg_type is None:
-          raise ValueError('unhandled type for %s %s' % (arg, m))
-        c_type.append(arg_type['c'])
-        arg_name = arg.get_name()
-        l = arg_type.get('len', None)
-        if l is not None:
-          array_type[arg_name] = arg_type['c'][4:]
-          arg_type = arg_type['ml'] + ' list'
-          len_indexes[l] = arg_name
-        else:
-          arg_type = arg_type['ml']
-        if arg.may_be_null() and l is None:
-          arg_type = '?' + arg_name + ':' + arg_type
-          arg_name = '?' + arg_name
-        ml_args.append(arg_name)
-        ml_type.append(arg_type)
+        arg_type = Type(arg.get_type(), arg=arg)
+        arg_types.append(arg_type)
+        if arg_type._len is not None:
+          len_indexes[arg_type._len] = arg.get_name()
 
-      if m.can_throw_gerror():
-        c_type.append('ptr (ptr GError.t)')
+      no_arg = len(args) == 0 and not m.can_throw_gerror() and not m.is_method()
 
-      if len(c_type) == 0 and not m.is_method():
-        c_type.append('void')
-        ml_args.append('()')
-        ml_type.append('unit')
+      return_type = None
+      if not m.is_constructor():
+        return_type = Type(m.get_return_type(), arg=None)
 
-      return_base_type = None
-      if m.is_constructor():
-        c_type.append('returning t')
-        ml_type.append('t')
-        return_base_type = False
-      else:
-        return_type = c_ml_type(m.get_return_type(), is_arg=False)
-        if return_type is None:
-          raise ValueError('unhandled rt for ' + str(m))
-        c_type.append('returning %s' % return_type['c'])
-        ml_type.append(return_type['ml'])
-        # TODO: check whether ownership is passed..., e.g. [m.get_caller_owns] ?
-        return_base_type = return_type['base']
+      call_args = ['t__'] if m.is_method() else []
 
-      call_args = []
-      for index, arg in enumerate(ml_args):
+      for index, arg in enumerate(arg_types):
         if index in len_indexes:
           of_int = None
-          if ml_type[index] == 'Int64.t': of_int = 'Int64.of_int'
-          if ml_type[index] == 'Int32.t': of_int = 'Int32.of_int'
-          if ml_type[index] == 'Unsigned.uint32': of_int = 'Unsigned.UInt32.of_int'
-          if ml_type[index] == 'Unsigned.uint64': of_int = 'Unsigned.UInt64.of_int'
+          if arg._ml == 'Int64.t': of_int = 'Int64.of_int'
+          if arg._ml == 'Int32.t': of_int = 'Int32.of_int'
+          if arg._ml == 'Unsigned.uint32': of_int = 'Unsigned.UInt32.of_int'
+          if arg._ml == 'Unsigned.uint64': of_int = 'Unsigned.UInt64.of_int'
           if of_int is None:
-            raise ValueError('cannot convert to int ' + ml_type[index])
+            raise ValueError('cannot convert to int ' + str(arg))
           call_args.append('(List.length %s |> %s)' % (len_indexes[index], of_int))
           continue
-        if arg[0] == '?': arg = '(match %s with | None -> null | Some v -> v)' % arg[1:]
-        if arg in array_type:
-          arg = '(CArray.of_list %s %s |> CArray.start)' % (array_type[arg], arg)
+        if arg._nullable: arg = '(match %s with | None -> null | Some v -> v)' % arg._arg_name
+        elif arg._len is not None:
+          arg = '(CArray.of_list %s %s |> CArray.start)' % (arg._elt_c, arg._arg_name)
+        else: arg = arg._arg_name
         call_args.append(arg)
 
+      if no_arg: call_args.append('()')
       call_args = ' '.join(call_args)
 
-      c_type = ' @-> '.join(c_type)
-      if m.is_method():
-        c_type = 't @-> ' + c_type
-        call_args = 't__ ' + call_args
-      f_c.write('    let %s = foreign "%s"\n' % (mname, m.get_symbol()))
-      f_c.write('      (%s)\n' % c_type)
+      c_type = [ 't' ] if m.is_method() else []
+      c_type += [ t._c for t in arg_types ]
+      if m.can_throw_gerror(): c_type.append('ptr (ptr GError.t)')
+      if no_arg: c_type.append('void')
+      if m.is_constructor(): c_type.append('returning t')
+      else: c_type.append('returning %s' % return_type._c)
 
-      ml_args2 = [m for m in ml_args if m[0] == '?']
-      if m.is_method(): ml_args2.append(' t__ ')
-      ml_args2 += [m for i, m in enumerate(ml_args) if m[0] != '?' and i not in len_indexes]
-      f_ml.write('  let %s %s =\n' % (mname, ' '.join(ml_args2)))
+      f_c.write('    let %s = foreign "%s"\n' % (mname, m.get_symbol()))
+      f_c.write('      (%s)\n' % ' @-> '.join(c_type))
+
+      ml_args = ['?' + m._arg_name for m in arg_types if m._nullable]
+      if m.is_method(): ml_args.append('t__')
+      ml_args += [m._arg_name for i, m in enumerate(arg_types) if not m._nullable and i not in len_indexes]
+      if len(ml_args) == 0: ml_args = ['()']
+      f_ml.write('  let %s %s =\n' % (mname, ' '.join(ml_args)))
       if m.can_throw_gerror():
         f_ml.write('    let gerr__ = CArray.make (ptr C.GError.t) 1 in\n')
         f_ml.write('    let res = C.%s.%s %s (CArray.start gerr__) in\n' % (oname, mname, call_args))
@@ -195,17 +183,20 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
       else:
         f_ml.write('    let res = C.%s.%s %s in\n' % (oname, mname, call_args))
 
-      if not return_base_type:
+      if m.is_constructor() or (return_type is not None and not return_type._base):
         f_ml.write('    if Ctypes.is_null res\n')
         f_ml.write('    then failwith "returned null";\n')
         f_ml.write('    Gc.finalise C.object_unref res;\n')
       f_ml.write('    res\n\n')
 
-      ml_type2 = [m for m in ml_type if m[0] == '?']
-      if m.is_method(): ml_type2 += ['[> `%s ] gobject' %  snake_case(oname)]
-      ml_type2 += [m for i, m in enumerate(ml_type) if m[0] != '?' and i not in len_indexes]
+      ml_type = ['?' + m._arg_name + ':' + m._ml for m in arg_types if m._nullable]
+      if m.is_method(): ml_type += ['[> `%s ] gobject' %  snake_case(oname)]
+      ml_type += [m._ml for i, m in enumerate(arg_types) if not m._nullable and i not in len_indexes]
+      if no_arg: ml_type.append('unit')
+      if m.is_constructor(): ml_type.append('t')
+      else: ml_type.append(return_type._ml)
 
-      f_mli.write('  val %s : %s\n' % (mname, ' -> '.join(ml_type2)))
+      f_mli.write('  val %s : %s\n' % (mname, ' -> '.join(ml_type)))
     except ValueError as e:
       if verbose: print(oname, m.get_name(), e)
 
