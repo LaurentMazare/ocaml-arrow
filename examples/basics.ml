@@ -13,6 +13,13 @@ let build () =
     let ok = C.Int32ArrayBuilder.append_value builder (Int32.of_int_exn i) in
     assert ok
   done;
+  let ok =
+    C.Int32ArrayBuilder.append_values
+      builder
+      (List.map [ 3; 1; 4 ] ~f:Int32.of_int_exn)
+      []
+  in
+  assert ok;
   let array = C.ArrayBuilder.finish builder in
   Stdio.printf "%s\n%!" (C.Array.to_string array);
   let array = Option.value_exn (C.Int32Array.of_gobject array) in
