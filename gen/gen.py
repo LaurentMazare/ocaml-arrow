@@ -70,11 +70,12 @@ class Type(object):
     self._base = False
     if arg is not None and t == 'array':
       l = type_.get_array_length()
-      elt_type = base_types.get(type_.get_param_type(0).get_tag_as_string(), None)
+      elt_type = Type(type_.get_param_type(0), arg=None)
       if elt_type is not None:
-        self._elt_c = elt_type['c']
-        self._c = 'ptr ' + elt_type['c']
-        self._ml = elt_type['ml'] + ' list'
+        self._elt_c = elt_type._c
+        if not elt_type._base: self._elt_c = 'C.' + elt_type._c
+        self._c = 'ptr ' + elt_type._c
+        self._ml = elt_type._ml + ' list'
         self._len = l
         self._nullable = False
         return
@@ -186,6 +187,9 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
         f_ml.write('    end;\n')
       else:
         f_ml.write('    let res = C.%s.%s %s in\n' % (oname, mname, call_args))
+      for arg in arg_types:
+        if arg._len is not None:
+          f_ml.write('    let _ = Sys.opaque_identity %s in\n' % arg._arg_name)
 
       if m.is_constructor() or (return_type is not None and not return_type._base):
         f_ml.write('    if Ctypes.is_null res\n')

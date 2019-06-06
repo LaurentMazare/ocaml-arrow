@@ -1141,6 +1141,9 @@ module Table : sig
 
   val of_gobject : _ gobject -> t option
 
+  val new_arrays : [> `schema ] gobject -> [ `array_ ] gobject list -> t
+  val new_columns : [> `schema ] gobject -> [ `column ] gobject list -> t
+  val new_record_batches : [> `schema ] gobject -> [ `record_batch ] gobject list -> t
   val add_column : [> `table ] gobject -> Unsigned.uint32 -> [> `column ] gobject -> [ `table ] gobject
   val equal : [> `table ] gobject -> [> `table ] gobject -> bool
   val get_column : [> `table ] gobject -> Unsigned.uint32 -> [ `column ] gobject

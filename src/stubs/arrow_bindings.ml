@@ -1737,6 +1737,12 @@ module C (F : Cstubs.FOREIGN) = struct
     let get_type = foreign "garrow_table_get_type"
       (void @-> returning ulong)
 
+    let new_arrays = foreign "garrow_table_new_arrays"
+      (schema @-> ptr array_ @-> uint64_t @-> ptr (ptr GError.t) @-> returning t)
+    let new_columns = foreign "garrow_table_new_columns"
+      (schema @-> ptr column @-> uint64_t @-> ptr (ptr GError.t) @-> returning t)
+    let new_record_batches = foreign "garrow_table_new_record_batches"
+      (schema @-> ptr record_batch @-> uint64_t @-> ptr (ptr GError.t) @-> returning t)
     let add_column = foreign "garrow_table_add_column"
       (t @-> uint32_t @-> column @-> ptr (ptr GError.t) @-> returning table)
     let equal = foreign "garrow_table_equal"

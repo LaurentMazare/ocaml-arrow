@@ -276,6 +276,7 @@ module BinaryArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity value in
     res
 
 end
@@ -463,6 +464,8 @@ module BooleanArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -492,6 +495,7 @@ module Buffer = struct
 
   let new_ data =
     let res = C.Buffer.new_ (CArray.of_list uint8_t data |> CArray.start) (List.length data |> Int64.of_int) in
+    let _ = Sys.opaque_identity data in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -1000,6 +1004,8 @@ module Date32ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -1115,6 +1121,8 @@ module Date64ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -1538,6 +1546,8 @@ module DoubleArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -1656,6 +1666,7 @@ module FeatherFileReader = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity indices in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -1674,6 +1685,7 @@ module FeatherFileReader = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity names in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -1979,6 +1991,8 @@ module FloatArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -2211,6 +2225,8 @@ module Int16ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -2341,6 +2357,8 @@ module Int32ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -2471,6 +2489,8 @@ module Int64ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -2601,6 +2621,8 @@ module Int8ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -2695,6 +2717,8 @@ module IntArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -2867,6 +2891,7 @@ module MutableBuffer = struct
 
   let new_ data =
     let res = C.MutableBuffer.new_ (CArray.of_list uint8_t data |> CArray.start) (List.length data |> Int64.of_int) in
+    let _ = Sys.opaque_identity data in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -2885,6 +2910,7 @@ module MutableBuffer = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity data in
     res
 
   let slice t__ offset size =
@@ -3731,6 +3757,8 @@ module StringArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -3872,6 +3900,63 @@ module Table = struct
     if C.Table.get_type () = C.gobject_type g
     then Some g else None
 
+  let new_arrays schema arrays =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.Table.new_arrays schema (CArray.of_list C.array_ arrays |> CArray.start) (List.length arrays |> Unsigned.UInt64.of_int) (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    let _ = Sys.opaque_identity arrays in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let new_columns schema columns =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.Table.new_columns schema (CArray.of_list C.column columns |> CArray.start) (List.length columns |> Unsigned.UInt64.of_int) (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    let _ = Sys.opaque_identity columns in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
+  let new_record_batches schema record_batches =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.Table.new_record_batches schema (CArray.of_list C.record_batch record_batches |> CArray.start) (List.length record_batches |> Unsigned.UInt64.of_int) (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    let _ = Sys.opaque_identity record_batches in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
   let add_column t__ i column =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.Table.add_column t__ i column (CArray.start gerr__) in
@@ -3994,6 +4079,9 @@ module Tensor = struct
 
   let new_ data_type data shape strides dimention_names =
     let res = C.Tensor.new_ data_type data (CArray.of_list int64_t shape |> CArray.start) (List.length shape |> Unsigned.UInt64.of_int) (CArray.of_list int64_t strides |> CArray.start) (List.length strides |> Unsigned.UInt64.of_int) (CArray.of_list string dimention_names |> CArray.start) (List.length dimention_names |> Unsigned.UInt64.of_int) in
+    let _ = Sys.opaque_identity shape in
+    let _ = Sys.opaque_identity strides in
+    let _ = Sys.opaque_identity dimention_names in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -4141,6 +4229,8 @@ module Time32ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -4249,6 +4339,8 @@ module Time64ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -4367,6 +4459,8 @@ module TimestampArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -4490,6 +4584,8 @@ module UInt16ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -4620,6 +4716,8 @@ module UInt32ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -4750,6 +4848,8 @@ module UInt64ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -4880,6 +4980,8 @@ module UInt8ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
@@ -4974,6 +5076,8 @@ module UIntArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
+    let _ = Sys.opaque_identity values in
+    let _ = Sys.opaque_identity is_valids in
     res
 
 end
