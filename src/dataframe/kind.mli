@@ -13,3 +13,16 @@ type (_, _) t =
   | String : ([ `string ], string) t
 
 type packed = P : _ t -> packed
+
+val double : ([ `double ], float) t
+val float : ([ `float ], float) t
+val int64 : ([ `int64 ], int) t
+val int32 : ([ `int32 ], int) t
+val int16 : ([ `int16 ], int) t
+val int8 : ([ `int8 ], int) t
+val uint64 : ([ `uint64 ], int) t
+val uint32 : ([ `uint32 ], int) t
+val uint16 : ([ `uint16 ], int) t
+val uint8 : ([ `uint8 ], int) t
+val bool : ([ `bool ], bool) t
+val string : ([ `string ], string) t

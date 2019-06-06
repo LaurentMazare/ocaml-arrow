@@ -13,3 +13,16 @@ type (_, _) t =
   | String : ([ `string ], string) t
 
 type packed = P : _ t -> packed
+
+let double = Double
+let float = Float
+let int64 = Int64
+let int32 = Int32
+let int16 = Int16
+let int8 = Int8
+let uint64 = Uint64
+let uint32 = Uint32
+let uint16 = Uint16
+let uint8 = Uint8
+let bool = Bool
+let string = String

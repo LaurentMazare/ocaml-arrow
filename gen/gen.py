@@ -101,6 +101,10 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
   f_mli.write('module %s : sig\n' % oname)
   f_mli.write('  type t = %s\n\n' % variant_t)
 
+  if oinfo.get_parent().get_name() != 'Object':
+    f_ml.write('  let parent t = t\n\n')
+    f_mli.write('  val parent : t -> %s\n\n' % variant_type(oinfo.get_parent()))
+
   get_type = oinfo.get_type_init()
   f_c.write('    let get_type = foreign "%s"\n' % get_type)
   f_c.write('      (void @-> returning ulong)\n\n')

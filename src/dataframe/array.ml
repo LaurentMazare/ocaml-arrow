@@ -4,42 +4,44 @@ module W = Arrow_core.Wrapper
 module type S = sig
   type elt_t
   type ml_t
+  type t
 
+  val of_array : W.Array.t -> t
   val kind : (elt_t, ml_t) Kind.t
-  val get : W.Array.t -> Int64.t -> ml_t
-  val set : W.Array.t -> Int64.t -> ml_t -> unit
+  val get : t -> Int64.t -> ml_t
+  val set : t -> Int64.t -> ml_t -> unit
 end
 
 module DoubleArray = struct
   type elt_t = [ `double ]
   type ml_t = float
+  type t = W.DoubleArray.t
 
   let kind = Kind.Double
-
-  (* TODO: using a [W.DoubleArray.parent] would avoid going through
-     an option here. *)
   let of_array array = Option.value_exn (W.DoubleArray.of_gobject array)
-  let get array index = W.DoubleArray.get_value (of_array array) index
+  let get = W.DoubleArray.get_value
   let set _array _index _v = failwith "TODO"
 end
 
 module FloatArray = struct
   type elt_t = [ `float ]
   type ml_t = float
+  type t = W.FloatArray.t
 
   let kind = Kind.Float
   let of_array array = Option.value_exn (W.FloatArray.of_gobject array)
-  let get array index = W.FloatArray.get_value (of_array array) index
+  let get = W.FloatArray.get_value
   let set _array _index _v = failwith "TODO"
 end
 
 module Int64Array = struct
   type elt_t = [ `int64 ]
   type ml_t = int
+  type t = W.Int64Array.t
 
   let kind = Kind.Int64
   let of_array array = Option.value_exn (W.Int64Array.of_gobject array)
-  let get array index = W.Int64Array.get_value (of_array array) index |> Int64.to_int_exn
+  let get t i = W.Int64Array.get_value t i |> Int64.to_int_exn
   let set _array _index _v = failwith "TODO"
 end
 
@@ -71,13 +73,13 @@ let get : type a b. (a, b) t -> int -> b =
  fun t index ->
   let index = Int64.of_int index in
   let (module M) = t.mod_ in
-  M.get t.data index
+  M.get (M.of_array t.data) index
 
 let set : type a b. (a, b) t -> int -> b -> unit =
  fun t index v ->
   let index = Int64.of_int index in
   let (module M) = t.mod_ in
-  M.set t.data index v
+  M.set (M.of_array t.data) index v
 
 type packed = P : _ t -> packed
 

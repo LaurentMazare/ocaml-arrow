@@ -204,6 +204,8 @@ end
 
 module BinaryArray = struct
   type t = [ `binary_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.BinaryArray.get_type () = C.gobject_type g
     then Some g else None
@@ -233,6 +235,8 @@ end
 
 module BinaryArrayBuilder = struct
   type t = [ `binary_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.BinaryArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -278,6 +282,8 @@ end
 
 module BinaryDataType = struct
   type t = [ `binary_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.BinaryDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -293,6 +299,8 @@ end
 
 module BooleanArray = struct
   type t = [ `boolean_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.BooleanArray.get_type () = C.gobject_type g
     then Some g else None
@@ -384,6 +392,8 @@ end
 
 module BooleanArrayBuilder = struct
   type t = [ `boolean_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.BooleanArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -459,6 +469,8 @@ end
 
 module BooleanDataType = struct
   type t = [ `boolean_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.BooleanDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -541,6 +553,8 @@ end
 
 module BufferInputStream = struct
   type t = [ `buffer_input_stream | `seekable_input_stream | `input_stream ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.BufferInputStream.get_type () = C.gobject_type g
     then Some g else None
@@ -563,6 +577,8 @@ end
 
 module BufferOutputStream = struct
   type t = [ `buffer_output_stream | `output_stream ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.BufferOutputStream.get_type () = C.gobject_type g
     then Some g else None
@@ -805,6 +821,8 @@ end
 
 module CompressedInputStream = struct
   type t = [ `compressed_input_stream | `input_stream ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.CompressedInputStream.get_type () = C.gobject_type g
     then Some g else None
@@ -831,6 +849,8 @@ end
 
 module CompressedOutputStream = struct
   type t = [ `compressed_output_stream | `output_stream ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.CompressedOutputStream.get_type () = C.gobject_type g
     then Some g else None
@@ -888,6 +908,8 @@ end
 
 module Date32Array = struct
   type t = [ `date32_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Date32Array.get_type () = C.gobject_type g
     then Some g else None
@@ -907,6 +929,8 @@ end
 
 module Date32ArrayBuilder = struct
   type t = [ `date32_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Date32ArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -982,6 +1006,8 @@ end
 
 module Date32DataType = struct
   type t = [ `date32_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Date32DataType.get_type () = C.gobject_type g
     then Some g else None
@@ -997,6 +1023,8 @@ end
 
 module Date64Array = struct
   type t = [ `date64_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Date64Array.get_type () = C.gobject_type g
     then Some g else None
@@ -1016,6 +1044,8 @@ end
 
 module Date64ArrayBuilder = struct
   type t = [ `date64_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Date64ArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -1091,6 +1121,8 @@ end
 
 module Date64DataType = struct
   type t = [ `date64_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Date64DataType.get_type () = C.gobject_type g
     then Some g else None
@@ -1203,6 +1235,8 @@ end
 
 module Decimal128Array = struct
   type t = [ `decimal128_array | `fixed_size_binary_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Decimal128Array.get_type () = C.gobject_type g
     then Some g else None
@@ -1222,6 +1256,8 @@ end
 
 module Decimal128ArrayBuilder = struct
   type t = [ `decimal128_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Decimal128ArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -1267,6 +1303,8 @@ end
 
 module Decimal128DataType = struct
   type t = [ `decimal128_data_type | `decimal_data_type | `fixed_size_binary_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Decimal128DataType.get_type () = C.gobject_type g
     then Some g else None
@@ -1282,6 +1320,8 @@ end
 
 module DecimalDataType = struct
   type t = [ `decimal_data_type | `fixed_size_binary_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.DecimalDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -1298,6 +1338,8 @@ end
 
 module DenseUnionArray = struct
   type t = [ `dense_union_array | `union_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.DenseUnionArray.get_type () = C.gobject_type g
     then Some g else None
@@ -1306,6 +1348,8 @@ end
 
 module DenseUnionDataType = struct
   type t = [ `dense_union_data_type | `union_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.DenseUnionDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -1314,6 +1358,8 @@ end
 
 module DictionaryArray = struct
   type t = [ `dictionary_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.DictionaryArray.get_type () = C.gobject_type g
     then Some g else None
@@ -1350,6 +1396,8 @@ end
 
 module DictionaryDataType = struct
   type t = [ `dictionary_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.DictionaryDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -1383,6 +1431,8 @@ end
 
 module DoubleArray = struct
   type t = [ `double_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.DoubleArray.get_type () = C.gobject_type g
     then Some g else None
@@ -1417,6 +1467,8 @@ end
 
 module DoubleArrayBuilder = struct
   type t = [ `double_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.DoubleArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -1492,6 +1544,8 @@ end
 
 module DoubleDataType = struct
   type t = [ `double_data_type | `floating_point_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.DoubleDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -1745,6 +1799,8 @@ end
 
 module FileOutputStream = struct
   type t = [ `file_output_stream | `output_stream ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.FileOutputStream.get_type () = C.gobject_type g
     then Some g else None
@@ -1771,6 +1827,8 @@ end
 
 module FixedSizeBinaryArray = struct
   type t = [ `fixed_size_binary_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.FixedSizeBinaryArray.get_type () = C.gobject_type g
     then Some g else None
@@ -1779,6 +1837,8 @@ end
 
 module FixedSizeBinaryDataType = struct
   type t = [ `fixed_size_binary_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.FixedSizeBinaryDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -1798,6 +1858,8 @@ end
 
 module FixedWidthDataType = struct
   type t = [ `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.FixedWidthDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -1810,6 +1872,8 @@ end
 
 module FloatArray = struct
   type t = [ `float_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.FloatArray.get_type () = C.gobject_type g
     then Some g else None
@@ -1844,6 +1908,8 @@ end
 
 module FloatArrayBuilder = struct
   type t = [ `float_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.FloatArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -1919,6 +1985,8 @@ end
 
 module FloatDataType = struct
   type t = [ `float_data_type | `floating_point_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.FloatDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -1934,6 +2002,8 @@ end
 
 module FloatingPointDataType = struct
   type t = [ `floating_point_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.FloatingPointDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -1942,6 +2012,8 @@ end
 
 module GIOInputStream = struct
   type t = [ `gio_input_stream | `seekable_input_stream | `input_stream ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.GIOInputStream.get_type () = C.gobject_type g
     then Some g else None
@@ -1957,6 +2029,8 @@ end
 
 module GIOOutputStream = struct
   type t = [ `gio_output_stream | `output_stream ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.GIOOutputStream.get_type () = C.gobject_type g
     then Some g else None
@@ -1972,6 +2046,8 @@ end
 
 module InputStream = struct
   type t = [ `input_stream ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.InputStream.get_type () = C.gobject_type g
     then Some g else None
@@ -2028,6 +2104,8 @@ end
 
 module Int16Array = struct
   type t = [ `int16_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Int16Array.get_type () = C.gobject_type g
     then Some g else None
@@ -2062,6 +2140,8 @@ end
 
 module Int16ArrayBuilder = struct
   type t = [ `int16_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Int16ArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -2137,6 +2217,8 @@ end
 
 module Int16DataType = struct
   type t = [ `int16_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Int16DataType.get_type () = C.gobject_type g
     then Some g else None
@@ -2152,6 +2234,8 @@ end
 
 module Int32Array = struct
   type t = [ `int32_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Int32Array.get_type () = C.gobject_type g
     then Some g else None
@@ -2186,6 +2270,8 @@ end
 
 module Int32ArrayBuilder = struct
   type t = [ `int32_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Int32ArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -2261,6 +2347,8 @@ end
 
 module Int32DataType = struct
   type t = [ `int32_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Int32DataType.get_type () = C.gobject_type g
     then Some g else None
@@ -2276,6 +2364,8 @@ end
 
 module Int64Array = struct
   type t = [ `int64_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Int64Array.get_type () = C.gobject_type g
     then Some g else None
@@ -2310,6 +2400,8 @@ end
 
 module Int64ArrayBuilder = struct
   type t = [ `int64_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Int64ArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -2385,6 +2477,8 @@ end
 
 module Int64DataType = struct
   type t = [ `int64_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Int64DataType.get_type () = C.gobject_type g
     then Some g else None
@@ -2400,6 +2494,8 @@ end
 
 module Int8Array = struct
   type t = [ `int8_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Int8Array.get_type () = C.gobject_type g
     then Some g else None
@@ -2434,6 +2530,8 @@ end
 
 module Int8ArrayBuilder = struct
   type t = [ `int8_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Int8ArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -2509,6 +2607,8 @@ end
 
 module Int8DataType = struct
   type t = [ `int8_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Int8DataType.get_type () = C.gobject_type g
     then Some g else None
@@ -2524,6 +2624,8 @@ end
 
 module IntArrayBuilder = struct
   type t = [ `int_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.IntArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -2599,6 +2701,8 @@ end
 
 module IntegerDataType = struct
   type t = [ `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.IntegerDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -2607,6 +2711,8 @@ end
 
 module ListArray = struct
   type t = [ `list_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.ListArray.get_type () = C.gobject_type g
     then Some g else None
@@ -2636,6 +2742,8 @@ end
 
 module ListArrayBuilder = struct
   type t = [ `list_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.ListArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -2699,6 +2807,8 @@ end
 
 module ListDataType = struct
   type t = [ `list_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.ListDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -2721,6 +2831,8 @@ end
 
 module MemoryMappedInputStream = struct
   type t = [ `memory_mapped_input_stream | `seekable_input_stream | `input_stream ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.MemoryMappedInputStream.get_type () = C.gobject_type g
     then Some g else None
@@ -2747,6 +2859,8 @@ end
 
 module MutableBuffer = struct
   type t = [ `mutable_buffer | `buffer ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.MutableBuffer.get_type () = C.gobject_type g
     then Some g else None
@@ -2784,6 +2898,8 @@ end
 
 module NullArray = struct
   type t = [ `null_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.NullArray.get_type () = C.gobject_type g
     then Some g else None
@@ -2799,6 +2915,8 @@ end
 
 module NullArrayBuilder = struct
   type t = [ `null_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.NullArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -2844,6 +2962,8 @@ end
 
 module NullDataType = struct
   type t = [ `null_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.NullDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -2859,6 +2979,8 @@ end
 
 module NumericArray = struct
   type t = [ `numeric_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.NumericArray.get_type () = C.gobject_type g
     then Some g else None
@@ -2882,6 +3004,8 @@ end
 
 module NumericDataType = struct
   type t = [ `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.NumericDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -2928,6 +3052,8 @@ end
 
 module PrimitiveArray = struct
   type t = [ `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.PrimitiveArray.get_type () = C.gobject_type g
     then Some g else None
@@ -3160,6 +3286,8 @@ end
 
 module RecordBatchFileWriter = struct
   type t = [ `record_batch_file_writer | `record_batch_stream_writer | `record_batch_writer ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.RecordBatchFileWriter.get_type () = C.gobject_type g
     then Some g else None
@@ -3219,6 +3347,8 @@ end
 
 module RecordBatchStreamReader = struct
   type t = [ `record_batch_stream_reader | `record_batch_reader ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.RecordBatchStreamReader.get_type () = C.gobject_type g
     then Some g else None
@@ -3245,6 +3375,8 @@ end
 
 module RecordBatchStreamWriter = struct
   type t = [ `record_batch_stream_writer | `record_batch_writer ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.RecordBatchStreamWriter.get_type () = C.gobject_type g
     then Some g else None
@@ -3324,6 +3456,8 @@ end
 
 module ResizableBuffer = struct
   type t = [ `resizable_buffer | `mutable_buffer | `buffer ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.ResizableBuffer.get_type () = C.gobject_type g
     then Some g else None
@@ -3468,6 +3602,8 @@ end
 
 module SeekableInputStream = struct
   type t = [ `seekable_input_stream | `input_stream ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.SeekableInputStream.get_type () = C.gobject_type g
     then Some g else None
@@ -3513,6 +3649,8 @@ end
 
 module SparseUnionArray = struct
   type t = [ `sparse_union_array | `union_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.SparseUnionArray.get_type () = C.gobject_type g
     then Some g else None
@@ -3521,6 +3659,8 @@ end
 
 module SparseUnionDataType = struct
   type t = [ `sparse_union_data_type | `union_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.SparseUnionDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -3529,6 +3669,8 @@ end
 
 module StringArray = struct
   type t = [ `string_array | `binary_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.StringArray.get_type () = C.gobject_type g
     then Some g else None
@@ -3548,6 +3690,8 @@ end
 
 module StringArrayBuilder = struct
   type t = [ `string_array_builder | `binary_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.StringArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -3593,6 +3737,8 @@ end
 
 module StringDataType = struct
   type t = [ `string_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.StringDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -3608,6 +3754,8 @@ end
 
 module StructArray = struct
   type t = [ `struct_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.StructArray.get_type () = C.gobject_type g
     then Some g else None
@@ -3623,6 +3771,8 @@ end
 
 module StructArrayBuilder = struct
   type t = [ `struct_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.StructArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -3686,6 +3836,8 @@ end
 
 module StructDataType = struct
   type t = [ `struct_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.StructDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -3819,6 +3971,8 @@ end
 
 module TableBatchReader = struct
   type t = [ `table_batch_reader | `record_batch_reader ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.TableBatchReader.get_type () = C.gobject_type g
     then Some g else None
@@ -3895,6 +4049,8 @@ end
 
 module Time32Array = struct
   type t = [ `time32_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Time32Array.get_type () = C.gobject_type g
     then Some g else None
@@ -3914,6 +4070,8 @@ end
 
 module Time32ArrayBuilder = struct
   type t = [ `time32_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Time32ArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -3989,6 +4147,8 @@ end
 
 module Time32DataType = struct
   type t = [ `time32_data_type | `time_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Time32DataType.get_type () = C.gobject_type g
     then Some g else None
@@ -3997,6 +4157,8 @@ end
 
 module Time64Array = struct
   type t = [ `time64_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Time64Array.get_type () = C.gobject_type g
     then Some g else None
@@ -4016,6 +4178,8 @@ end
 
 module Time64ArrayBuilder = struct
   type t = [ `time64_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Time64ArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -4091,6 +4255,8 @@ end
 
 module Time64DataType = struct
   type t = [ `time64_data_type | `time_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.Time64DataType.get_type () = C.gobject_type g
     then Some g else None
@@ -4099,6 +4265,8 @@ end
 
 module TimeDataType = struct
   type t = [ `time_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.TimeDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -4107,6 +4275,8 @@ end
 
 module TimestampArray = struct
   type t = [ `timestamp_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.TimestampArray.get_type () = C.gobject_type g
     then Some g else None
@@ -4126,6 +4296,8 @@ end
 
 module TimestampArrayBuilder = struct
   type t = [ `timestamp_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.TimestampArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -4201,6 +4373,8 @@ end
 
 module TimestampDataType = struct
   type t = [ `timestamp_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.TimestampDataType.get_type () = C.gobject_type g
     then Some g else None
@@ -4209,6 +4383,8 @@ end
 
 module UInt16Array = struct
   type t = [ `u_int16_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.UInt16Array.get_type () = C.gobject_type g
     then Some g else None
@@ -4243,6 +4419,8 @@ end
 
 module UInt16ArrayBuilder = struct
   type t = [ `u_int16_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.UInt16ArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -4318,6 +4496,8 @@ end
 
 module UInt16DataType = struct
   type t = [ `u_int16_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.UInt16DataType.get_type () = C.gobject_type g
     then Some g else None
@@ -4333,6 +4513,8 @@ end
 
 module UInt32Array = struct
   type t = [ `u_int32_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.UInt32Array.get_type () = C.gobject_type g
     then Some g else None
@@ -4367,6 +4549,8 @@ end
 
 module UInt32ArrayBuilder = struct
   type t = [ `u_int32_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.UInt32ArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -4442,6 +4626,8 @@ end
 
 module UInt32DataType = struct
   type t = [ `u_int32_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.UInt32DataType.get_type () = C.gobject_type g
     then Some g else None
@@ -4457,6 +4643,8 @@ end
 
 module UInt64Array = struct
   type t = [ `u_int64_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.UInt64Array.get_type () = C.gobject_type g
     then Some g else None
@@ -4491,6 +4679,8 @@ end
 
 module UInt64ArrayBuilder = struct
   type t = [ `u_int64_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.UInt64ArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -4566,6 +4756,8 @@ end
 
 module UInt64DataType = struct
   type t = [ `u_int64_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.UInt64DataType.get_type () = C.gobject_type g
     then Some g else None
@@ -4581,6 +4773,8 @@ end
 
 module UInt8Array = struct
   type t = [ `u_int8_array | `numeric_array | `primitive_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.UInt8Array.get_type () = C.gobject_type g
     then Some g else None
@@ -4615,6 +4809,8 @@ end
 
 module UInt8ArrayBuilder = struct
   type t = [ `u_int8_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.UInt8ArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -4690,6 +4886,8 @@ end
 
 module UInt8DataType = struct
   type t = [ `u_int8_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.UInt8DataType.get_type () = C.gobject_type g
     then Some g else None
@@ -4705,6 +4903,8 @@ end
 
 module UIntArrayBuilder = struct
   type t = [ `u_int_array_builder | `array_builder ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.UIntArrayBuilder.get_type () = C.gobject_type g
     then Some g else None
@@ -4780,6 +4980,8 @@ end
 
 module UnionArray = struct
   type t = [ `union_array | `array_ ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.UnionArray.get_type () = C.gobject_type g
     then Some g else None
@@ -4795,6 +4997,8 @@ end
 
 module UnionDataType = struct
   type t = [ `union_data_type | `data_type ] gobject
+  let parent t = t
+
   let of_gobject g =
     if C.UnionDataType.get_type () = C.gobject_type g
     then Some g else None

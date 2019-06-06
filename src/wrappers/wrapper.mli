@@ -39,6 +39,8 @@ end
 module BinaryArray : sig
   type t = [ `binary_array | `array_ ] gobject
 
+  val parent : t -> [ `array_ ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> [> `buffer ] gobject -> Int64.t -> t
@@ -48,6 +50,8 @@ end
 
 module BinaryArrayBuilder : sig
   type t = [ `binary_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -59,6 +63,8 @@ end
 module BinaryDataType : sig
   type t = [ `binary_data_type | `data_type ] gobject
 
+  val parent : t -> [ `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
@@ -66,6 +72,8 @@ end
 
 module BooleanArray : sig
   type t = [ `boolean_array | `primitive_array | `array_ ] gobject
+
+  val parent : t -> [ `primitive_array | `array_ ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -80,6 +88,8 @@ end
 module BooleanArrayBuilder : sig
   type t = [ `boolean_array_builder | `array_builder ] gobject
 
+  val parent : t -> [ `array_builder ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
@@ -91,6 +101,8 @@ end
 
 module BooleanDataType : sig
   type t = [ `boolean_data_type | `fixed_width_data_type | `data_type ] gobject
+
+  val parent : t -> [ `fixed_width_data_type | `data_type ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -116,6 +128,8 @@ end
 module BufferInputStream : sig
   type t = [ `buffer_input_stream | `seekable_input_stream | `input_stream ] gobject
 
+  val parent : t -> [ `seekable_input_stream | `input_stream ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : [> `buffer ] gobject -> t
@@ -124,6 +138,8 @@ end
 
 module BufferOutputStream : sig
   type t = [ `buffer_output_stream | `output_stream ] gobject
+
+  val parent : t -> [ `output_stream ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -199,6 +215,8 @@ end
 module CompressedInputStream : sig
   type t = [ `compressed_input_stream | `input_stream ] gobject
 
+  val parent : t -> [ `input_stream ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : [> `codec ] gobject -> [> `input_stream ] gobject -> t
@@ -206,6 +224,8 @@ end
 
 module CompressedOutputStream : sig
   type t = [ `compressed_output_stream | `output_stream ] gobject
+
+  val parent : t -> [ `output_stream ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -232,6 +252,8 @@ end
 module Date32Array : sig
   type t = [ `date32_array | `numeric_array | `primitive_array | `array_ ] gobject
 
+  val parent : t -> [ `numeric_array | `primitive_array | `array_ ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
@@ -240,6 +262,8 @@ end
 
 module Date32ArrayBuilder : sig
   type t = [ `date32_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -253,6 +277,8 @@ end
 module Date32DataType : sig
   type t = [ `date32_data_type | `data_type ] gobject
 
+  val parent : t -> [ `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
@@ -260,6 +286,8 @@ end
 
 module Date64Array : sig
   type t = [ `date64_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val parent : t -> [ `numeric_array | `primitive_array | `array_ ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -269,6 +297,8 @@ end
 
 module Date64ArrayBuilder : sig
   type t = [ `date64_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -281,6 +311,8 @@ end
 
 module Date64DataType : sig
   type t = [ `date64_data_type | `data_type ] gobject
+
+  val parent : t -> [ `data_type ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -312,6 +344,8 @@ end
 module Decimal128Array : sig
   type t = [ `decimal128_array | `fixed_size_binary_array | `primitive_array | `array_ ] gobject
 
+  val parent : t -> [ `fixed_size_binary_array | `primitive_array | `array_ ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val format_value : [> `decimal128_array ] gobject -> Int64.t -> string
@@ -320,6 +354,8 @@ end
 
 module Decimal128ArrayBuilder : sig
   type t = [ `decimal128_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -331,6 +367,8 @@ end
 module Decimal128DataType : sig
   type t = [ `decimal128_data_type | `decimal_data_type | `fixed_size_binary_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val parent : t -> [ `decimal_data_type | `fixed_size_binary_data_type | `fixed_width_data_type | `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : Int32.t -> Int32.t -> t
@@ -338,6 +376,8 @@ end
 
 module DecimalDataType : sig
   type t = [ `decimal_data_type | `fixed_size_binary_data_type | `fixed_width_data_type | `data_type ] gobject
+
+  val parent : t -> [ `fixed_size_binary_data_type | `fixed_width_data_type | `data_type ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -348,6 +388,8 @@ end
 module DenseUnionArray : sig
   type t = [ `dense_union_array | `union_array | `array_ ] gobject
 
+  val parent : t -> [ `union_array | `array_ ] gobject
+
   val of_gobject : _ gobject -> t option
 
 end
@@ -355,12 +397,16 @@ end
 module DenseUnionDataType : sig
   type t = [ `dense_union_data_type | `union_data_type | `data_type ] gobject
 
+  val parent : t -> [ `union_data_type | `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
 end
 
 module DictionaryArray : sig
   type t = [ `dictionary_array | `array_ ] gobject
+
+  val parent : t -> [ `array_ ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -373,6 +419,8 @@ end
 module DictionaryDataType : sig
   type t = [ `dictionary_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val parent : t -> [ `fixed_width_data_type | `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : [> `data_type ] gobject -> [> `array_ ] gobject -> bool -> t
@@ -384,6 +432,8 @@ end
 module DoubleArray : sig
   type t = [ `double_array | `numeric_array | `primitive_array | `array_ ] gobject
 
+  val parent : t -> [ `numeric_array | `primitive_array | `array_ ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
@@ -393,6 +443,8 @@ end
 
 module DoubleArrayBuilder : sig
   type t = [ `double_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -405,6 +457,8 @@ end
 
 module DoubleDataType : sig
   type t = [ `double_data_type | `floating_point_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+
+  val parent : t -> [ `floating_point_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -457,6 +511,8 @@ end
 module FileOutputStream : sig
   type t = [ `file_output_stream | `output_stream ] gobject
 
+  val parent : t -> [ `output_stream ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : string -> bool -> t
@@ -465,12 +521,16 @@ end
 module FixedSizeBinaryArray : sig
   type t = [ `fixed_size_binary_array | `primitive_array | `array_ ] gobject
 
+  val parent : t -> [ `primitive_array | `array_ ] gobject
+
   val of_gobject : _ gobject -> t option
 
 end
 
 module FixedSizeBinaryDataType : sig
   type t = [ `fixed_size_binary_data_type | `fixed_width_data_type | `data_type ] gobject
+
+  val parent : t -> [ `fixed_width_data_type | `data_type ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -481,6 +541,8 @@ end
 module FixedWidthDataType : sig
   type t = [ `fixed_width_data_type | `data_type ] gobject
 
+  val parent : t -> [ `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val get_bit_width : [> `fixed_width_data_type ] gobject -> Int32.t
@@ -488,6 +550,8 @@ end
 
 module FloatArray : sig
   type t = [ `float_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val parent : t -> [ `numeric_array | `primitive_array | `array_ ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -498,6 +562,8 @@ end
 
 module FloatArrayBuilder : sig
   type t = [ `float_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -511,6 +577,8 @@ end
 module FloatDataType : sig
   type t = [ `float_data_type | `floating_point_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val parent : t -> [ `floating_point_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
@@ -519,12 +587,16 @@ end
 module FloatingPointDataType : sig
   type t = [ `floating_point_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val parent : t -> [ `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
 end
 
 module GIOInputStream : sig
   type t = [ `gio_input_stream | `seekable_input_stream | `input_stream ] gobject
+
+  val parent : t -> [ `seekable_input_stream | `input_stream ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -534,6 +606,8 @@ end
 module GIOOutputStream : sig
   type t = [ `gio_output_stream | `output_stream ] gobject
 
+  val parent : t -> [ `output_stream ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : [> `output_stream ] gobject -> t
@@ -541,6 +615,8 @@ end
 
 module InputStream : sig
   type t = [ `input_stream ] gobject
+
+  val parent : t -> [ `input_stream ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -552,6 +628,8 @@ end
 module Int16Array : sig
   type t = [ `int16_array | `numeric_array | `primitive_array | `array_ ] gobject
 
+  val parent : t -> [ `numeric_array | `primitive_array | `array_ ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
@@ -561,6 +639,8 @@ end
 
 module Int16ArrayBuilder : sig
   type t = [ `int16_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -574,6 +654,8 @@ end
 module Int16DataType : sig
   type t = [ `int16_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val parent : t -> [ `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
@@ -581,6 +663,8 @@ end
 
 module Int32Array : sig
   type t = [ `int32_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val parent : t -> [ `numeric_array | `primitive_array | `array_ ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -591,6 +675,8 @@ end
 
 module Int32ArrayBuilder : sig
   type t = [ `int32_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -604,6 +690,8 @@ end
 module Int32DataType : sig
   type t = [ `int32_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val parent : t -> [ `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
@@ -611,6 +699,8 @@ end
 
 module Int64Array : sig
   type t = [ `int64_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val parent : t -> [ `numeric_array | `primitive_array | `array_ ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -621,6 +711,8 @@ end
 
 module Int64ArrayBuilder : sig
   type t = [ `int64_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -634,6 +726,8 @@ end
 module Int64DataType : sig
   type t = [ `int64_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val parent : t -> [ `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
@@ -641,6 +735,8 @@ end
 
 module Int8Array : sig
   type t = [ `int8_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val parent : t -> [ `numeric_array | `primitive_array | `array_ ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -651,6 +747,8 @@ end
 
 module Int8ArrayBuilder : sig
   type t = [ `int8_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -664,6 +762,8 @@ end
 module Int8DataType : sig
   type t = [ `int8_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val parent : t -> [ `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
@@ -671,6 +771,8 @@ end
 
 module IntArrayBuilder : sig
   type t = [ `int_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -684,12 +786,16 @@ end
 module IntegerDataType : sig
   type t = [ `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val parent : t -> [ `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
 end
 
 module ListArray : sig
   type t = [ `list_array | `array_ ] gobject
+
+  val parent : t -> [ `array_ ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -700,6 +806,8 @@ end
 
 module ListArrayBuilder : sig
   type t = [ `list_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -712,6 +820,8 @@ end
 module ListDataType : sig
   type t = [ `list_data_type | `data_type ] gobject
 
+  val parent : t -> [ `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : [> `field ] gobject -> t
@@ -721,6 +831,8 @@ end
 module MemoryMappedInputStream : sig
   type t = [ `memory_mapped_input_stream | `seekable_input_stream | `input_stream ] gobject
 
+  val parent : t -> [ `seekable_input_stream | `input_stream ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : string -> t
@@ -728,6 +840,8 @@ end
 
 module MutableBuffer : sig
   type t = [ `mutable_buffer | `buffer ] gobject
+
+  val parent : t -> [ `buffer ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -739,6 +853,8 @@ end
 module NullArray : sig
   type t = [ `null_array | `array_ ] gobject
 
+  val parent : t -> [ `array_ ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : Int64.t -> t
@@ -746,6 +862,8 @@ end
 
 module NullArrayBuilder : sig
   type t = [ `null_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -757,6 +875,8 @@ end
 module NullDataType : sig
   type t = [ `null_data_type | `data_type ] gobject
 
+  val parent : t -> [ `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
@@ -765,6 +885,8 @@ end
 module NumericArray : sig
   type t = [ `numeric_array | `primitive_array | `array_ ] gobject
 
+  val parent : t -> [ `primitive_array | `array_ ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val mean : [> `numeric_array ] gobject -> float
@@ -772,6 +894,8 @@ end
 
 module NumericDataType : sig
   type t = [ `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+
+  val parent : t -> [ `fixed_width_data_type | `data_type ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -788,6 +912,8 @@ end
 
 module PrimitiveArray : sig
   type t = [ `primitive_array | `array_ ] gobject
+
+  val parent : t -> [ `array_ ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -838,6 +964,8 @@ end
 module RecordBatchFileWriter : sig
   type t = [ `record_batch_file_writer | `record_batch_stream_writer | `record_batch_writer ] gobject
 
+  val parent : t -> [ `record_batch_stream_writer | `record_batch_writer ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : [> `output_stream ] gobject -> [> `schema ] gobject -> t
@@ -855,6 +983,8 @@ end
 module RecordBatchStreamReader : sig
   type t = [ `record_batch_stream_reader | `record_batch_reader ] gobject
 
+  val parent : t -> [ `record_batch_reader ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : [> `input_stream ] gobject -> t
@@ -862,6 +992,8 @@ end
 
 module RecordBatchStreamWriter : sig
   type t = [ `record_batch_stream_writer | `record_batch_writer ] gobject
+
+  val parent : t -> [ `record_batch_writer ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -880,6 +1012,8 @@ end
 
 module ResizableBuffer : sig
   type t = [ `resizable_buffer | `mutable_buffer | `buffer ] gobject
+
+  val parent : t -> [ `mutable_buffer | `buffer ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -906,6 +1040,8 @@ end
 module SeekableInputStream : sig
   type t = [ `seekable_input_stream | `input_stream ] gobject
 
+  val parent : t -> [ `input_stream ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val get_size : [> `seekable_input_stream ] gobject -> Unsigned.uint64
@@ -916,6 +1052,8 @@ end
 module SparseUnionArray : sig
   type t = [ `sparse_union_array | `union_array | `array_ ] gobject
 
+  val parent : t -> [ `union_array | `array_ ] gobject
+
   val of_gobject : _ gobject -> t option
 
 end
@@ -923,12 +1061,16 @@ end
 module SparseUnionDataType : sig
   type t = [ `sparse_union_data_type | `union_data_type | `data_type ] gobject
 
+  val parent : t -> [ `union_data_type | `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
 end
 
 module StringArray : sig
   type t = [ `string_array | `binary_array | `array_ ] gobject
+
+  val parent : t -> [ `binary_array | `array_ ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -938,6 +1080,8 @@ end
 
 module StringArrayBuilder : sig
   type t = [ `string_array_builder | `binary_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `binary_array_builder | `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -949,6 +1093,8 @@ end
 module StringDataType : sig
   type t = [ `string_data_type | `data_type ] gobject
 
+  val parent : t -> [ `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
@@ -957,6 +1103,8 @@ end
 module StructArray : sig
   type t = [ `struct_array | `array_ ] gobject
 
+  val parent : t -> [ `array_ ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val get_field : [> `struct_array ] gobject -> Int32.t -> [ `array_ ] gobject
@@ -964,6 +1112,8 @@ end
 
 module StructArrayBuilder : sig
   type t = [ `struct_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -975,6 +1125,8 @@ end
 
 module StructDataType : sig
   type t = [ `struct_data_type | `data_type ] gobject
+
+  val parent : t -> [ `data_type ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -1003,6 +1155,8 @@ end
 module TableBatchReader : sig
   type t = [ `table_batch_reader | `record_batch_reader ] gobject
 
+  val parent : t -> [ `record_batch_reader ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : [> `table ] gobject -> t
@@ -1029,6 +1183,8 @@ end
 module Time32Array : sig
   type t = [ `time32_array | `numeric_array | `primitive_array | `array_ ] gobject
 
+  val parent : t -> [ `numeric_array | `primitive_array | `array_ ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : ?null_bitmap:[> `buffer ] gobject -> [> `time32_data_type ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
@@ -1037,6 +1193,8 @@ end
 
 module Time32ArrayBuilder : sig
   type t = [ `time32_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -1050,12 +1208,16 @@ end
 module Time32DataType : sig
   type t = [ `time32_data_type | `time_data_type | `data_type ] gobject
 
+  val parent : t -> [ `time_data_type | `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
 end
 
 module Time64Array : sig
   type t = [ `time64_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val parent : t -> [ `numeric_array | `primitive_array | `array_ ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -1065,6 +1227,8 @@ end
 
 module Time64ArrayBuilder : sig
   type t = [ `time64_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -1078,6 +1242,8 @@ end
 module Time64DataType : sig
   type t = [ `time64_data_type | `time_data_type | `data_type ] gobject
 
+  val parent : t -> [ `time_data_type | `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
 end
@@ -1085,12 +1251,16 @@ end
 module TimeDataType : sig
   type t = [ `time_data_type | `data_type ] gobject
 
+  val parent : t -> [ `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
 end
 
 module TimestampArray : sig
   type t = [ `timestamp_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val parent : t -> [ `numeric_array | `primitive_array | `array_ ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -1100,6 +1270,8 @@ end
 
 module TimestampArrayBuilder : sig
   type t = [ `timestamp_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -1113,12 +1285,16 @@ end
 module TimestampDataType : sig
   type t = [ `timestamp_data_type | `data_type ] gobject
 
+  val parent : t -> [ `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
 end
 
 module UInt16Array : sig
   type t = [ `u_int16_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val parent : t -> [ `numeric_array | `primitive_array | `array_ ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -1129,6 +1305,8 @@ end
 
 module UInt16ArrayBuilder : sig
   type t = [ `u_int16_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -1142,6 +1320,8 @@ end
 module UInt16DataType : sig
   type t = [ `u_int16_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val parent : t -> [ `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
@@ -1149,6 +1329,8 @@ end
 
 module UInt32Array : sig
   type t = [ `u_int32_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val parent : t -> [ `numeric_array | `primitive_array | `array_ ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -1159,6 +1341,8 @@ end
 
 module UInt32ArrayBuilder : sig
   type t = [ `u_int32_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -1172,6 +1356,8 @@ end
 module UInt32DataType : sig
   type t = [ `u_int32_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val parent : t -> [ `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
@@ -1179,6 +1365,8 @@ end
 
 module UInt64Array : sig
   type t = [ `u_int64_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val parent : t -> [ `numeric_array | `primitive_array | `array_ ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -1189,6 +1377,8 @@ end
 
 module UInt64ArrayBuilder : sig
   type t = [ `u_int64_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -1202,6 +1392,8 @@ end
 module UInt64DataType : sig
   type t = [ `u_int64_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val parent : t -> [ `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
@@ -1209,6 +1401,8 @@ end
 
 module UInt8Array : sig
   type t = [ `u_int8_array | `numeric_array | `primitive_array | `array_ ] gobject
+
+  val parent : t -> [ `numeric_array | `primitive_array | `array_ ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -1219,6 +1413,8 @@ end
 
 module UInt8ArrayBuilder : sig
   type t = [ `u_int8_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -1232,6 +1428,8 @@ end
 module UInt8DataType : sig
   type t = [ `u_int8_data_type | `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
 
+  val parent : t -> [ `integer_data_type | `numeric_data_type | `fixed_width_data_type | `data_type ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val new_ : unit -> t
@@ -1239,6 +1437,8 @@ end
 
 module UIntArrayBuilder : sig
   type t = [ `u_int_array_builder | `array_builder ] gobject
+
+  val parent : t -> [ `array_builder ] gobject
 
   val of_gobject : _ gobject -> t option
 
@@ -1252,6 +1452,8 @@ end
 module UnionArray : sig
   type t = [ `union_array | `array_ ] gobject
 
+  val parent : t -> [ `array_ ] gobject
+
   val of_gobject : _ gobject -> t option
 
   val get_field : [> `union_array ] gobject -> Int32.t -> [ `array_ ] gobject
@@ -1259,6 +1461,8 @@ end
 
 module UnionDataType : sig
   type t = [ `union_data_type | `data_type ] gobject
+
+  val parent : t -> [ `data_type ] gobject
 
   val of_gobject : _ gobject -> t option
 
