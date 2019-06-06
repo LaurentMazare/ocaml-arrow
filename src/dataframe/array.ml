@@ -17,7 +17,7 @@ module type S = sig
 
   val finish : Builder.t -> W.Array.t
   val of_array : W.Array.t -> t
-  val kind : (elt_t, ml_t) Kind.t
+  val data_type : (elt_t, ml_t) Data_type.t
   val get : t -> Int64.t -> ml_t
 end
 
@@ -28,7 +28,7 @@ module DoubleArray = struct
 
   module Builder = W.DoubleArrayBuilder
 
-  let kind = Kind.Double
+  let data_type = Data_type.Double
   let finish = W.ArrayBuilder.finish
   let of_array array = Option.value_exn (W.DoubleArray.of_gobject array)
   let get = W.DoubleArray.get_value
@@ -41,7 +41,7 @@ module FloatArray = struct
 
   module Builder = W.FloatArrayBuilder
 
-  let kind = Kind.Float
+  let data_type = Data_type.Float
   let finish = W.ArrayBuilder.finish
   let of_array array = Option.value_exn (W.FloatArray.of_gobject array)
   let get = W.FloatArray.get_value
@@ -54,7 +54,7 @@ module Int64Array = struct
 
   module Builder = W.Int64ArrayBuilder
 
-  let kind = Kind.Int64
+  let data_type = Data_type.Int64
   let finish = W.ArrayBuilder.finish
   let of_array array = Option.value_exn (W.Int64Array.of_gobject array)
   let get t i = W.Int64Array.get_value t i |> Int64.to_int_exn
@@ -67,7 +67,7 @@ module Int32Array = struct
 
   module Builder = W.Int32ArrayBuilder
 
-  let kind = Kind.Int32
+  let data_type = Data_type.Int32
   let finish = W.ArrayBuilder.finish
   let of_array array = Option.value_exn (W.Int32Array.of_gobject array)
   let get t i = W.Int32Array.get_value t i |> Int32.to_int_exn
@@ -80,7 +80,7 @@ module BoolArray = struct
 
   module Builder = W.BooleanArrayBuilder
 
-  let kind = Kind.Bool
+  let data_type = Data_type.Bool
   let finish = W.ArrayBuilder.finish
   let of_array array = Option.value_exn (W.BooleanArray.of_gobject array)
   let get = W.BooleanArray.get_value
@@ -93,7 +93,7 @@ module StringArray = struct
 
   module Builder = W.StringArrayBuilder
 
-  let kind = Kind.String
+  let data_type = Data_type.String
   let finish = W.ArrayBuilder.finish
   let of_array array = Option.value_exn (W.StringArray.of_gobject array)
   let get = W.StringArray.get_string
@@ -104,15 +104,15 @@ type ('a, 'b) t =
   ; data : W.Array.t
   }
 
-let module_of_kind : type a b.
-    (a, b) Kind.t -> (module S with type elt_t = a and type ml_t = b)
+let module_of_data_type : type a b.
+    (a, b) Data_type.t -> (module S with type elt_t = a and type ml_t = b)
   = function
-  | Kind.Double -> (module DoubleArray)
-  | Kind.Float -> (module FloatArray)
-  | Kind.Int64 -> (module Int64Array)
-  | Kind.Int32 -> (module Int32Array)
-  | Kind.Bool -> (module BoolArray)
-  | Kind.String -> (module StringArray)
+  | Data_type.Double -> (module DoubleArray)
+  | Data_type.Float -> (module FloatArray)
+  | Data_type.Int64 -> (module Int64Array)
+  | Data_type.Int32 -> (module Int32Array)
+  | Data_type.Bool -> (module BoolArray)
+  | Data_type.String -> (module StringArray)
 
 let length t = W.Array.get_length t.data |> Int64.to_int_exn
 let to_string t = W.Array.to_string t.data
@@ -131,24 +131,24 @@ type packed = P : _ t -> packed
 
 let pack t = P t
 
-let unpack : type a b. packed -> (a, b) Kind.t -> (a, b) t option =
- fun (P t) kind ->
+let unpack : type a b. packed -> (a, b) Data_type.t -> (a, b) t option =
+ fun (P t) data_type ->
   let (module M) = t.mod_ in
-  match M.kind, kind with
-  | Kind.Double, Kind.Double -> Some t
-  | Kind.Float, Kind.Float -> Some t
-  | Kind.Int64, Kind.Int64 -> Some t
-  | Kind.Int32, Kind.Int32 -> Some t
-  | Kind.String, Kind.String -> Some t
+  match M.data_type, data_type with
+  | Data_type.Double, Data_type.Double -> Some t
+  | Data_type.Float, Data_type.Float -> Some t
+  | Data_type.Int64, Data_type.Int64 -> Some t
+  | Data_type.Int32, Data_type.Int32 -> Some t
+  | Data_type.String, Data_type.String -> Some t
   | _, _ -> None
 
 let packed_length (P t) = length t
 let packed_to_string (P t) = to_string t
 let packed_slice (P t) ~start ~length = P (slice t ~start ~length)
 
-let of_list : type a b. a list -> (a, b) Kind.t -> (a, b) t =
- fun list kind ->
-  let mod_ = module_of_kind kind in
+let of_list : type a b. a list -> (a, b) Data_type.t -> (a, b) t =
+ fun list data_type ->
+  let mod_ = module_of_data_type data_type in
   let (module M) = mod_ in
   let builder = M.Builder.new_ () in
   if not (M.Builder.append_values builder list []) then failwith "cannot append";
