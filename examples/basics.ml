@@ -27,6 +27,8 @@ let build () =
   let v = C.Int32Array.get_value array (Int64.of_int 3) in
   Stdio.printf "%d\n%!" (Int32.to_int_exn v)
 
+let array () = A.of_list [ 1.; 2.; 3. ] Double |> A.to_string |> Stdio.printf "%s\n%!"
+
 let read () =
   let input_stream = C.MemoryMappedInputStream.new_ "/tmp/a.csv" in
   let csv_reader = C.CSVReader.new_ input_stream in
@@ -36,4 +38,5 @@ let read () =
 let () =
   hello_world ();
   build ();
+  array ();
   read ()
