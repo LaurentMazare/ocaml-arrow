@@ -176,6 +176,7 @@ module ChunkedArray : sig
 
   val of_gobject : _ gobject -> t option
 
+  val new_ : [ `array_ ] gobject list -> t
   val equal : [> `chunked_array ] gobject -> [> `chunked_array ] gobject -> bool
   val get_chunk : [> `chunked_array ] gobject -> Unsigned.uint32 -> [ `array_ ] gobject
   val get_length : [> `chunked_array ] gobject -> Unsigned.uint64
@@ -392,6 +393,7 @@ module DenseUnionArray : sig
 
   val of_gobject : _ gobject -> t option
 
+  val new_ : [> `int8_array ] gobject -> [> `int32_array ] gobject -> [ `array_ ] gobject list -> t
 end
 
 module DenseUnionDataType : sig
@@ -401,6 +403,7 @@ module DenseUnionDataType : sig
 
   val of_gobject : _ gobject -> t option
 
+  val new_ : [ `field ] gobject list -> Unsigned.uint8 list -> t
 end
 
 module DictionaryArray : sig
@@ -925,6 +928,7 @@ module RecordBatch : sig
 
   val of_gobject : _ gobject -> t option
 
+  val new_ : [> `schema ] gobject -> Unsigned.uint32 -> [ `array_ ] gobject list -> t
   val add_column : [> `record_batch ] gobject -> Unsigned.uint32 -> [> `field ] gobject -> [> `array_ ] gobject -> [ `record_batch ] gobject
   val equal : [> `record_batch ] gobject -> [> `record_batch ] gobject -> bool
   val get_column : [> `record_batch ] gobject -> Int32.t -> [ `array_ ] gobject
@@ -1027,6 +1031,7 @@ module Schema : sig
 
   val of_gobject : _ gobject -> t option
 
+  val new_ : [ `field ] gobject list -> t
   val add_field : [> `schema ] gobject -> Unsigned.uint32 -> [> `field ] gobject -> [ `schema ] gobject
   val equal : [> `schema ] gobject -> [> `schema ] gobject -> bool
   val get_field : [> `schema ] gobject -> Unsigned.uint32 -> [ `field ] gobject
@@ -1056,6 +1061,7 @@ module SparseUnionArray : sig
 
   val of_gobject : _ gobject -> t option
 
+  val new_ : [> `int8_array ] gobject -> [ `array_ ] gobject list -> t
 end
 
 module SparseUnionDataType : sig
@@ -1065,6 +1071,7 @@ module SparseUnionDataType : sig
 
   val of_gobject : _ gobject -> t option
 
+  val new_ : [ `field ] gobject list -> Unsigned.uint8 list -> t
 end
 
 module StringArray : sig
@@ -1107,6 +1114,7 @@ module StructArray : sig
 
   val of_gobject : _ gobject -> t option
 
+  val new_ : ?null_bitmap:[> `buffer ] gobject -> [> `data_type ] gobject -> Int64.t -> [ `array_ ] gobject list -> Int64.t -> t
   val get_field : [> `struct_array ] gobject -> Int32.t -> [ `array_ ] gobject
 end
 
@@ -1130,6 +1138,7 @@ module StructDataType : sig
 
   val of_gobject : _ gobject -> t option
 
+  val new_ : [ `field ] gobject list -> t
   val get_field : [> `struct_data_type ] gobject -> Int32.t -> [ `field ] gobject
   val get_field_by_name : [> `struct_data_type ] gobject -> string -> [ `field ] gobject
   val get_field_index : [> `struct_data_type ] gobject -> string -> Int32.t

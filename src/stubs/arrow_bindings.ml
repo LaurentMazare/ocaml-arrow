@@ -499,6 +499,8 @@ module C (F : Cstubs.FOREIGN) = struct
     let get_type = foreign "garrow_chunked_array_get_type"
       (void @-> returning ulong)
 
+    let new_ = foreign "garrow_chunked_array_new"
+      (GList.t @-> returning t)
     let equal = foreign "garrow_chunked_array_equal"
       (t @-> chunked_array @-> returning bool)
     let get_chunk = foreign "garrow_chunked_array_get_chunk"
@@ -789,6 +791,8 @@ module C (F : Cstubs.FOREIGN) = struct
     let get_type = foreign "garrow_dense_union_array_get_type"
       (void @-> returning ulong)
 
+    let new_ = foreign "garrow_dense_union_array_new"
+      (int8_array @-> int32_array @-> GList.t @-> ptr (ptr GError.t) @-> returning t)
   end
 
   module DenseUnionDataType = struct
@@ -798,6 +802,8 @@ module C (F : Cstubs.FOREIGN) = struct
     let get_type = foreign "garrow_dense_union_data_type_get_type"
       (void @-> returning ulong)
 
+    let new_ = foreign "garrow_dense_union_data_type_new"
+      (GList.t @-> ptr uint8_t @-> uint64_t @-> returning t)
   end
 
   module DictionaryArray = struct
@@ -1452,6 +1458,8 @@ module C (F : Cstubs.FOREIGN) = struct
     let get_type = foreign "garrow_record_batch_get_type"
       (void @-> returning ulong)
 
+    let new_ = foreign "garrow_record_batch_new"
+      (schema @-> uint32_t @-> GList.t @-> ptr (ptr GError.t) @-> returning t)
     let add_column = foreign "garrow_record_batch_add_column"
       (t @-> uint32_t @-> field @-> array_ @-> ptr (ptr GError.t) @-> returning record_batch)
     let equal = foreign "garrow_record_batch_equal"
@@ -1595,6 +1603,8 @@ module C (F : Cstubs.FOREIGN) = struct
     let get_type = foreign "garrow_schema_get_type"
       (void @-> returning ulong)
 
+    let new_ = foreign "garrow_schema_new"
+      (GList.t @-> returning t)
     let add_field = foreign "garrow_schema_add_field"
       (t @-> uint32_t @-> field @-> ptr (ptr GError.t) @-> returning schema)
     let equal = foreign "garrow_schema_equal"
@@ -1635,6 +1645,8 @@ module C (F : Cstubs.FOREIGN) = struct
     let get_type = foreign "garrow_sparse_union_array_get_type"
       (void @-> returning ulong)
 
+    let new_ = foreign "garrow_sparse_union_array_new"
+      (int8_array @-> GList.t @-> ptr (ptr GError.t) @-> returning t)
   end
 
   module SparseUnionDataType = struct
@@ -1644,6 +1656,8 @@ module C (F : Cstubs.FOREIGN) = struct
     let get_type = foreign "garrow_sparse_union_data_type_get_type"
       (void @-> returning ulong)
 
+    let new_ = foreign "garrow_sparse_union_data_type_new"
+      (GList.t @-> ptr uint8_t @-> uint64_t @-> returning t)
   end
 
   module StringArray = struct
@@ -1692,6 +1706,8 @@ module C (F : Cstubs.FOREIGN) = struct
     let get_type = foreign "garrow_struct_array_get_type"
       (void @-> returning ulong)
 
+    let new_ = foreign "garrow_struct_array_new"
+      (data_type @-> int64_t @-> GList.t @-> buffer @-> int64_t @-> returning t)
     let get_field = foreign "garrow_struct_array_get_field"
       (t @-> int32_t @-> returning array_)
   end
@@ -1720,6 +1736,8 @@ module C (F : Cstubs.FOREIGN) = struct
     let get_type = foreign "garrow_struct_data_type_get_type"
       (void @-> returning ulong)
 
+    let new_ = foreign "garrow_struct_data_type_new"
+      (GList.t @-> returning t)
     let get_field = foreign "garrow_struct_data_type_get_field"
       (t @-> int32_t @-> returning field)
     let get_field_by_name = foreign "garrow_struct_data_type_get_field_by_name"

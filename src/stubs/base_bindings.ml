@@ -20,4 +20,14 @@ module C (F : Cstubs.FOREIGN) = struct
     let () = seal t
     let free = foreign "g_error_free" (ptr t @-> returning void)
   end
+
+  module GList = struct
+    type t = unit ptr
+
+    let t : t typ = ptr void
+    let alloc = foreign "g_list_alloc" (void @-> returning t)
+    let append = foreign "g_list_append" (t @-> ptr void @-> returning t)
+    let prepend = foreign "g_list_prepend" (t @-> ptr void @-> returning t)
+    let free = foreign "g_list_free" (t @-> returning void)
+  end
 end

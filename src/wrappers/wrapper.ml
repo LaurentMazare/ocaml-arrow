@@ -5,6 +5,12 @@ module C = Arrow_bindings.C (Arrow_generated)
 
 type _ gobject = C.gobject
 
+let glist_of_list l =
+  let res = C.GList.alloc () in
+  let res = List.fold_left C.GList.append res l in
+  Gc.finalise C.GList.free res;
+  res
+
 
 module Array = struct
   type t = [ `array_ ] gobject
@@ -675,6 +681,14 @@ module ChunkedArray = struct
   let of_gobject g =
     if C.ChunkedArray.get_type () = C.gobject_type g
     then Some g else None
+
+  let new_ chunks =
+    let res = C.ChunkedArray.new_ (glist_of_list chunks) in
+    let _ = Sys.opaque_identity chunks in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
 
   let equal t__ other_chunked_array =
     let res = C.ChunkedArray.equal t__ other_chunked_array in
@@ -1352,6 +1366,25 @@ module DenseUnionArray = struct
     if C.DenseUnionArray.get_type () = C.gobject_type g
     then Some g else None
 
+  let new_ type_ids value_offsets fields =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.DenseUnionArray.new_ type_ids value_offsets (glist_of_list fields) (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    let _ = Sys.opaque_identity fields in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
 end
 
 module DenseUnionDataType = struct
@@ -1361,6 +1394,15 @@ module DenseUnionDataType = struct
   let of_gobject g =
     if C.DenseUnionDataType.get_type () = C.gobject_type g
     then Some g else None
+
+  let new_ fields type_codes =
+    let res = C.DenseUnionDataType.new_ (glist_of_list fields) (CArray.of_list uint8_t type_codes |> CArray.start) (List.length type_codes |> Unsigned.UInt64.of_int) in
+    let _ = Sys.opaque_identity fields in
+    let _ = Sys.opaque_identity type_codes in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
 
 end
 
@@ -3099,6 +3141,25 @@ module RecordBatch = struct
     if C.RecordBatch.get_type () = C.gobject_type g
     then Some g else None
 
+  let new_ schema n_rows columns =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.RecordBatch.new_ schema n_rows (glist_of_list columns) (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    let _ = Sys.opaque_identity columns in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
   let add_column t__ i field column =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.RecordBatch.add_column t__ i field column (CArray.start gerr__) in
@@ -3544,6 +3605,14 @@ module Schema = struct
     if C.Schema.get_type () = C.gobject_type g
     then Some g else None
 
+  let new_ fields =
+    let res = C.Schema.new_ (glist_of_list fields) in
+    let _ = Sys.opaque_identity fields in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
   let add_field t__ i field =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
     let res = C.Schema.add_field t__ i field (CArray.start gerr__) in
@@ -3681,6 +3750,25 @@ module SparseUnionArray = struct
     if C.SparseUnionArray.get_type () = C.gobject_type g
     then Some g else None
 
+  let new_ type_ids fields =
+    let gerr__ = CArray.make (ptr C.GError.t) 1 in
+    let res = C.SparseUnionArray.new_ type_ids (glist_of_list fields) (CArray.start gerr__) in
+    let gerr__ = CArray.get gerr__ 0 in
+    if not (Ctypes.is_null gerr__)
+    then begin
+      let msg = getf (!@ gerr__) C.GError.message in
+      if Ctypes.is_null msg
+      then failwith "failed with null error message";
+      let msg = C.strdup msg in
+      C.GError.free gerr__;
+      failwith msg
+    end;
+    let _ = Sys.opaque_identity fields in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
 end
 
 module SparseUnionDataType = struct
@@ -3690,6 +3778,15 @@ module SparseUnionDataType = struct
   let of_gobject g =
     if C.SparseUnionDataType.get_type () = C.gobject_type g
     then Some g else None
+
+  let new_ fields type_codes =
+    let res = C.SparseUnionDataType.new_ (glist_of_list fields) (CArray.of_list uint8_t type_codes |> CArray.start) (List.length type_codes |> Unsigned.UInt64.of_int) in
+    let _ = Sys.opaque_identity fields in
+    let _ = Sys.opaque_identity type_codes in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
 
 end
 
@@ -3788,6 +3885,14 @@ module StructArray = struct
     if C.StructArray.get_type () = C.gobject_type g
     then Some g else None
 
+  let new_ ?null_bitmap data_type length fields n_nulls =
+    let res = C.StructArray.new_ data_type length (glist_of_list fields) (match null_bitmap with | None -> null | Some v -> v) n_nulls in
+    let _ = Sys.opaque_identity fields in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
+
   let get_field t__ i =
     let res = C.StructArray.get_field t__ i in
     if Ctypes.is_null res
@@ -3869,6 +3974,14 @@ module StructDataType = struct
   let of_gobject g =
     if C.StructDataType.get_type () = C.gobject_type g
     then Some g else None
+
+  let new_ fields =
+    let res = C.StructDataType.new_ (glist_of_list fields) in
+    let _ = Sys.opaque_identity fields in
+    if Ctypes.is_null res
+    then failwith "returned null";
+    Gc.finalise C.object_unref res;
+    res
 
   let get_field t__ i =
     let res = C.StructDataType.get_field t__ i in
