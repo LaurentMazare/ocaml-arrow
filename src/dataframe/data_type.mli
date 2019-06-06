@@ -17,3 +17,4 @@ val int64 : (Int64.t, int) t
 val int32 : (Int32.t, int) t
 val bool : (bool, bool) t
 val string : (string, string) t
+val to_wrapper : _ t -> Arrow_core.Wrapper.DataType.t
