@@ -1,5 +1,6 @@
 open Base
 module C = Arrow_core.Wrapper
+module A = Arrow.Array
 
 let hello_world () =
   let arr = C.NullArray.new_ (Int64.of_int_exn 42) in

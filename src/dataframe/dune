@@ -1,0 +1,4 @@
+(library
+  (name arrow)
+  (public_name arrow)
+  (libraries base stdio arrow_core))
