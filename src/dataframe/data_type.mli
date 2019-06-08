@@ -11,10 +11,16 @@ type (_, _) t =
 
 type packed = P : _ t -> packed
 
-val double : (float, float) t
-val float : (float, float) t
-val int64 : (Int64.t, int) t
-val int32 : (Int32.t, int) t
-val bool : (bool, bool) t
-val string : (string, string) t
 val to_wrapper : _ t -> Arrow_core.Wrapper.DataType.t
+
+module Public : sig
+  type nonrec ('a, 'b) t = ('a, 'b) t
+  type nonrec packed = packed
+
+  val double : (float, float) t
+  val float : (float, float) t
+  val int64 : (Int64.t, int) t
+  val int32 : (Int32.t, int) t
+  val bool : (bool, bool) t
+  val string : (string, string) t
+end
