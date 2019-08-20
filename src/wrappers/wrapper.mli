@@ -23,6 +23,7 @@ module Array : sig
   val is_null : [> `array_ ] gobject -> Int64.t -> bool
   val is_valid : [> `array_ ] gobject -> Int64.t -> bool
   val slice : [> `array_ ] gobject -> Int64.t -> Int64.t -> [ `array_ ] gobject
+  val take : ?options:[> `take_options ] gobject -> [> `array_ ] gobject -> [> `array_ ] gobject -> [ `array_ ] gobject
   val to_string : [> `array_ ] gobject -> string
   val unique : [> `array_ ] gobject -> [ `array_ ] gobject
 end
@@ -213,6 +214,14 @@ module Column : sig
   val to_string : [> `column ] gobject -> string
 end
 
+module CompareOptions : sig
+  type t = [ `compare_options ] gobject
+
+  val of_gobject : _ gobject -> t option
+
+  val new_ : unit -> t
+end
+
 module CompressedInputStream : sig
   type t = [ `compressed_input_stream | `input_stream ] gobject
 
@@ -394,6 +403,7 @@ module DenseUnionArray : sig
   val of_gobject : _ gobject -> t option
 
   val new_ : [> `int8_array ] gobject -> [> `int32_array ] gobject -> [ `array_ ] gobject list -> t
+  val new_data_type : [> `dense_union_data_type ] gobject -> [> `int8_array ] gobject -> [> `int32_array ] gobject -> [ `array_ ] gobject list -> t
 end
 
 module DenseUnionDataType : sig
@@ -413,7 +423,7 @@ module DictionaryArray : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : [> `data_type ] gobject -> [> `array_ ] gobject -> t
+  val new_ : [> `data_type ] gobject -> [> `array_ ] gobject -> [> `array_ ] gobject -> t
   val get_dictionary : [> `dictionary_array ] gobject -> [ `array_ ] gobject
   val get_dictionary_data_type : [> `dictionary_array ] gobject -> [ `dictionary_data_type | `fixed_width_data_type | `data_type ] gobject
   val get_indices : [> `dictionary_array ] gobject -> [ `array_ ] gobject
@@ -426,9 +436,9 @@ module DictionaryDataType : sig
 
   val of_gobject : _ gobject -> t option
 
-  val new_ : [> `data_type ] gobject -> [> `array_ ] gobject -> bool -> t
-  val get_dictionary : [> `dictionary_data_type ] gobject -> [ `array_ ] gobject
+  val new_ : [> `data_type ] gobject -> [> `data_type ] gobject -> bool -> t
   val get_index_data_type : [> `dictionary_data_type ] gobject -> [ `data_type ] gobject
+  val get_value_data_type : [> `dictionary_data_type ] gobject -> [ `data_type ] gobject
   val is_ordered : [> `dictionary_data_type ] gobject -> bool
 end
 
@@ -440,6 +450,7 @@ module DoubleArray : sig
   val of_gobject : _ gobject -> t option
 
   val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
+  val compare : [> `double_array ] gobject -> float -> [> `compare_options ] gobject -> [ `boolean_array | `primitive_array | `array_ ] gobject
   val get_value : [> `double_array ] gobject -> Int64.t -> float
   val sum : [> `double_array ] gobject -> float
 end
@@ -559,6 +570,7 @@ module FloatArray : sig
   val of_gobject : _ gobject -> t option
 
   val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
+  val compare : [> `float_array ] gobject -> float -> [> `compare_options ] gobject -> [ `boolean_array | `primitive_array | `array_ ] gobject
   val get_value : [> `float_array ] gobject -> Int64.t -> float
   val sum : [> `float_array ] gobject -> float
 end
@@ -636,6 +648,7 @@ module Int16Array : sig
   val of_gobject : _ gobject -> t option
 
   val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
+  val compare : [> `int16_array ] gobject -> int -> [> `compare_options ] gobject -> [ `boolean_array | `primitive_array | `array_ ] gobject
   val get_value : [> `int16_array ] gobject -> Int64.t -> int
   val sum : [> `int16_array ] gobject -> Int64.t
 end
@@ -672,6 +685,7 @@ module Int32Array : sig
   val of_gobject : _ gobject -> t option
 
   val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
+  val compare : [> `int32_array ] gobject -> Int32.t -> [> `compare_options ] gobject -> [ `boolean_array | `primitive_array | `array_ ] gobject
   val get_value : [> `int32_array ] gobject -> Int64.t -> Int32.t
   val sum : [> `int32_array ] gobject -> Int64.t
 end
@@ -708,6 +722,7 @@ module Int64Array : sig
   val of_gobject : _ gobject -> t option
 
   val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
+  val compare : [> `int64_array ] gobject -> Int64.t -> [> `compare_options ] gobject -> [ `boolean_array | `primitive_array | `array_ ] gobject
   val get_value : [> `int64_array ] gobject -> Int64.t -> Int64.t
   val sum : [> `int64_array ] gobject -> Int64.t
 end
@@ -744,6 +759,7 @@ module Int8Array : sig
   val of_gobject : _ gobject -> t option
 
   val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
+  val compare : [> `int8_array ] gobject -> int -> [> `compare_options ] gobject -> [ `boolean_array | `primitive_array | `array_ ] gobject
   val get_value : [> `int8_array ] gobject -> Int64.t -> int
   val sum : [> `int8_array ] gobject -> Int64.t
 end
@@ -793,6 +809,23 @@ module IntegerDataType : sig
 
   val of_gobject : _ gobject -> t option
 
+end
+
+module JSONReadOptions : sig
+  type t = [ `json_read_options ] gobject
+
+  val of_gobject : _ gobject -> t option
+
+  val new_ : unit -> t
+end
+
+module JSONReader : sig
+  type t = [ `json_reader ] gobject
+
+  val of_gobject : _ gobject -> t option
+
+  val new_ : ?options:[> `json_read_options ] gobject -> [> `input_stream ] gobject -> t
+  val read : [> `json_reader ] gobject -> [ `table ] gobject
 end
 
 module ListArray : sig
@@ -902,6 +935,19 @@ module NumericDataType : sig
 
   val of_gobject : _ gobject -> t option
 
+end
+
+module ORCFileReader : sig
+  type t = [ `orc_file_reader ] gobject
+
+  val of_gobject : _ gobject -> t option
+
+  val new_ : [> `seekable_input_stream ] gobject -> t
+  val get_n_rows : [> `orc_file_reader ] gobject -> Int64.t
+  val get_n_stripes : [> `orc_file_reader ] gobject -> Int64.t
+  val read_stripe : [> `orc_file_reader ] gobject -> Int64.t -> [ `record_batch ] gobject
+  val read_stripes : [> `orc_file_reader ] gobject -> [ `table ] gobject
+  val read_type : [> `orc_file_reader ] gobject -> [ `schema ] gobject
 end
 
 module OutputStream : sig
@@ -1062,6 +1108,7 @@ module SparseUnionArray : sig
   val of_gobject : _ gobject -> t option
 
   val new_ : [> `int8_array ] gobject -> [ `array_ ] gobject list -> t
+  val new_data_type : [> `sparse_union_data_type ] gobject -> [> `int8_array ] gobject -> [ `array_ ] gobject list -> t
 end
 
 module SparseUnionDataType : sig
@@ -1154,6 +1201,7 @@ module Table : sig
   val new_columns : [> `schema ] gobject -> [ `column ] gobject list -> t
   val new_record_batches : [> `schema ] gobject -> [ `record_batch ] gobject list -> t
   val add_column : [> `table ] gobject -> Unsigned.uint32 -> [> `column ] gobject -> [ `table ] gobject
+  val concatenate : [> `table ] gobject -> [ `table ] gobject list -> [ `table ] gobject
   val equal : [> `table ] gobject -> [> `table ] gobject -> bool
   val get_column : [> `table ] gobject -> Unsigned.uint32 -> [ `column ] gobject
   val get_n_columns : [> `table ] gobject -> Unsigned.uint32
@@ -1161,6 +1209,7 @@ module Table : sig
   val get_schema : [> `table ] gobject -> [ `schema ] gobject
   val remove_column : [> `table ] gobject -> Unsigned.uint32 -> [ `table ] gobject
   val replace_column : [> `table ] gobject -> Unsigned.uint32 -> [> `column ] gobject -> [ `table ] gobject
+  val slice : [> `table ] gobject -> Int64.t -> Int64.t -> [ `table ] gobject
   val to_string : [> `table ] gobject -> string
 end
 
@@ -1172,6 +1221,14 @@ module TableBatchReader : sig
   val of_gobject : _ gobject -> t option
 
   val new_ : [> `table ] gobject -> t
+end
+
+module TakeOptions : sig
+  type t = [ `take_options ] gobject
+
+  val of_gobject : _ gobject -> t option
+
+  val new_ : unit -> t
 end
 
 module Tensor : sig
@@ -1311,6 +1368,7 @@ module UInt16Array : sig
   val of_gobject : _ gobject -> t option
 
   val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
+  val compare : [> `u_int16_array ] gobject -> Unsigned.uint16 -> [> `compare_options ] gobject -> [ `boolean_array | `primitive_array | `array_ ] gobject
   val get_value : [> `u_int16_array ] gobject -> Int64.t -> Unsigned.uint16
   val sum : [> `u_int16_array ] gobject -> Unsigned.uint64
 end
@@ -1347,6 +1405,7 @@ module UInt32Array : sig
   val of_gobject : _ gobject -> t option
 
   val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
+  val compare : [> `u_int32_array ] gobject -> Unsigned.uint32 -> [> `compare_options ] gobject -> [ `boolean_array | `primitive_array | `array_ ] gobject
   val get_value : [> `u_int32_array ] gobject -> Int64.t -> Unsigned.uint32
   val sum : [> `u_int32_array ] gobject -> Unsigned.uint64
 end
@@ -1383,6 +1442,7 @@ module UInt64Array : sig
   val of_gobject : _ gobject -> t option
 
   val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
+  val compare : [> `u_int64_array ] gobject -> Unsigned.uint64 -> [> `compare_options ] gobject -> [ `boolean_array | `primitive_array | `array_ ] gobject
   val get_value : [> `u_int64_array ] gobject -> Int64.t -> Unsigned.uint64
   val sum : [> `u_int64_array ] gobject -> Unsigned.uint64
 end
@@ -1419,6 +1479,7 @@ module UInt8Array : sig
   val of_gobject : _ gobject -> t option
 
   val new_ : ?null_bitmap:[> `buffer ] gobject -> Int64.t -> [> `buffer ] gobject -> Int64.t -> t
+  val compare : [> `u_int8_array ] gobject -> Unsigned.uint8 -> [> `compare_options ] gobject -> [ `boolean_array | `primitive_array | `array_ ] gobject
   val get_value : [> `u_int8_array ] gobject -> Int64.t -> Unsigned.uint8
   val sum : [> `u_int8_array ] gobject -> Unsigned.uint64
 end

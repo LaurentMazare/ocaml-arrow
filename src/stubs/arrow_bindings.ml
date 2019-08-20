@@ -39,6 +39,8 @@ module C (F : Cstubs.FOREIGN) = struct
   let codec : codec typ = ptr void
   type column = unit ptr
   let column : column typ = ptr void
+  type compare_options = unit ptr
+  let compare_options : compare_options typ = ptr void
   type compressed_input_stream = unit ptr
   let compressed_input_stream : compressed_input_stream typ = ptr void
   type compressed_output_stream = unit ptr
@@ -139,6 +141,10 @@ module C (F : Cstubs.FOREIGN) = struct
   let int_array_builder : int_array_builder typ = ptr void
   type integer_data_type = unit ptr
   let integer_data_type : integer_data_type typ = ptr void
+  type json_read_options = unit ptr
+  let json_read_options : json_read_options typ = ptr void
+  type json_reader = unit ptr
+  let json_reader : json_reader typ = ptr void
   type list_array = unit ptr
   let list_array : list_array typ = ptr void
   type list_array_builder = unit ptr
@@ -159,6 +165,8 @@ module C (F : Cstubs.FOREIGN) = struct
   let numeric_array : numeric_array typ = ptr void
   type numeric_data_type = unit ptr
   let numeric_data_type : numeric_data_type typ = ptr void
+  type orc_file_reader = unit ptr
+  let orc_file_reader : orc_file_reader typ = ptr void
   type output_stream = unit ptr
   let output_stream : output_stream typ = ptr void
   type primitive_array = unit ptr
@@ -205,6 +213,8 @@ module C (F : Cstubs.FOREIGN) = struct
   let table : table typ = ptr void
   type table_batch_reader = unit ptr
   let table_batch_reader : table_batch_reader typ = ptr void
+  type take_options = unit ptr
+  let take_options : take_options typ = ptr void
   type tensor = unit ptr
   let tensor : tensor typ = ptr void
   type time32_array = unit ptr
@@ -295,6 +305,8 @@ module C (F : Cstubs.FOREIGN) = struct
       (t @-> int64_t @-> returning bool)
     let slice = foreign "garrow_array_slice"
       (t @-> int64_t @-> int64_t @-> returning array_)
+    let take = foreign "garrow_array_take"
+      (t @-> array_ @-> take_options @-> ptr (ptr GError.t) @-> returning array_)
     let to_string = foreign "garrow_array_to_string"
       (t @-> ptr (ptr GError.t) @-> returning string)
     let unique = foreign "garrow_array_unique"
@@ -561,6 +573,17 @@ module C (F : Cstubs.FOREIGN) = struct
       (t @-> ptr (ptr GError.t) @-> returning string)
   end
 
+  module CompareOptions = struct
+    type t = compare_options
+    let t : t typ = compare_options
+
+    let get_type = foreign "garrow_compare_options_get_type"
+      (void @-> returning ulong)
+
+    let new_ = foreign "garrow_compare_options_new"
+      (void @-> returning t)
+  end
+
   module CompressedInputStream = struct
     type t = compressed_input_stream
     let t : t typ = compressed_input_stream
@@ -793,6 +816,8 @@ module C (F : Cstubs.FOREIGN) = struct
 
     let new_ = foreign "garrow_dense_union_array_new"
       (int8_array @-> int32_array @-> GList.t @-> ptr (ptr GError.t) @-> returning t)
+    let new_data_type = foreign "garrow_dense_union_array_new_data_type"
+      (dense_union_data_type @-> int8_array @-> int32_array @-> GList.t @-> ptr (ptr GError.t) @-> returning t)
   end
 
   module DenseUnionDataType = struct
@@ -814,7 +839,7 @@ module C (F : Cstubs.FOREIGN) = struct
       (void @-> returning ulong)
 
     let new_ = foreign "garrow_dictionary_array_new"
-      (data_type @-> array_ @-> returning t)
+      (data_type @-> array_ @-> array_ @-> ptr (ptr GError.t) @-> returning t)
     let get_dictionary = foreign "garrow_dictionary_array_get_dictionary"
       (t @-> returning array_)
     let get_dictionary_data_type = foreign "garrow_dictionary_array_get_dictionary_data_type"
@@ -831,10 +856,10 @@ module C (F : Cstubs.FOREIGN) = struct
       (void @-> returning ulong)
 
     let new_ = foreign "garrow_dictionary_data_type_new"
-      (data_type @-> array_ @-> bool @-> returning t)
-    let get_dictionary = foreign "garrow_dictionary_data_type_get_dictionary"
-      (t @-> returning array_)
+      (data_type @-> data_type @-> bool @-> returning t)
     let get_index_data_type = foreign "garrow_dictionary_data_type_get_index_data_type"
+      (t @-> returning data_type)
+    let get_value_data_type = foreign "garrow_dictionary_data_type_get_value_data_type"
       (t @-> returning data_type)
     let is_ordered = foreign "garrow_dictionary_data_type_is_ordered"
       (t @-> returning bool)
@@ -849,6 +874,8 @@ module C (F : Cstubs.FOREIGN) = struct
 
     let new_ = foreign "garrow_double_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
+    let compare = foreign "garrow_double_array_compare"
+      (t @-> double @-> compare_options @-> ptr (ptr GError.t) @-> returning boolean_array)
     let get_value = foreign "garrow_double_array_get_value"
       (t @-> int64_t @-> returning double)
     let sum = foreign "garrow_double_array_sum"
@@ -1009,6 +1036,8 @@ module C (F : Cstubs.FOREIGN) = struct
 
     let new_ = foreign "garrow_float_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
+    let compare = foreign "garrow_float_array_compare"
+      (t @-> float @-> compare_options @-> ptr (ptr GError.t) @-> returning boolean_array)
     let get_value = foreign "garrow_float_array_get_value"
       (t @-> int64_t @-> returning float)
     let sum = foreign "garrow_float_array_sum"
@@ -1100,6 +1129,8 @@ module C (F : Cstubs.FOREIGN) = struct
 
     let new_ = foreign "garrow_int16_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
+    let compare = foreign "garrow_int16_array_compare"
+      (t @-> int16_t @-> compare_options @-> ptr (ptr GError.t) @-> returning boolean_array)
     let get_value = foreign "garrow_int16_array_get_value"
       (t @-> int64_t @-> returning int16_t)
     let sum = foreign "garrow_int16_array_sum"
@@ -1145,6 +1176,8 @@ module C (F : Cstubs.FOREIGN) = struct
 
     let new_ = foreign "garrow_int32_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
+    let compare = foreign "garrow_int32_array_compare"
+      (t @-> int32_t @-> compare_options @-> ptr (ptr GError.t) @-> returning boolean_array)
     let get_value = foreign "garrow_int32_array_get_value"
       (t @-> int64_t @-> returning int32_t)
     let sum = foreign "garrow_int32_array_sum"
@@ -1190,6 +1223,8 @@ module C (F : Cstubs.FOREIGN) = struct
 
     let new_ = foreign "garrow_int64_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
+    let compare = foreign "garrow_int64_array_compare"
+      (t @-> int64_t @-> compare_options @-> ptr (ptr GError.t) @-> returning boolean_array)
     let get_value = foreign "garrow_int64_array_get_value"
       (t @-> int64_t @-> returning int64_t)
     let sum = foreign "garrow_int64_array_sum"
@@ -1235,6 +1270,8 @@ module C (F : Cstubs.FOREIGN) = struct
 
     let new_ = foreign "garrow_int8_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
+    let compare = foreign "garrow_int8_array_compare"
+      (t @-> int8_t @-> compare_options @-> ptr (ptr GError.t) @-> returning boolean_array)
     let get_value = foreign "garrow_int8_array_get_value"
       (t @-> int64_t @-> returning int8_t)
     let sum = foreign "garrow_int8_array_sum"
@@ -1297,6 +1334,30 @@ module C (F : Cstubs.FOREIGN) = struct
     let get_type = foreign "garrow_integer_data_type_get_type"
       (void @-> returning ulong)
 
+  end
+
+  module JSONReadOptions = struct
+    type t = json_read_options
+    let t : t typ = json_read_options
+
+    let get_type = foreign "garrow_json_read_options_get_type"
+      (void @-> returning ulong)
+
+    let new_ = foreign "garrow_json_read_options_new"
+      (void @-> returning t)
+  end
+
+  module JSONReader = struct
+    type t = json_reader
+    let t : t typ = json_reader
+
+    let get_type = foreign "garrow_json_reader_get_type"
+      (void @-> returning ulong)
+
+    let new_ = foreign "garrow_json_reader_new"
+      (input_stream @-> json_read_options @-> ptr (ptr GError.t) @-> returning t)
+    let read = foreign "garrow_json_reader_read"
+      (t @-> ptr (ptr GError.t) @-> returning table)
   end
 
   module ListArray = struct
@@ -1425,6 +1486,27 @@ module C (F : Cstubs.FOREIGN) = struct
     let get_type = foreign "garrow_numeric_data_type_get_type"
       (void @-> returning ulong)
 
+  end
+
+  module ORCFileReader = struct
+    type t = orc_file_reader
+    let t : t typ = orc_file_reader
+
+    let get_type = foreign "garrow_orc_file_reader_get_type"
+      (void @-> returning ulong)
+
+    let new_ = foreign "garrow_orc_file_reader_new"
+      (seekable_input_stream @-> ptr (ptr GError.t) @-> returning t)
+    let get_n_rows = foreign "garrow_orc_file_reader_get_n_rows"
+      (t @-> returning int64_t)
+    let get_n_stripes = foreign "garrow_orc_file_reader_get_n_stripes"
+      (t @-> returning int64_t)
+    let read_stripe = foreign "garrow_orc_file_reader_read_stripe"
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning record_batch)
+    let read_stripes = foreign "garrow_orc_file_reader_read_stripes"
+      (t @-> ptr (ptr GError.t) @-> returning table)
+    let read_type = foreign "garrow_orc_file_reader_read_type"
+      (t @-> ptr (ptr GError.t) @-> returning schema)
   end
 
   module OutputStream = struct
@@ -1647,6 +1729,8 @@ module C (F : Cstubs.FOREIGN) = struct
 
     let new_ = foreign "garrow_sparse_union_array_new"
       (int8_array @-> GList.t @-> ptr (ptr GError.t) @-> returning t)
+    let new_data_type = foreign "garrow_sparse_union_array_new_data_type"
+      (sparse_union_data_type @-> int8_array @-> GList.t @-> ptr (ptr GError.t) @-> returning t)
   end
 
   module SparseUnionDataType = struct
@@ -1763,6 +1847,8 @@ module C (F : Cstubs.FOREIGN) = struct
       (schema @-> ptr record_batch @-> uint64_t @-> ptr (ptr GError.t) @-> returning t)
     let add_column = foreign "garrow_table_add_column"
       (t @-> uint32_t @-> column @-> ptr (ptr GError.t) @-> returning table)
+    let concatenate = foreign "garrow_table_concatenate"
+      (t @-> GList.t @-> ptr (ptr GError.t) @-> returning table)
     let equal = foreign "garrow_table_equal"
       (t @-> table @-> returning bool)
     let get_column = foreign "garrow_table_get_column"
@@ -1777,6 +1863,8 @@ module C (F : Cstubs.FOREIGN) = struct
       (t @-> uint32_t @-> ptr (ptr GError.t) @-> returning table)
     let replace_column = foreign "garrow_table_replace_column"
       (t @-> uint32_t @-> column @-> ptr (ptr GError.t) @-> returning table)
+    let slice = foreign "garrow_table_slice"
+      (t @-> int64_t @-> int64_t @-> returning table)
     let to_string = foreign "garrow_table_to_string"
       (t @-> ptr (ptr GError.t) @-> returning string)
   end
@@ -1790,6 +1878,17 @@ module C (F : Cstubs.FOREIGN) = struct
 
     let new_ = foreign "garrow_table_batch_reader_new"
       (table @-> returning t)
+  end
+
+  module TakeOptions = struct
+    type t = take_options
+    let t : t typ = take_options
+
+    let get_type = foreign "garrow_take_options_get_type"
+      (void @-> returning ulong)
+
+    let new_ = foreign "garrow_take_options_new"
+      (void @-> returning t)
   end
 
   module Tensor = struct
@@ -1964,6 +2063,8 @@ module C (F : Cstubs.FOREIGN) = struct
 
     let new_ = foreign "garrow_uint16_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
+    let compare = foreign "garrow_uint16_array_compare"
+      (t @-> uint16_t @-> compare_options @-> ptr (ptr GError.t) @-> returning boolean_array)
     let get_value = foreign "garrow_uint16_array_get_value"
       (t @-> int64_t @-> returning uint16_t)
     let sum = foreign "garrow_uint16_array_sum"
@@ -2009,6 +2110,8 @@ module C (F : Cstubs.FOREIGN) = struct
 
     let new_ = foreign "garrow_uint32_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
+    let compare = foreign "garrow_uint32_array_compare"
+      (t @-> uint32_t @-> compare_options @-> ptr (ptr GError.t) @-> returning boolean_array)
     let get_value = foreign "garrow_uint32_array_get_value"
       (t @-> int64_t @-> returning uint32_t)
     let sum = foreign "garrow_uint32_array_sum"
@@ -2054,6 +2157,8 @@ module C (F : Cstubs.FOREIGN) = struct
 
     let new_ = foreign "garrow_uint64_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
+    let compare = foreign "garrow_uint64_array_compare"
+      (t @-> uint64_t @-> compare_options @-> ptr (ptr GError.t) @-> returning boolean_array)
     let get_value = foreign "garrow_uint64_array_get_value"
       (t @-> int64_t @-> returning uint64_t)
     let sum = foreign "garrow_uint64_array_sum"
@@ -2099,6 +2204,8 @@ module C (F : Cstubs.FOREIGN) = struct
 
     let new_ = foreign "garrow_uint8_array_new"
       (int64_t @-> buffer @-> buffer @-> int64_t @-> returning t)
+    let compare = foreign "garrow_uint8_array_compare"
+      (t @-> uint8_t @-> compare_options @-> ptr (ptr GError.t) @-> returning boolean_array)
     let get_value = foreign "garrow_uint8_array_get_value"
       (t @-> int64_t @-> returning uint8_t)
     let sum = foreign "garrow_uint8_array_sum"
