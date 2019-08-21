@@ -27,3 +27,8 @@ let column_names t =
   List.init (num_columns t) ~f:(fun i ->
       let column = W.Table.get_column t (Unsigned.UInt32.of_int i) in
       W.Column.get_name column)
+
+let column t ~index = W.Table.get_column t (Unsigned.UInt32.of_int index)
+let add_column t col ~index = W.Table.add_column t (Unsigned.UInt32.of_int index) col
+let remove_column t ~index = W.Table.remove_column t (Unsigned.UInt32.of_int index)
+let slice t ~start ~len = W.Table.slice t (Int64.of_int start) (Int64.of_int len)

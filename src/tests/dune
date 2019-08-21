@@ -1,0 +1,5 @@
+(library
+ (name arrow_tests)
+ (inline_tests)
+ (libraries arrow sexplib stdio)
+ (preprocess (pps ppx_custom_printf ppx_sexp_conv ppx_expect)))

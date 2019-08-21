@@ -1,7 +1,7 @@
 (** An arrow table: a table has some named columns for which
     each row has a value.
 *)
-type t
+type t = Arrow_core.Wrapper.Table.t
 
 (** [read_csv filename] reads a csv file as a table. *)
 val read_csv : string -> t
@@ -28,3 +28,18 @@ val num_rows : t -> int
     The number of element returned is equal to [num_columns t].
 *)
 val column_names : t -> string list
+
+(** [column t ~index] returns the column at index [index] in table [t]. *)
+val column : t -> index:int -> Column.t
+
+(** [add_column t col ~index] returns a new table obtained by adding column
+    [col] to [t] at index [index].
+*)
+val add_column : t -> Column.t -> index:int -> t
+
+(** [remove_column t ~index] returns a new table obtained by removing
+    the column at index [index] from [t].
+*)
+val remove_column : t -> index:int -> t
+
+val slice : t -> start:int -> len:int -> t
