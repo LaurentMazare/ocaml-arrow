@@ -284,11 +284,11 @@ module C (F : Cstubs.FOREIGN) = struct
     let dictionary_encode = foreign "garrow_array_dictionary_encode"
       (t @-> ptr (ptr GError.t) @-> returning dictionary_array)
     let equal = foreign "garrow_array_equal"
-      (t @-> array_ @-> returning bool)
+      (t @-> array_ @-> returning int)
     let equal_approx = foreign "garrow_array_equal_approx"
-      (t @-> array_ @-> returning bool)
+      (t @-> array_ @-> returning int)
     let equal_range = foreign "garrow_array_equal_range"
-      (t @-> int64_t @-> array_ @-> int64_t @-> int64_t @-> returning bool)
+      (t @-> int64_t @-> array_ @-> int64_t @-> int64_t @-> returning int)
     let get_length = foreign "garrow_array_get_length"
       (t @-> returning int64_t)
     let get_n_nulls = foreign "garrow_array_get_n_nulls"
@@ -300,9 +300,9 @@ module C (F : Cstubs.FOREIGN) = struct
     let get_value_data_type = foreign "garrow_array_get_value_data_type"
       (t @-> returning data_type)
     let is_null = foreign "garrow_array_is_null"
-      (t @-> int64_t @-> returning bool)
+      (t @-> int64_t @-> returning int)
     let is_valid = foreign "garrow_array_is_valid"
-      (t @-> int64_t @-> returning bool)
+      (t @-> int64_t @-> returning int)
     let slice = foreign "garrow_array_slice"
       (t @-> int64_t @-> int64_t @-> returning array_)
     let take = foreign "garrow_array_take"
@@ -351,9 +351,9 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_binary_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_binary_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_binary_array_builder_append_value"
-      (t @-> ptr uint8_t @-> int32_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr uint8_t @-> int32_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module BinaryDataType = struct
@@ -379,7 +379,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let and_ = foreign "garrow_boolean_array_and"
       (t @-> boolean_array @-> ptr (ptr GError.t) @-> returning boolean_array)
     let get_value = foreign "garrow_boolean_array_get_value"
-      (t @-> int64_t @-> returning bool)
+      (t @-> int64_t @-> returning int)
     let invert = foreign "garrow_boolean_array_invert"
       (t @-> ptr (ptr GError.t) @-> returning boolean_array)
     let or_ = foreign "garrow_boolean_array_or"
@@ -398,13 +398,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_boolean_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_boolean_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_boolean_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_boolean_array_builder_append_value"
-      (t @-> bool @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_boolean_array_builder_append_values"
-      (t @-> ptr bool @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr int @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module BooleanDataType = struct
@@ -430,9 +430,9 @@ module C (F : Cstubs.FOREIGN) = struct
     let copy = foreign "garrow_buffer_copy"
       (t @-> int64_t @-> int64_t @-> ptr (ptr GError.t) @-> returning buffer)
     let equal = foreign "garrow_buffer_equal"
-      (t @-> buffer @-> returning bool)
+      (t @-> buffer @-> returning int)
     let equal_n_bytes = foreign "garrow_buffer_equal_n_bytes"
-      (t @-> buffer @-> int64_t @-> returning bool)
+      (t @-> buffer @-> int64_t @-> returning int)
     let get_capacity = foreign "garrow_buffer_get_capacity"
       (t @-> returning int64_t)
     let get_parent = foreign "garrow_buffer_get_parent"
@@ -440,7 +440,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let get_size = foreign "garrow_buffer_get_size"
       (t @-> returning int64_t)
     let is_mutable = foreign "garrow_buffer_is_mutable"
-      (t @-> returning bool)
+      (t @-> returning int)
     let slice = foreign "garrow_buffer_slice"
       (t @-> int64_t @-> int64_t @-> returning buffer)
   end
@@ -514,7 +514,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_chunked_array_new"
       (GList.t @-> returning t)
     let equal = foreign "garrow_chunked_array_equal"
-      (t @-> chunked_array @-> returning bool)
+      (t @-> chunked_array @-> returning int)
     let get_chunk = foreign "garrow_chunked_array_get_chunk"
       (t @-> uint32_t @-> returning array_)
     let get_length = foreign "garrow_chunked_array_get_length"
@@ -554,7 +554,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_chunked_array = foreign "garrow_column_new_chunked_array"
       (field @-> chunked_array @-> returning t)
     let equal = foreign "garrow_column_equal"
-      (t @-> column @-> returning bool)
+      (t @-> column @-> returning int)
     let get_data = foreign "garrow_column_get_data"
       (t @-> returning chunked_array)
     let get_data_type = foreign "garrow_column_get_data_type"
@@ -625,7 +625,7 @@ module C (F : Cstubs.FOREIGN) = struct
       (void @-> returning ulong)
 
     let equal = foreign "garrow_data_type_equal"
-      (t @-> data_type @-> returning bool)
+      (t @-> data_type @-> returning int)
     let to_string = foreign "garrow_data_type_to_string"
       (t @-> returning string)
   end
@@ -653,13 +653,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_date32_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_date32_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_date32_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_date32_array_builder_append_value"
-      (t @-> int32_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int32_t @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_date32_array_builder_append_values"
-      (t @-> ptr int32_t @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr int32_t @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module Date32DataType = struct
@@ -696,13 +696,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_date64_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_date64_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_date64_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_date64_array_builder_append_value"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_date64_array_builder_append_values"
-      (t @-> ptr int64_t @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr int64_t @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module Date64DataType = struct
@@ -730,21 +730,21 @@ module C (F : Cstubs.FOREIGN) = struct
     let divide = foreign "garrow_decimal128_divide"
       (t @-> decimal128 @-> decimal128 @-> ptr (ptr GError.t) @-> returning decimal128)
     let equal = foreign "garrow_decimal128_equal"
-      (t @-> decimal128 @-> returning bool)
+      (t @-> decimal128 @-> returning int)
     let greater_than = foreign "garrow_decimal128_greater_than"
-      (t @-> decimal128 @-> returning bool)
+      (t @-> decimal128 @-> returning int)
     let greater_than_or_equal = foreign "garrow_decimal128_greater_than_or_equal"
-      (t @-> decimal128 @-> returning bool)
+      (t @-> decimal128 @-> returning int)
     let less_than = foreign "garrow_decimal128_less_than"
-      (t @-> decimal128 @-> returning bool)
+      (t @-> decimal128 @-> returning int)
     let less_than_or_equal = foreign "garrow_decimal128_less_than_or_equal"
-      (t @-> decimal128 @-> returning bool)
+      (t @-> decimal128 @-> returning int)
     let minus = foreign "garrow_decimal128_minus"
       (t @-> decimal128 @-> returning decimal128)
     let multiply = foreign "garrow_decimal128_multiply"
       (t @-> decimal128 @-> returning decimal128)
     let not_equal = foreign "garrow_decimal128_not_equal"
-      (t @-> decimal128 @-> returning bool)
+      (t @-> decimal128 @-> returning int)
     let plus = foreign "garrow_decimal128_plus"
       (t @-> decimal128 @-> returning decimal128)
     let to_integer = foreign "garrow_decimal128_to_integer"
@@ -778,9 +778,9 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_decimal128_array_builder_new"
       (decimal128_data_type @-> returning t)
     let append_null = foreign "garrow_decimal128_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_decimal128_array_builder_append_value"
-      (t @-> decimal128 @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> decimal128 @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module Decimal128DataType = struct
@@ -856,13 +856,13 @@ module C (F : Cstubs.FOREIGN) = struct
       (void @-> returning ulong)
 
     let new_ = foreign "garrow_dictionary_data_type_new"
-      (data_type @-> data_type @-> bool @-> returning t)
+      (data_type @-> data_type @-> int @-> returning t)
     let get_index_data_type = foreign "garrow_dictionary_data_type_get_index_data_type"
       (t @-> returning data_type)
     let get_value_data_type = foreign "garrow_dictionary_data_type_get_value_data_type"
       (t @-> returning data_type)
     let is_ordered = foreign "garrow_dictionary_data_type_is_ordered"
-      (t @-> returning bool)
+      (t @-> returning int)
   end
 
   module DoubleArray = struct
@@ -892,13 +892,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_double_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_double_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_double_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_double_array_builder_append_value"
-      (t @-> double @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> double @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_double_array_builder_append_values"
-      (t @-> ptr double @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr double @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module DoubleDataType = struct
@@ -934,7 +934,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let get_version = foreign "garrow_feather_file_reader_get_version"
       (t @-> returning int32_t)
     let has_description = foreign "garrow_feather_file_reader_has_description"
-      (t @-> returning bool)
+      (t @-> returning int)
     let read = foreign "garrow_feather_file_reader_read"
       (t @-> ptr (ptr GError.t) @-> returning table)
     let read_indices = foreign "garrow_feather_file_reader_read_indices"
@@ -953,11 +953,11 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_feather_file_writer_new"
       (output_stream @-> ptr (ptr GError.t) @-> returning t)
     let append = foreign "garrow_feather_file_writer_append"
-      (t @-> string @-> array_ @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> string @-> array_ @-> ptr (ptr GError.t) @-> returning int)
     let close = foreign "garrow_feather_file_writer_close"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let write = foreign "garrow_feather_file_writer_write"
-      (t @-> table @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> table @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module Field = struct
@@ -970,15 +970,15 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_field_new"
       (string @-> data_type @-> returning t)
     let new_full = foreign "garrow_field_new_full"
-      (string @-> data_type @-> bool @-> returning t)
+      (string @-> data_type @-> int @-> returning t)
     let equal = foreign "garrow_field_equal"
-      (t @-> field @-> returning bool)
+      (t @-> field @-> returning int)
     let get_data_type = foreign "garrow_field_get_data_type"
       (t @-> returning data_type)
     let get_name = foreign "garrow_field_get_name"
       (t @-> returning string)
     let is_nullable = foreign "garrow_field_is_nullable"
-      (t @-> returning bool)
+      (t @-> returning int)
     let to_string = foreign "garrow_field_to_string"
       (t @-> returning string)
   end
@@ -991,7 +991,7 @@ module C (F : Cstubs.FOREIGN) = struct
       (void @-> returning ulong)
 
     let new_ = foreign "garrow_file_output_stream_new"
-      (string @-> bool @-> ptr (ptr GError.t) @-> returning t)
+      (string @-> int @-> ptr (ptr GError.t) @-> returning t)
   end
 
   module FixedSizeBinaryArray = struct
@@ -1054,13 +1054,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_float_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_float_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_float_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_float_array_builder_append_value"
-      (t @-> float @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> float @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_float_array_builder_append_values"
-      (t @-> ptr float @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr float @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module FloatDataType = struct
@@ -1113,9 +1113,9 @@ module C (F : Cstubs.FOREIGN) = struct
       (void @-> returning ulong)
 
     let advance = foreign "garrow_input_stream_advance"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let align = foreign "garrow_input_stream_align"
-      (t @-> int32_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int32_t @-> ptr (ptr GError.t) @-> returning int)
     let read_tensor = foreign "garrow_input_stream_read_tensor"
       (t @-> ptr (ptr GError.t) @-> returning tensor)
   end
@@ -1147,13 +1147,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_int16_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_int16_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_int16_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_int16_array_builder_append_value"
-      (t @-> int16_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int16_t @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_int16_array_builder_append_values"
-      (t @-> ptr int16_t @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr int16_t @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module Int16DataType = struct
@@ -1194,13 +1194,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_int32_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_int32_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_int32_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_int32_array_builder_append_value"
-      (t @-> int32_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int32_t @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_int32_array_builder_append_values"
-      (t @-> ptr int32_t @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr int32_t @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module Int32DataType = struct
@@ -1241,13 +1241,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_int64_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_int64_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_int64_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_int64_array_builder_append_value"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_int64_array_builder_append_values"
-      (t @-> ptr int64_t @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr int64_t @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module Int64DataType = struct
@@ -1288,13 +1288,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_int8_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_int8_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_int8_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_int8_array_builder_append_value"
-      (t @-> int8_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int8_t @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_int8_array_builder_append_values"
-      (t @-> ptr int8_t @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr int8_t @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module Int8DataType = struct
@@ -1318,13 +1318,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_int_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_int_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_int_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_int_array_builder_append_value"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_int_array_builder_append_values"
-      (t @-> ptr int64_t @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr int64_t @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module IntegerDataType = struct
@@ -1385,9 +1385,9 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_list_array_builder_new"
       (list_data_type @-> ptr (ptr GError.t) @-> returning t)
     let append_null = foreign "garrow_list_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_list_array_builder_append_value"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let get_value_builder = foreign "garrow_list_array_builder_get_value_builder"
       (t @-> returning array_builder)
   end
@@ -1426,7 +1426,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_mutable_buffer_new"
       (ptr uint8_t @-> int64_t @-> returning t)
     let set_data = foreign "garrow_mutable_buffer_set_data"
-      (t @-> int64_t @-> ptr uint8_t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr uint8_t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let slice = foreign "garrow_mutable_buffer_slice"
       (t @-> int64_t @-> int64_t @-> returning mutable_buffer)
   end
@@ -1452,9 +1452,9 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_null_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_null_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_null_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module NullDataType = struct
@@ -1517,7 +1517,7 @@ module C (F : Cstubs.FOREIGN) = struct
       (void @-> returning ulong)
 
     let align = foreign "garrow_output_stream_align"
-      (t @-> int32_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int32_t @-> ptr (ptr GError.t) @-> returning int)
     let write_tensor = foreign "garrow_output_stream_write_tensor"
       (t @-> tensor @-> ptr (ptr GError.t) @-> returning int64_t)
   end
@@ -1545,7 +1545,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let add_column = foreign "garrow_record_batch_add_column"
       (t @-> uint32_t @-> field @-> array_ @-> ptr (ptr GError.t) @-> returning record_batch)
     let equal = foreign "garrow_record_batch_equal"
-      (t @-> record_batch @-> returning bool)
+      (t @-> record_batch @-> returning int)
     let get_column = foreign "garrow_record_batch_get_column"
       (t @-> int32_t @-> returning array_)
     let get_column_name = foreign "garrow_record_batch_get_column_name"
@@ -1656,11 +1656,11 @@ module C (F : Cstubs.FOREIGN) = struct
       (void @-> returning ulong)
 
     let close = foreign "garrow_record_batch_writer_close"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let write_record_batch = foreign "garrow_record_batch_writer_write_record_batch"
-      (t @-> record_batch @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> record_batch @-> ptr (ptr GError.t) @-> returning int)
     let write_table = foreign "garrow_record_batch_writer_write_table"
-      (t @-> table @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> table @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module ResizableBuffer = struct
@@ -1673,9 +1673,9 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_resizable_buffer_new"
       (int64_t @-> ptr (ptr GError.t) @-> returning t)
     let reserve = foreign "garrow_resizable_buffer_reserve"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let resize = foreign "garrow_resizable_buffer_resize"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module Schema = struct
@@ -1690,7 +1690,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let add_field = foreign "garrow_schema_add_field"
       (t @-> uint32_t @-> field @-> ptr (ptr GError.t) @-> returning schema)
     let equal = foreign "garrow_schema_equal"
-      (t @-> schema @-> returning bool)
+      (t @-> schema @-> returning int)
     let get_field = foreign "garrow_schema_get_field"
       (t @-> uint32_t @-> returning field)
     let get_field_by_name = foreign "garrow_schema_get_field_by_name"
@@ -1715,7 +1715,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let get_size = foreign "garrow_seekable_input_stream_get_size"
       (t @-> ptr (ptr GError.t) @-> returning uint64_t)
     let get_support_zero_copy = foreign "garrow_seekable_input_stream_get_support_zero_copy"
-      (t @-> returning bool)
+      (t @-> returning int)
     let read_at = foreign "garrow_seekable_input_stream_read_at"
       (t @-> int64_t @-> int64_t @-> ptr (ptr GError.t) @-> returning buffer)
   end
@@ -1767,9 +1767,9 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_string_array_builder_new"
       (void @-> returning t)
     let append_value = foreign "garrow_string_array_builder_append_value"
-      (t @-> string @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> string @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_string_array_builder_append_values"
-      (t @-> ptr string @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr string @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module StringDataType = struct
@@ -1806,9 +1806,9 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_struct_array_builder_new"
       (struct_data_type @-> ptr (ptr GError.t) @-> returning t)
     let append_null = foreign "garrow_struct_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_struct_array_builder_append_value"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let get_field_builder = foreign "garrow_struct_array_builder_get_field_builder"
       (t @-> int32_t @-> returning array_builder)
   end
@@ -1850,7 +1850,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let concatenate = foreign "garrow_table_concatenate"
       (t @-> GList.t @-> ptr (ptr GError.t) @-> returning table)
     let equal = foreign "garrow_table_equal"
-      (t @-> table @-> returning bool)
+      (t @-> table @-> returning int)
     let get_column = foreign "garrow_table_get_column"
       (t @-> uint32_t @-> returning column)
     let get_n_columns = foreign "garrow_table_get_n_columns"
@@ -1901,7 +1901,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_tensor_new"
       (data_type @-> buffer @-> ptr int64_t @-> uint64_t @-> ptr int64_t @-> uint64_t @-> ptr string @-> uint64_t @-> returning t)
     let equal = foreign "garrow_tensor_equal"
-      (t @-> tensor @-> returning bool)
+      (t @-> tensor @-> returning int)
     let get_buffer = foreign "garrow_tensor_get_buffer"
       (t @-> returning buffer)
     let get_dimension_name = foreign "garrow_tensor_get_dimension_name"
@@ -1913,13 +1913,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let get_value_data_type = foreign "garrow_tensor_get_value_data_type"
       (t @-> returning data_type)
     let is_column_major = foreign "garrow_tensor_is_column_major"
-      (t @-> returning bool)
+      (t @-> returning int)
     let is_contiguous = foreign "garrow_tensor_is_contiguous"
-      (t @-> returning bool)
+      (t @-> returning int)
     let is_mutable = foreign "garrow_tensor_is_mutable"
-      (t @-> returning bool)
+      (t @-> returning int)
     let is_row_major = foreign "garrow_tensor_is_row_major"
-      (t @-> returning bool)
+      (t @-> returning int)
   end
 
   module Time32Array = struct
@@ -1945,13 +1945,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_time32_array_builder_new"
       (time32_data_type @-> returning t)
     let append_null = foreign "garrow_time32_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_time32_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_time32_array_builder_append_value"
-      (t @-> int32_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int32_t @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_time32_array_builder_append_values"
-      (t @-> ptr int32_t @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr int32_t @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module Time32DataType = struct
@@ -1986,13 +1986,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_time64_array_builder_new"
       (time64_data_type @-> returning t)
     let append_null = foreign "garrow_time64_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_time64_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_time64_array_builder_append_value"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_time64_array_builder_append_values"
-      (t @-> ptr int64_t @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr int64_t @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module Time64DataType = struct
@@ -2036,13 +2036,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_timestamp_array_builder_new"
       (timestamp_data_type @-> returning t)
     let append_null = foreign "garrow_timestamp_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_timestamp_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_timestamp_array_builder_append_value"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_timestamp_array_builder_append_values"
-      (t @-> ptr int64_t @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr int64_t @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module TimestampDataType = struct
@@ -2081,13 +2081,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_uint16_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_uint16_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_uint16_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_uint16_array_builder_append_value"
-      (t @-> uint16_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> uint16_t @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_uint16_array_builder_append_values"
-      (t @-> ptr uint16_t @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr uint16_t @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module UInt16DataType = struct
@@ -2128,13 +2128,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_uint32_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_uint32_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_uint32_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_uint32_array_builder_append_value"
-      (t @-> uint32_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> uint32_t @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_uint32_array_builder_append_values"
-      (t @-> ptr uint32_t @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr uint32_t @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module UInt32DataType = struct
@@ -2175,13 +2175,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_uint64_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_uint64_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_uint64_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_uint64_array_builder_append_value"
-      (t @-> uint64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> uint64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_uint64_array_builder_append_values"
-      (t @-> ptr uint64_t @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr uint64_t @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module UInt64DataType = struct
@@ -2222,13 +2222,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_uint8_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_uint8_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_uint8_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_uint8_array_builder_append_value"
-      (t @-> uint8_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> uint8_t @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_uint8_array_builder_append_values"
-      (t @-> ptr uint8_t @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr uint8_t @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module UInt8DataType = struct
@@ -2252,13 +2252,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let new_ = foreign "garrow_uint_array_builder_new"
       (void @-> returning t)
     let append_null = foreign "garrow_uint_array_builder_append_null"
-      (t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr (ptr GError.t) @-> returning int)
     let append_nulls = foreign "garrow_uint_array_builder_append_nulls"
-      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_value = foreign "garrow_uint_array_builder_append_value"
-      (t @-> uint64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> uint64_t @-> ptr (ptr GError.t) @-> returning int)
     let append_values = foreign "garrow_uint_array_builder_append_values"
-      (t @-> ptr uint64_t @-> int64_t @-> ptr bool @-> int64_t @-> ptr (ptr GError.t) @-> returning bool)
+      (t @-> ptr uint64_t @-> int64_t @-> ptr int @-> int64_t @-> ptr (ptr GError.t) @-> returning int)
   end
 
   module UnionArray = struct

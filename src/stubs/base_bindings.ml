@@ -30,4 +30,10 @@ module C (F : Cstubs.FOREIGN) = struct
     let prepend = foreign "g_list_prepend" (t @-> ptr void @-> returning t)
     let free = foreign "g_list_free" (t @-> returning void)
   end
+
+  let garrow_buffer_get_data =
+    foreign "garrow_buffer_get_data" (gobject @-> returning (ptr void))
+
+  let garrow_buffer_get_mutable_data =
+    foreign "garrow_buffer_get_mutable_data" (gobject @-> returning (ptr void))
 end

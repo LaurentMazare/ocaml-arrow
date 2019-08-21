@@ -26,7 +26,7 @@ base_types = {
     'guint8': { 'c': 'uint8_t', 'ml': 'Unsigned.uint8' },
     'gdouble': { 'c': 'double', 'ml': 'float' },
     'gfloat': { 'c': 'float', 'ml': 'float' },
-    'gboolean': { 'c': 'bool', 'ml': 'bool' },
+    'gboolean': { 'c': 'int', 'ml': 'bool' },
     'utf8': { 'c': 'string', 'ml': 'string' },
 }
 
@@ -163,6 +163,7 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
           arg = '(CArray.of_list %s %s |> CArray.start)' % (arg._elt_c, arg._arg_name)
         elif hasattr(arg, '_list'):
           arg = '(glist_of_list %s)' % arg._arg_name
+        elif arg._ml == 'bool': arg = '(if %s then 1 else 0)' % arg._arg_name
         else: arg = arg._arg_name
         call_args.append(arg)
 
@@ -184,6 +185,9 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
       ml_args += [m._arg_name for i, m in enumerate(arg_types) if not m._nullable and i not in len_indexes]
       if len(ml_args) == 0: ml_args = ['()']
       f_ml.write('  let %s %s =\n' % (mname, ' '.join(ml_args)))
+      for arg in arg_types:
+        if arg._ml == 'bool list':
+          f_ml.write('    let %s = List.map int_of_bool %s in\n' % (arg._arg_name, arg._arg_name))
       if m.can_throw_gerror():
         f_ml.write('    let gerr__ = CArray.make (ptr C.GError.t) 1 in\n')
         f_ml.write('    let res = C.%s.%s %s (CArray.start gerr__) in\n' % (oname, mname, call_args))
@@ -207,7 +211,10 @@ def handle_object_info(oinfo, f_c, f_ml, f_mli):
         f_ml.write('    if Ctypes.is_null res\n')
         f_ml.write('    then failwith "returned null";\n')
         f_ml.write('    Gc.finalise C.object_unref res;\n')
-      f_ml.write('    res\n\n')
+      maybe_transform = ''
+      if return_type is not None and return_type._ml == 'bool':
+        maybe_transform = 'bool_of_int '
+      f_ml.write('    %sres\n\n' % maybe_transform)
 
       ml_type = ['?' + m._arg_name + ':' + m._ml for m in arg_types if m._nullable]
       if m.is_method(): ml_type += ['[> `%s ] gobject' %  snake_case(oname)]
@@ -235,6 +242,8 @@ def write_files(f_c, f_ml, f_mli):
   f_ml.write('open Ctypes\n')
   f_ml.write('module C = Arrow_bindings.C (Arrow_generated)\n\n')
   f_ml.write('type _ gobject = C.gobject\n\n')
+  f_ml.write('let int_of_bool b = if b then 1 else 0\n')
+  f_ml.write('let bool_of_int i = i <> 0\n')
   f_ml.write('let glist_of_list l =\n')
   f_ml.write('  let res = C.GList.alloc () in\n')
   f_ml.write('  let res = List.fold_left C.GList.append res l in\n')

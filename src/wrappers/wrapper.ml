@@ -5,6 +5,8 @@ module C = Arrow_bindings.C (Arrow_generated)
 
 type _ gobject = C.gobject
 
+let int_of_bool b = if b then 1 else 0
+let bool_of_int i = i <> 0
 let glist_of_list l =
   let res = C.GList.alloc () in
   let res = List.fold_left C.GList.append res l in
@@ -89,15 +91,15 @@ module Array = struct
 
   let equal t__ other_array =
     let res = C.Array.equal t__ other_array in
-    res
+    bool_of_int res
 
   let equal_approx t__ other_array =
     let res = C.Array.equal_approx t__ other_array in
-    res
+    bool_of_int res
 
   let equal_range t__ start_index other_array other_start_index end_index =
     let res = C.Array.equal_range t__ start_index other_array other_start_index end_index in
-    res
+    bool_of_int res
 
   let get_length t__ =
     let res = C.Array.get_length t__ in
@@ -127,11 +129,11 @@ module Array = struct
 
   let is_null t__ i =
     let res = C.Array.is_null t__ i in
-    res
+    bool_of_int res
 
   let is_valid t__ i =
     let res = C.Array.is_valid t__ i in
-    res
+    bool_of_int res
 
   let slice t__ offset length =
     let res = C.Array.slice t__ offset length in
@@ -285,7 +287,7 @@ module BinaryArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -301,7 +303,7 @@ module BinaryArrayBuilder = struct
       failwith msg
     end;
     let _ = Sys.opaque_identity value in
-    res
+    bool_of_int res
 
 end
 
@@ -357,7 +359,7 @@ module BooleanArray = struct
 
   let get_value t__ i =
     let res = C.BooleanArray.get_value t__ i in
-    res
+    bool_of_int res
 
   let invert t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -443,7 +445,7 @@ module BooleanArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -458,11 +460,11 @@ module BooleanArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.BooleanArrayBuilder.append_value t__ value (CArray.start gerr__) in
+    let res = C.BooleanArrayBuilder.append_value t__ (if value then 1 else 0) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -473,11 +475,13 @@ module BooleanArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let values = List.map int_of_bool values in
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.BooleanArrayBuilder.append_values t__ (CArray.of_list bool values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.BooleanArrayBuilder.append_values t__ (CArray.of_list int values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -490,7 +494,7 @@ module BooleanArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -545,11 +549,11 @@ module Buffer = struct
 
   let equal t__ other_buffer =
     let res = C.Buffer.equal t__ other_buffer in
-    res
+    bool_of_int res
 
   let equal_n_bytes t__ other_buffer n_bytes =
     let res = C.Buffer.equal_n_bytes t__ other_buffer n_bytes in
-    res
+    bool_of_int res
 
   let get_capacity t__ =
     let res = C.Buffer.get_capacity t__ in
@@ -568,7 +572,7 @@ module Buffer = struct
 
   let is_mutable t__ =
     let res = C.Buffer.is_mutable t__ in
-    res
+    bool_of_int res
 
   let slice t__ offset size =
     let res = C.Buffer.slice t__ offset size in
@@ -710,7 +714,7 @@ module ChunkedArray = struct
 
   let equal t__ other_chunked_array =
     let res = C.ChunkedArray.equal t__ other_chunked_array in
-    res
+    bool_of_int res
 
   let get_chunk t__ i =
     let res = C.ChunkedArray.get_chunk t__ i in
@@ -796,7 +800,7 @@ module Column = struct
 
   let equal t__ other_column =
     let res = C.Column.equal t__ other_column in
-    res
+    bool_of_int res
 
   let get_data t__ =
     let res = C.Column.get_data t__ in
@@ -949,7 +953,7 @@ module DataType = struct
 
   let equal t__ other_data_type =
     let res = C.DataType.equal t__ other_data_type in
-    res
+    bool_of_int res
 
   let to_string t__ =
     let res = C.DataType.to_string t__ in
@@ -1006,7 +1010,7 @@ module Date32ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -1021,7 +1025,7 @@ module Date32ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -1036,11 +1040,12 @@ module Date32ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Date32ArrayBuilder.append_values t__ (CArray.of_list int32_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.Date32ArrayBuilder.append_values t__ (CArray.of_list int32_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1053,7 +1058,7 @@ module Date32ArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -1123,7 +1128,7 @@ module Date64ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -1138,7 +1143,7 @@ module Date64ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -1153,11 +1158,12 @@ module Date64ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Date64ArrayBuilder.append_values t__ (CArray.of_list int64_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.Date64ArrayBuilder.append_values t__ (CArray.of_list int64_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1170,7 +1176,7 @@ module Date64ArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -1231,23 +1237,23 @@ module Decimal128 = struct
 
   let equal t__ other_decimal =
     let res = C.Decimal128.equal t__ other_decimal in
-    res
+    bool_of_int res
 
   let greater_than t__ other_decimal =
     let res = C.Decimal128.greater_than t__ other_decimal in
-    res
+    bool_of_int res
 
   let greater_than_or_equal t__ other_decimal =
     let res = C.Decimal128.greater_than_or_equal t__ other_decimal in
-    res
+    bool_of_int res
 
   let less_than t__ other_decimal =
     let res = C.Decimal128.less_than t__ other_decimal in
-    res
+    bool_of_int res
 
   let less_than_or_equal t__ other_decimal =
     let res = C.Decimal128.less_than_or_equal t__ other_decimal in
-    res
+    bool_of_int res
 
   let minus t__ right =
     let res = C.Decimal128.minus t__ right in
@@ -1265,7 +1271,7 @@ module Decimal128 = struct
 
   let not_equal t__ other_decimal =
     let res = C.Decimal128.not_equal t__ other_decimal in
-    res
+    bool_of_int res
 
   let plus t__ right =
     let res = C.Decimal128.plus t__ right in
@@ -1337,7 +1343,7 @@ module Decimal128ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -1352,7 +1358,7 @@ module Decimal128ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
 end
 
@@ -1516,7 +1522,7 @@ module DictionaryDataType = struct
     then Some g else None
 
   let new_ index_data_type value_data_type ordered =
-    let res = C.DictionaryDataType.new_ index_data_type value_data_type ordered in
+    let res = C.DictionaryDataType.new_ index_data_type value_data_type (if ordered then 1 else 0) in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -1538,7 +1544,7 @@ module DictionaryDataType = struct
 
   let is_ordered t__ =
     let res = C.DictionaryDataType.is_ordered t__ in
-    res
+    bool_of_int res
 
 end
 
@@ -1624,7 +1630,7 @@ module DoubleArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -1639,7 +1645,7 @@ module DoubleArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -1654,11 +1660,12 @@ module DoubleArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.DoubleArrayBuilder.append_values t__ (CArray.of_list double values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.DoubleArrayBuilder.append_values t__ (CArray.of_list double values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -1671,7 +1678,7 @@ module DoubleArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -1756,7 +1763,7 @@ module FeatherFileReader = struct
 
   let has_description t__ =
     let res = C.FeatherFileReader.has_description t__ in
-    res
+    bool_of_int res
 
   let read t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -1853,7 +1860,7 @@ module FeatherFileWriter = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let close t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -1868,7 +1875,7 @@ module FeatherFileWriter = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let write t__ table =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -1883,7 +1890,7 @@ module FeatherFileWriter = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
 end
 
@@ -1901,7 +1908,7 @@ module Field = struct
     res
 
   let new_full name data_type nullable =
-    let res = C.Field.new_full name data_type nullable in
+    let res = C.Field.new_full name data_type (if nullable then 1 else 0) in
     if Ctypes.is_null res
     then failwith "returned null";
     Gc.finalise C.object_unref res;
@@ -1909,7 +1916,7 @@ module Field = struct
 
   let equal t__ other_field =
     let res = C.Field.equal t__ other_field in
-    res
+    bool_of_int res
 
   let get_data_type t__ =
     let res = C.Field.get_data_type t__ in
@@ -1924,7 +1931,7 @@ module Field = struct
 
   let is_nullable t__ =
     let res = C.Field.is_nullable t__ in
-    res
+    bool_of_int res
 
   let to_string t__ =
     let res = C.Field.to_string t__ in
@@ -1942,7 +1949,7 @@ module FileOutputStream = struct
 
   let new_ path append =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.FileOutputStream.new_ path append (CArray.start gerr__) in
+    let res = C.FileOutputStream.new_ path (if append then 1 else 0) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2087,7 +2094,7 @@ module FloatArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2102,7 +2109,7 @@ module FloatArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2117,11 +2124,12 @@ module FloatArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.FloatArrayBuilder.append_values t__ (CArray.of_list float values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.FloatArrayBuilder.append_values t__ (CArray.of_list float values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2134,7 +2142,7 @@ module FloatArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -2220,7 +2228,7 @@ module InputStream = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let align t__ alignment =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2235,7 +2243,7 @@ module InputStream = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let read_tensor t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2339,7 +2347,7 @@ module Int16ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2354,7 +2362,7 @@ module Int16ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2369,11 +2377,12 @@ module Int16ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int16ArrayBuilder.append_values t__ (CArray.of_list int16_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.Int16ArrayBuilder.append_values t__ (CArray.of_list int16_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2386,7 +2395,7 @@ module Int16ArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -2489,7 +2498,7 @@ module Int32ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2504,7 +2513,7 @@ module Int32ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2519,11 +2528,12 @@ module Int32ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int32ArrayBuilder.append_values t__ (CArray.of_list int32_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.Int32ArrayBuilder.append_values t__ (CArray.of_list int32_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2536,7 +2546,7 @@ module Int32ArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -2639,7 +2649,7 @@ module Int64ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2654,7 +2664,7 @@ module Int64ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2669,11 +2679,12 @@ module Int64ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int64ArrayBuilder.append_values t__ (CArray.of_list int64_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.Int64ArrayBuilder.append_values t__ (CArray.of_list int64_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2686,7 +2697,7 @@ module Int64ArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -2789,7 +2800,7 @@ module Int8ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2804,7 +2815,7 @@ module Int8ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2819,11 +2830,12 @@ module Int8ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Int8ArrayBuilder.append_values t__ (CArray.of_list int8_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.Int8ArrayBuilder.append_values t__ (CArray.of_list int8_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2836,7 +2848,7 @@ module Int8ArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -2885,7 +2897,7 @@ module IntArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2900,7 +2912,7 @@ module IntArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -2915,11 +2927,12 @@ module IntArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.IntArrayBuilder.append_values t__ (CArray.of_list int64_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.IntArrayBuilder.append_values t__ (CArray.of_list int64_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -2932,7 +2945,7 @@ module IntArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -3075,7 +3088,7 @@ module ListArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -3090,7 +3103,7 @@ module ListArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let get_value_builder t__ =
     let res = C.ListArrayBuilder.get_value_builder t__ in
@@ -3183,7 +3196,7 @@ module MutableBuffer = struct
       failwith msg
     end;
     let _ = Sys.opaque_identity data in
-    res
+    bool_of_int res
 
   let slice t__ offset size =
     let res = C.MutableBuffer.slice t__ offset size in
@@ -3239,7 +3252,7 @@ module NullArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -3254,7 +3267,7 @@ module NullArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
 end
 
@@ -3417,7 +3430,7 @@ module OutputStream = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let write_tensor t__ tensor =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -3498,7 +3511,7 @@ module RecordBatch = struct
 
   let equal t__ other_record_batch =
     let res = C.RecordBatch.equal t__ other_record_batch in
-    res
+    bool_of_int res
 
   let get_column t__ i =
     let res = C.RecordBatch.get_column t__ i in
@@ -3825,7 +3838,7 @@ module RecordBatchWriter = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let write_record_batch t__ record_batch =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -3840,7 +3853,7 @@ module RecordBatchWriter = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let write_table t__ table =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -3855,7 +3868,7 @@ module RecordBatchWriter = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
 end
 
@@ -3898,7 +3911,7 @@ module ResizableBuffer = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let resize t__ new_size =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -3913,7 +3926,7 @@ module ResizableBuffer = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
 end
 
@@ -3951,7 +3964,7 @@ module Schema = struct
 
   let equal t__ other_schema =
     let res = C.Schema.equal t__ other_schema in
-    res
+    bool_of_int res
 
   let get_field t__ i =
     let res = C.Schema.get_field t__ i in
@@ -4038,7 +4051,7 @@ module SeekableInputStream = struct
 
   let get_support_zero_copy t__ =
     let res = C.SeekableInputStream.get_support_zero_copy t__ in
-    res
+    bool_of_int res
 
   let read_at t__ position n_bytes =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -4176,11 +4189,12 @@ module StringArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.StringArrayBuilder.append_values t__ (CArray.of_list string values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.StringArrayBuilder.append_values t__ (CArray.of_list string values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -4193,7 +4207,7 @@ module StringArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -4278,7 +4292,7 @@ module StructArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -4293,7 +4307,7 @@ module StructArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let get_field_builder t__ i =
     let res = C.StructArrayBuilder.get_field_builder t__ i in
@@ -4446,7 +4460,7 @@ module Table = struct
 
   let equal t__ other_table =
     let res = C.Table.equal t__ other_table in
-    res
+    bool_of_int res
 
   let get_column t__ i =
     let res = C.Table.get_column t__ i in
@@ -4580,7 +4594,7 @@ module Tensor = struct
 
   let equal t__ other_tensor =
     let res = C.Tensor.equal t__ other_tensor in
-    res
+    bool_of_int res
 
   let get_buffer t__ =
     let res = C.Tensor.get_buffer t__ in
@@ -4610,19 +4624,19 @@ module Tensor = struct
 
   let is_column_major t__ =
     let res = C.Tensor.is_column_major t__ in
-    res
+    bool_of_int res
 
   let is_contiguous t__ =
     let res = C.Tensor.is_contiguous t__ in
-    res
+    bool_of_int res
 
   let is_mutable t__ =
     let res = C.Tensor.is_mutable t__ in
-    res
+    bool_of_int res
 
   let is_row_major t__ =
     let res = C.Tensor.is_row_major t__ in
-    res
+    bool_of_int res
 
 end
 
@@ -4675,7 +4689,7 @@ module Time32ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -4690,7 +4704,7 @@ module Time32ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -4705,11 +4719,12 @@ module Time32ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Time32ArrayBuilder.append_values t__ (CArray.of_list int32_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.Time32ArrayBuilder.append_values t__ (CArray.of_list int32_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -4722,7 +4737,7 @@ module Time32ArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -4785,7 +4800,7 @@ module Time64ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -4800,7 +4815,7 @@ module Time64ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -4815,11 +4830,12 @@ module Time64ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.Time64ArrayBuilder.append_values t__ (CArray.of_list int64_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.Time64ArrayBuilder.append_values t__ (CArray.of_list int64_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -4832,7 +4848,7 @@ module Time64ArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -4905,7 +4921,7 @@ module TimestampArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -4920,7 +4936,7 @@ module TimestampArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -4935,11 +4951,12 @@ module TimestampArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.TimestampArrayBuilder.append_values t__ (CArray.of_list int64_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.TimestampArrayBuilder.append_values t__ (CArray.of_list int64_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -4952,7 +4969,7 @@ module TimestampArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -5048,7 +5065,7 @@ module UInt16ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -5063,7 +5080,7 @@ module UInt16ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -5078,11 +5095,12 @@ module UInt16ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt16ArrayBuilder.append_values t__ (CArray.of_list uint16_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.UInt16ArrayBuilder.append_values t__ (CArray.of_list uint16_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -5095,7 +5113,7 @@ module UInt16ArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -5198,7 +5216,7 @@ module UInt32ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -5213,7 +5231,7 @@ module UInt32ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -5228,11 +5246,12 @@ module UInt32ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt32ArrayBuilder.append_values t__ (CArray.of_list uint32_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.UInt32ArrayBuilder.append_values t__ (CArray.of_list uint32_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -5245,7 +5264,7 @@ module UInt32ArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -5348,7 +5367,7 @@ module UInt64ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -5363,7 +5382,7 @@ module UInt64ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -5378,11 +5397,12 @@ module UInt64ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt64ArrayBuilder.append_values t__ (CArray.of_list uint64_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.UInt64ArrayBuilder.append_values t__ (CArray.of_list uint64_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -5395,7 +5415,7 @@ module UInt64ArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -5498,7 +5518,7 @@ module UInt8ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -5513,7 +5533,7 @@ module UInt8ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -5528,11 +5548,12 @@ module UInt8ArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UInt8ArrayBuilder.append_values t__ (CArray.of_list uint8_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.UInt8ArrayBuilder.append_values t__ (CArray.of_list uint8_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -5545,7 +5566,7 @@ module UInt8ArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
@@ -5594,7 +5615,7 @@ module UIntArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_nulls t__ n =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -5609,7 +5630,7 @@ module UIntArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_value t__ value =
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
@@ -5624,11 +5645,12 @@ module UIntArrayBuilder = struct
       C.GError.free gerr__;
       failwith msg
     end;
-    res
+    bool_of_int res
 
   let append_values t__ values is_valids =
+    let is_valids = List.map int_of_bool is_valids in
     let gerr__ = CArray.make (ptr C.GError.t) 1 in
-    let res = C.UIntArrayBuilder.append_values t__ (CArray.of_list uint64_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list bool is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
+    let res = C.UIntArrayBuilder.append_values t__ (CArray.of_list uint64_t values |> CArray.start) (List.length values |> Int64.of_int) (CArray.of_list int is_valids |> CArray.start) (List.length is_valids |> Int64.of_int) (CArray.start gerr__) in
     let gerr__ = CArray.get gerr__ 0 in
     if not (Ctypes.is_null gerr__)
     then begin
@@ -5641,7 +5663,7 @@ module UIntArrayBuilder = struct
     end;
     let _ = Sys.opaque_identity values in
     let _ = Sys.opaque_identity is_valids in
-    res
+    bool_of_int res
 
 end
 
