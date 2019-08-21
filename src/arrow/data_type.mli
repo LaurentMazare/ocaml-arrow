@@ -13,6 +13,9 @@ type packed = P : _ t -> packed
 
 val to_wrapper : _ t -> Arrow_core.Wrapper.DataType.t
 
+val equal_dt : _ t -> Arrow_core.Wrapper.DataType.t -> bool
+val check_equal : _ t -> Arrow_core.Wrapper.DataType.t -> unit Or_error.t
+
 module Public : sig
   type nonrec ('a, 'b) t = ('a, 'b) t
   type nonrec packed = packed

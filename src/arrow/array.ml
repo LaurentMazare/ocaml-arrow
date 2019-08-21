@@ -104,8 +104,10 @@ type ('a, 'b) t =
   ; data : W.Array.t
   }
 
-let module_of_data_type : type a b.
-    (a, b) Data_type.t -> (module S with type elt_t = a and type ml_t = b)
+let data t = t.data
+
+let module_of_data_type
+    : type a b. (a, b) Data_type.t -> (module S with type elt_t = a and type ml_t = b)
   = function
   | Data_type.Double -> (module DoubleArray)
   | Data_type.Float -> (module FloatArray)
@@ -145,6 +147,7 @@ let unpack : type a b. packed -> (a, b) Data_type.t -> (a, b) t option =
 let packed_length (P t) = length t
 let packed_to_string (P t) = to_string t
 let packed_slice (P t) ~start ~length = P (slice t ~start ~length)
+let packed_data (P t) = t.data
 
 let of_list : type a b. a list -> (a, b) Data_type.t -> (a, b) t =
  fun list data_type ->
@@ -153,3 +156,14 @@ let of_list : type a b. a list -> (a, b) Data_type.t -> (a, b) t =
   let builder = M.Builder.new_ () in
   if not (M.Builder.append_values builder list []) then failwith "cannot append";
   { mod_; data = M.finish builder }
+
+let of_data : type a b. W.Array.t -> (a, b) Data_type.t -> (a, b) t Or_error.t =
+ fun data data_type ->
+  let mod_ = module_of_data_type data_type in
+  let (module M) = mod_ in
+  let data_type' = W.Array.get_value_data_type data in
+  Data_type.check_equal data_type data_type'
+  |> Or_error.map ~f:(fun () -> { mod_; data })
+
+let of_data_exn : type a b. W.Array.t -> (a, b) Data_type.t -> (a, b) t =
+ fun data data_type -> Or_error.ok_exn (of_data data data_type)

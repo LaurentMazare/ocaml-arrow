@@ -26,6 +26,22 @@ let to_wrapper : type a b. (a, b) t -> W.DataType.t = function
   | Bool -> (dt_bool :> W.DataType.t)
   | String -> (dt_string :> W.DataType.t)
 
+let equal_dt : type a b. (a, b) t -> W.DataType.t -> bool =
+ fun t dt' ->
+  let dt = to_wrapper t in
+  W.DataType.equal dt' dt
+
+let check_equal : type a b. (a, b) t -> W.DataType.t -> unit Or_error.t =
+ fun t dt' ->
+  let dt = to_wrapper t in
+  if W.DataType.equal dt' dt
+  then Ok ()
+  else
+    Or_error.errorf
+      "different data types: %s %s"
+      (W.DataType.to_string dt)
+      (W.DataType.to_string dt')
+
 module Public = struct
   type nonrec ('a, 'b) t = ('a, 'b) t
   type nonrec packed = packed
