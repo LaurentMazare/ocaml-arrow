@@ -1,0 +1,18 @@
+(library
+  (name arrow_c_api)
+  (public_name arrow.c_api)
+  (foreign_stubs (language c) (names arrow_c_api_stubs))
+  (foreign_stubs (language cxx) (names arrow_c_api))
+  (c_library_flags :standard -larrow -lparquet -lstdc++)
+  (libraries base bigarray ctypes ctypes.foreign ctypes.stubs stdio)
+  (preprocess (pps ppx_expect ppx_sexp_conv)))
+
+(rule
+  (targets bindings.ml)
+  (deps    ../stubs/bindings.ml)
+  (action  (copy ../stubs/bindings.ml bindings.ml)))
+
+(rule
+  (targets arrow_c_api_stubs.c bindings_generated.ml)
+  (deps    (:gen ../stubs/gen.exe))
+  (action  (run %{gen})))
