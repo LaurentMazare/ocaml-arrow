@@ -16,8 +16,8 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = [ `schema ] structure
 
     let t : t typ = structure "ArrowSchema"
-    let format = field t "format" string
-    let name = field t "name" string
+    let format = field t "format" (ptr char)
+    let name = field t "name" (ptr char)
     let metadata = field t "metadata" (ptr char)
     let flags = field t "flags" int64_t
     let n_children = field t "n_children" int64_t

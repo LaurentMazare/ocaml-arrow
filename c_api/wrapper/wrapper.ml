@@ -1,6 +1,19 @@
 open! Base
 module C = C_api.C
 
+let add_compact = false
+
+external use_value : 'a -> unit = "ctypes_use" [@@noalloc]
+
+let get_string ptr_char =
+  let rec loop acc p =
+    let c = Ctypes.(!@p) in
+    if Char.( = ) c '\000'
+    then List.rev acc |> String.of_char_list
+    else loop (c :: acc) Ctypes.(p +@ 1)
+  in
+  loop [] ptr_char
+
 module Format = struct
   type t =
     | Null
@@ -133,8 +146,8 @@ module Schema = struct
       let n_children = Ctypes.getf schema C.ArrowSchema.n_children |> Int64.to_int_exn in
       let children = Ctypes.getf schema C.ArrowSchema.children in
       let children = List.init n_children ~f:(fun i -> loop Ctypes.(!@(children +@ i))) in
-      { format = Ctypes.getf schema C.ArrowSchema.format |> Format.of_string
-      ; name = Ctypes.getf schema C.ArrowSchema.name
+      { format = Ctypes.getf schema C.ArrowSchema.format |> get_string |> Format.of_string
+      ; name = Ctypes.getf schema C.ArrowSchema.name |> get_string
       ; metadata = Ctypes.getf schema C.ArrowSchema.metadata |> metadata
       ; flags = Ctypes.getf schema C.ArrowSchema.flags |> Int64.to_int_exn
       ; children
@@ -292,7 +305,7 @@ module Writer = struct
   (val Foreign.dynamic_funptr Ctypes.(C.ArrowSchema.t @-> returning void))
 
   (* For now [release_schema] and [release_array] don't do anything as the
-   memory is entirely managed on the ocaml side. *)
+     memory is entirely managed on the ocaml side. *)
   let release_schema =
     let release_schema _ = if verbose then Stdio.printf "release schema\n%!" in
     Release_schema_fn_ptr.of_fun release_schema
@@ -312,6 +325,8 @@ module Writer = struct
   type col = C.ArrowArray.t * C.ArrowSchema.t
 
   let int64_ba array ~name =
+    let format = Ctypes.CArray.of_string "l" in
+    let name = Ctypes.CArray.of_string name in
     let buffers =
       Ctypes.CArray.of_list
         (Ctypes.ptr Ctypes.void)
@@ -321,10 +336,10 @@ module Writer = struct
       let a =
         Ctypes.make
           ~finalise:(fun _ ->
-            ignore (Sys.opaque_identity buffers : unit Ctypes.ptr Ctypes.carray);
-            ignore
-              (Sys.opaque_identity array
-                : (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t))
+            use_value format;
+            use_value name;
+            use_value buffers;
+            use_value array)
           C.ArrowArray.t
       in
       let length = Bigarray.Array1.dim array in
@@ -343,8 +358,8 @@ module Writer = struct
     in
     let schema_struct =
       let s = Ctypes.make C.ArrowSchema.t in
-      Ctypes.setf s C.ArrowSchema.format "l";
-      Ctypes.setf s C.ArrowSchema.name name;
+      Ctypes.setf s C.ArrowSchema.format (Ctypes.CArray.start format);
+      Ctypes.setf s C.ArrowSchema.name (Ctypes.CArray.start name);
       Ctypes.setf s C.ArrowSchema.metadata (Ctypes.null |> Ctypes.from_voidp Ctypes.char);
       Ctypes.setf s C.ArrowSchema.flags Int64.zero;
       Ctypes.setf s C.ArrowSchema.n_children Int64.zero;
@@ -359,6 +374,8 @@ module Writer = struct
     (array_struct, schema_struct : col)
 
   let float64_ba array ~name =
+    let format = Ctypes.CArray.of_string "g" in
+    let name = Ctypes.CArray.of_string name in
     let buffers =
       Ctypes.CArray.of_list
         (Ctypes.ptr Ctypes.void)
@@ -368,10 +385,10 @@ module Writer = struct
       let a =
         Ctypes.make
           ~finalise:(fun _ ->
-            ignore (Sys.opaque_identity buffers : unit Ctypes.ptr Ctypes.carray);
-            ignore
-              (Sys.opaque_identity array
-                : (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t))
+            use_value format;
+            use_value name;
+            use_value buffers;
+            use_value array)
           C.ArrowArray.t
       in
       let length = Bigarray.Array1.dim array in
@@ -390,8 +407,8 @@ module Writer = struct
     in
     let schema_struct =
       let s = Ctypes.make C.ArrowSchema.t in
-      Ctypes.setf s C.ArrowSchema.format "g";
-      Ctypes.setf s C.ArrowSchema.name name;
+      Ctypes.setf s C.ArrowSchema.format (Ctypes.CArray.start format);
+      Ctypes.setf s C.ArrowSchema.name (Ctypes.CArray.start name);
       Ctypes.setf s C.ArrowSchema.metadata (Ctypes.null |> Ctypes.from_voidp Ctypes.char);
       Ctypes.setf s C.ArrowSchema.flags Int64.zero;
       Ctypes.setf s C.ArrowSchema.n_children Int64.zero;
@@ -407,6 +424,8 @@ module Writer = struct
 
   (* TODO: also have a "categorical" version? *)
   let utf8 array ~name =
+    let format = Ctypes.CArray.of_string "u" in
+    let name = Ctypes.CArray.of_string name in
     let length = Array.length array in
     let offsets = Bigarray.Array1.create Int32 C_layout (length + 1) in
     let sum_length =
@@ -433,11 +452,11 @@ module Writer = struct
       let a =
         Ctypes.make
           ~finalise:(fun _ ->
-            ignore (Sys.opaque_identity buffers : unit Ctypes.ptr Ctypes.carray);
-            ignore (Sys.opaque_identity data : char Ctypes.carray);
-            ignore
-              (Sys.opaque_identity offsets
-                : (int32, Bigarray.int32_elt, Bigarray.c_layout) Bigarray.Array1.t))
+            use_value format;
+            use_value name;
+            use_value buffers;
+            use_value data;
+            use_value offsets)
           C.ArrowArray.t
       in
       Ctypes.setf a C.ArrowArray.length (Int64.of_int length);
@@ -455,8 +474,8 @@ module Writer = struct
     in
     let schema_struct =
       let s = Ctypes.make C.ArrowSchema.t in
-      Ctypes.setf s C.ArrowSchema.format "u";
-      Ctypes.setf s C.ArrowSchema.name name;
+      Ctypes.setf s C.ArrowSchema.format (Ctypes.CArray.start format);
+      Ctypes.setf s C.ArrowSchema.name (Ctypes.CArray.start name);
       Ctypes.setf s C.ArrowSchema.metadata (Ctypes.null |> Ctypes.from_voidp Ctypes.char);
       Ctypes.setf s C.ArrowSchema.flags Int64.zero;
       Ctypes.setf s C.ArrowSchema.n_children Int64.zero;
@@ -471,6 +490,8 @@ module Writer = struct
     (array_struct, schema_struct : col)
 
   let write ?(chunk_size = 1024 * 1024) filename ~cols =
+    let format = Ctypes.CArray.of_string "+s" in
+    let name = Ctypes.CArray.of_string "" in
     let n_children = List.length cols |> Int64.of_int in
     let children_arrays, children_schemas = List.unzip cols in
     let num_rows =
@@ -504,8 +525,8 @@ module Writer = struct
     in
     let schema_struct =
       let s = Ctypes.make C.ArrowSchema.t in
-      Ctypes.setf s C.ArrowSchema.format "+s";
-      Ctypes.setf s C.ArrowSchema.name "";
+      Ctypes.setf s C.ArrowSchema.format (Ctypes.CArray.start format);
+      Ctypes.setf s C.ArrowSchema.name (Ctypes.CArray.start name);
       Ctypes.setf s C.ArrowSchema.metadata (Ctypes.null |> Ctypes.from_voidp Ctypes.char);
       Ctypes.setf s C.ArrowSchema.flags Int64.zero;
       Ctypes.setf s C.ArrowSchema.n_children n_children;
@@ -517,12 +538,15 @@ module Writer = struct
       Ctypes.setf s C.ArrowSchema.release release_schema_ptr;
       s
     in
+    if add_compact then Caml.Gc.compact ();
     C.write_file
       filename
       (Ctypes.addr array_struct)
       (Ctypes.addr schema_struct)
       chunk_size;
-    ignore (Sys.opaque_identity cols : col list);
-    ignore (Sys.opaque_identity children_arrays : _ Ctypes.carray);
-    ignore (Sys.opaque_identity children_schemas : _ Ctypes.carray)
+    use_value cols;
+    use_value children_arrays;
+    use_value children_schemas;
+    use_value name;
+    use_value format
 end
