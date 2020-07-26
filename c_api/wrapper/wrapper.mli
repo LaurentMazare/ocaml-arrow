@@ -74,3 +74,20 @@ module Column : sig
 
   val read_utf8 : Reader.t -> column_idx:int -> string array
 end
+
+module Writer : sig
+  type col
+
+  val int64_ba
+    :  (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t
+    -> name:string
+    -> col
+
+  val float64_ba
+    :  (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t
+    -> name:string
+    -> col
+
+  val utf8 : string array -> name:string -> col
+  val write : ?chunk_size:int -> string -> cols:col list -> unit
+end

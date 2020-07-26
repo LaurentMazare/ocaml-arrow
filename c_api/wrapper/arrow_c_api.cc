@@ -89,3 +89,26 @@ void free_chunked_column(struct ArrowArray *arrays, int nchunks) {
   }
   free(arrays);
 }
+
+void write_file(char *filename, struct ArrowArray *array, struct ArrowSchema *schema, int chunk_size) {
+  auto file = arrow::io::FileOutputStream::Open(filename);
+  if (!file.ok()) {
+    caml_failwith(file.status().ToString().c_str());
+  }
+  auto outfile = file.ValueOrDie();
+  auto record_batch = arrow::ImportRecordBatch(array, schema);
+  if (!record_batch.ok()) {
+    caml_failwith(record_batch.status().ToString().c_str());
+  }
+  auto table = arrow::Table::FromRecordBatches({record_batch.ValueOrDie()});
+  if (!table.ok()) {
+    caml_failwith(table.status().ToString().c_str());
+  }
+  arrow::Status st = parquet::arrow::WriteTable(*(table.ValueOrDie()),
+                                                arrow::default_memory_pool(),
+                                                outfile,
+                                                chunk_size);
+  if (!st.ok()) {
+    caml_failwith(st.ToString().c_str());
+  }
+}

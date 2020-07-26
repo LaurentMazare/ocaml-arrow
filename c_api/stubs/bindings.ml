@@ -13,7 +13,9 @@ module C (F : Cstubs.FOREIGN) = struct
   end
 
   module ArrowSchema = struct
-    let t : [ `schema ] structure typ = structure "ArrowSchema"
+    type t = [ `schema ] structure
+
+    let t : t typ = structure "ArrowSchema"
     let format = field t "format" string
     let name = field t "name" string
     let metadata = field t "metadata" (ptr char)
@@ -21,7 +23,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let n_children = field t "n_children" int64_t
     let children = field t "children" (ptr (ptr t))
     let dictionary = field t "dictionary" (ptr t)
-    let release = field t "release" (Foreign.funptr Ctypes.(ptr t @-> returning void))
+    let release = field t "release" (ptr void)
     let private_data = field t "private_data" (ptr void)
     let () = seal t
     let get = foreign "get_schema" (Reader.t @-> returning (ptr t))
@@ -29,7 +31,9 @@ module C (F : Cstubs.FOREIGN) = struct
   end
 
   module ArrowArray = struct
-    let t : [ `array ] structure typ = structure "ArrowArray"
+    type t = [ `array ] structure
+
+    let t : t typ = structure "ArrowArray"
     let length = field t "length" int64_t
     let null_count = field t "null_count" int64_t
     let offset = field t "offset" int64_t
@@ -38,7 +42,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let buffers = field t "buffers" (ptr (ptr void))
     let children = field t "children" (ptr (ptr t))
     let dictionary = field t "dictionary" (ptr t)
-    let release = field t "release" (Foreign.funptr Ctypes.(ptr t @-> returning void))
+    let release = field t "release" (ptr void)
     let private_data = field t "private_data" (ptr void)
     let () = seal t
   end
@@ -50,4 +54,9 @@ module C (F : Cstubs.FOREIGN) = struct
 
   let free_chunked_column =
     foreign "free_chunked_column" (ptr ArrowArray.t @-> int @-> returning void)
+
+  let write_file =
+    foreign
+      "write_file"
+      (string @-> ptr ArrowArray.t @-> ptr ArrowSchema.t @-> int @-> returning void)
 end

@@ -26,6 +26,7 @@ void close_file(FileReaderPtr*);
 struct ArrowArray *chunked_column(FileReaderPtr *reader, int column_idx, int *nchunks, int dt);
 void free_chunked_column(struct ArrowArray *, int nchunks);
 
+void write_file(char *filename, struct ArrowArray *, struct ArrowSchema *, int chunk_size);
 #ifdef __cplusplus
 }
 #endif
