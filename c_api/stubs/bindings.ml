@@ -28,7 +28,6 @@ module C (F : Cstubs.FOREIGN) = struct
     let () = seal t
     let get = foreign "get_schema" (Reader.t @-> returning (ptr t))
     let free = foreign "free_schema" (ptr t @-> returning void)
-    let alloc = foreign "alloc_schema" (string @-> string @-> returning (ptr t))
   end
 
   module ArrowArray = struct

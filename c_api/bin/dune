@@ -1,5 +1,5 @@
 (executables
   (names test_main)
   (modules test_main)
-  (libraries base arrow.c_api stdio)
+  (libraries base core_kernel arrow.c_api stdio)
   (preprocess (pps ppx_fields_conv ppx_sexp_conv)))

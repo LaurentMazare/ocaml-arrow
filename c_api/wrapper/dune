@@ -4,7 +4,7 @@
   (foreign_stubs (language c) (names arrow_c_api_stubs))
   (foreign_stubs (language cxx) (names arrow_c_api))
   (c_library_flags :standard -larrow -lparquet -lstdc++)
-  (libraries base bigarray ctypes ctypes.foreign ctypes.stubs stdio)
+  (libraries base bigarray core_kernel ctypes ctypes.foreign ctypes.stubs stdio)
   (preprocess (pps ppx_expect ppx_sexp_conv)))
 
 (rule

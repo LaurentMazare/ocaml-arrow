@@ -22,66 +22,6 @@ void free_schema(struct ArrowSchema *schema) {
   free(schema);
 }
 
-static void release_schema(struct ArrowSchema* schema) {
-  for (int64_t i = 0; i < schema->n_children; ++i) {
-    struct ArrowSchema* child = schema->children[i];
-    if (child->release != NULL) {
-      child->release(child);
-      assert(child->release == NULL);
-    }
-    if (child != NULL) {
-      free((void*)child);
-      schema->children[i] = NULL;
-    }
-  }
-
-  struct ArrowSchema* dict = schema->dictionary;
-  if (dict != NULL && dict->release != NULL) {
-    dict->release(dict);
-    assert(dict->release == NULL);
-  }
-
-  if (schema->dictionary != NULL) {
-    free((void*)schema->dictionary);
-    schema->dictionary = NULL;
-  }
-
-  if (schema->children != NULL) {
-    free((void*)schema->children);
-    schema->children = NULL;
-  }
-
-  if (schema->format != NULL) {
-    free((void*)schema->format);
-    schema->format = NULL;
-  }
-
-  if (schema->name != NULL) {
-    free((void*)schema->name);
-    schema->name = NULL;
-  }
-
-  if (schema->metadata != NULL) {
-    free((void*)schema->metadata);
-    schema->name = NULL;
-  }
-
-  schema->release = NULL;
-}
-
-struct ArrowSchema* alloc_schema(char *format, char* name) {
-  struct ArrowSchema *schema = (struct ArrowSchema*)malloc(sizeof *schema);
-  schema->format = strdup(format);
-  schema->name = strdup(name);
-  schema->metadata = NULL;
-  schema->flags = 0;
-  schema->n_children = 0;
-  schema->children = NULL;
-  schema->dictionary = NULL;
-  schema->release = &release_schema;
-  return schema;
-}
-
 // Returns a pointer on the shared-ptr so that deletion can be handled down the
 // line through the close_file function.
 FileReaderPtr *read_file(char *filename) {
@@ -105,15 +45,22 @@ void close_file(FileReaderPtr *reader) {
 }
 
 struct ArrowArray *chunked_column(FileReaderPtr *reader, int column_idx, int *nchunks, int dt) {
-    std::shared_ptr<arrow::DataType> expected_type;
+    arrow::Type::type expected_type;
     if (dt == 0) {
-      expected_type = arrow::int64();
+      expected_type = arrow::Type::INT64;
     }
     else if (dt == 1) {
-      expected_type = arrow::float64();
+      expected_type = arrow::Type::DOUBLE;
     }
     else if (dt == 2) {
-      expected_type = arrow::utf8();
+      // TODO: also handle large_utf8 here.
+      expected_type = arrow::Type::STRING;
+    }
+    else if (dt == 3) {
+      expected_type = arrow::Type::DATE32;
+    }
+    else if (dt == 4) {
+      expected_type = arrow::Type::TIMESTAMP;
     }
     else {
       char err[128];
@@ -130,11 +77,11 @@ struct ArrowArray *chunked_column(FileReaderPtr *reader, int column_idx, int *nc
     struct ArrowArray *out = (struct ArrowArray*)malloc(array->num_chunks() * sizeof *out);
     for (int i = 0; i < array->num_chunks(); ++i) {
       auto chunk = array->chunk(i);
-      if (chunk->type() != expected_type) {
+      if (chunk->type()->id() != expected_type) {
         char err[128];
         snprintf(err, 127,
-                 "expected type %s got %s",
-                 expected_type->ToString().c_str(),
+                 "expected type with id %d got %s",
+                 expected_type,
                  chunk->type()->ToString().c_str());
         caml_failwith(err);
       }
@@ -167,7 +114,9 @@ void write_file(char *filename, struct ArrowArray *array, struct ArrowSchema *sc
   arrow::Status st = parquet::arrow::WriteTable(*(table.ValueOrDie()),
                                                 arrow::default_memory_pool(),
                                                 outfile,
-                                                chunk_size);
+                                                chunk_size,
+                                                parquet::default_writer_properties(),
+                                                parquet::ArrowWriterProperties::Builder().enable_deprecated_int96_timestamps()->build());
   if (!st.ok()) {
     caml_failwith(st.ToString().c_str());
   }

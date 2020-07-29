@@ -31,6 +31,16 @@ module Reader = struct
     let get i = Int64.to_int_exn ba.{i} in
     get, update_num_rows t ~num_rows:(Bigarray.Array1.dim ba)
 
+  let date field t =
+    let column_idx = get_idx t field in
+    let a = Wrapper.Column.read_date t.reader ~column_idx in
+    Array.get a, update_num_rows t ~num_rows:(Array.length a)
+
+  let time_ns field t =
+    let column_idx = get_idx t field in
+    let a = Wrapper.Column.read_time_ns t.reader ~column_idx in
+    Array.get a, update_num_rows t ~num_rows:(Array.length a)
+
   let f64 field t =
     let column_idx = get_idx t field in
     let ba = Wrapper.Column.read_f64_ba t.reader ~column_idx in
@@ -90,6 +100,24 @@ module Writer = struct
     let col () = Writer.utf8 strs ~name:(Field.name field) in
     let set idx t =
       strs.(idx) <- Field.get field t;
+      acc_set idx t
+    in
+    length, col :: acc_col, set
+
+  let date (length, acc_col, acc_set) field =
+    let dates = Array.create ~len:length Core_kernel.Date.unix_epoch in
+    let col () = Writer.date dates ~name:(Field.name field) in
+    let set idx t =
+      dates.(idx) <- Field.get field t;
+      acc_set idx t
+    in
+    length, col :: acc_col, set
+
+  let time_ns (length, acc_col, acc_set) field =
+    let times = Array.create ~len:length Core_kernel.Time_ns.epoch in
+    let col () = Writer.time_ns times ~name:(Field.name field) in
+    let set idx t =
+      times.(idx) <- Field.get field t;
       acc_set idx t
     in
     length, col :: acc_col, set

@@ -73,6 +73,8 @@ module Column : sig
     -> (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t
 
   val read_utf8 : Reader.t -> column_idx:int -> string array
+  val read_date : Reader.t -> column_idx:int -> Core_kernel.Date.t array
+  val read_time_ns : Reader.t -> column_idx:int -> Core_kernel.Time_ns.t array
 end
 
 module Writer : sig
@@ -89,5 +91,7 @@ module Writer : sig
     -> col
 
   val utf8 : string array -> name:string -> col
+  val date : Core_kernel.Date.t array -> name:string -> col
+  val time_ns : Core_kernel.Time_ns.t array -> name:string -> col
   val write : ?chunk_size:int -> string -> cols:col list -> unit
 end

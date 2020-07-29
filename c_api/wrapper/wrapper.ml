@@ -193,11 +193,15 @@ module Column = struct
       | Int64
       | Float64
       | Utf8
+      | Date32
+      | Timestamp
 
     let to_int = function
       | Int64 -> 0
       | Float64 -> 1
       | Utf8 -> 2
+      | Date32 -> 3
+      | Timestamp -> 4
   end
 
   let with_column reader dt ~column_idx ~f =
@@ -240,6 +244,42 @@ module Column = struct
               dst_offset + chunk.length)
         in
         dst)
+
+  let read_date reader ~column_idx =
+    with_column reader Date32 ~column_idx ~f:(fun chunks ->
+        let num_rows = num_rows chunks in
+        let dst = Bigarray.Array1.create Int32 C_layout num_rows in
+        let _num_rows =
+          List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
+              let chunk = Chunk.create_no_null chunk in
+              let ptr =
+                Chunk.primitive_data_ptr chunk ~ctype:Ctypes.int32_t ~name:"int32"
+              in
+              let dst = Bigarray.Array1.sub dst dst_offset chunk.length in
+              let src = Ctypes.bigarray_of_ptr Ctypes.array1 chunk.length Int32 ptr in
+              Bigarray.Array1.blit src dst;
+              dst_offset + chunk.length)
+        in
+        Array.init num_rows ~f:(fun idx ->
+            Core_kernel.Date.(add_days unix_epoch (Int32.to_int_exn dst.{idx}))))
+
+  let read_time_ns reader ~column_idx =
+    with_column reader Timestamp ~column_idx ~f:(fun chunks ->
+        let num_rows = num_rows chunks in
+        let dst = Bigarray.Array1.create Int64 C_layout num_rows in
+        let _num_rows =
+          List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
+              let chunk = Chunk.create_no_null chunk in
+              let ptr =
+                Chunk.primitive_data_ptr chunk ~ctype:Ctypes.int64_t ~name:"int64"
+              in
+              let dst = Bigarray.Array1.sub dst dst_offset chunk.length in
+              let src = Ctypes.bigarray_of_ptr Ctypes.array1 chunk.length Int64 ptr in
+              Bigarray.Array1.blit src dst;
+              dst_offset + chunk.length)
+        in
+        Array.init num_rows ~f:(fun idx ->
+            Core_kernel.Time_ns.of_int_ns_since_epoch (Int64.to_int_exn dst.{idx})))
 
   let read_f64_ba reader ~column_idx =
     with_column reader Float64 ~column_idx ~f:(fun chunks ->
@@ -383,6 +423,50 @@ module Writer = struct
     let schema_struct = schema_struct ~format:"l" ~name ~children:empty_schema_l in
     (array_struct, schema_struct : col)
 
+  let date date_array ~name =
+    let array = Ctypes.CArray.make Ctypes.int32_t (Array.length date_array) in
+    Array.iteri date_array ~f:(fun idx date ->
+        Ctypes.CArray.set
+          array
+          idx
+          (Core_kernel.Date.(diff date unix_epoch) |> Int32.of_int_exn));
+    let buffers =
+      Ctypes.CArray.of_list
+        (Ctypes.ptr Ctypes.void)
+        [ Ctypes.null; Ctypes.CArray.start array |> Ctypes.to_voidp ]
+    in
+    let array_struct =
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~finalise:(fun _ -> use_value array)
+        ~length:(Ctypes.CArray.length array)
+    in
+    let schema_struct = schema_struct ~format:"tdD" ~name ~children:empty_schema_l in
+    (array_struct, schema_struct : col)
+
+  let time_ns time_array ~name =
+    let array = Ctypes.CArray.make Ctypes.int64_t (Array.length time_array) in
+    Array.iteri time_array ~f:(fun idx time ->
+        Ctypes.CArray.set
+          array
+          idx
+          (Core_kernel.Time_ns.to_int_ns_since_epoch time |> Int64.of_int_exn));
+    let buffers =
+      Ctypes.CArray.of_list
+        (Ctypes.ptr Ctypes.void)
+        [ Ctypes.null; Ctypes.CArray.start array |> Ctypes.to_voidp ]
+    in
+    let array_struct =
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~finalise:(fun _ -> use_value array)
+        ~length:(Ctypes.CArray.length array)
+    in
+    let schema_struct = schema_struct ~format:"tsn:UTC" ~name ~children:empty_schema_l in
+    (array_struct, schema_struct : col)
+
   let float64_ba array ~name =
     let buffers =
       Ctypes.CArray.of_list
@@ -400,6 +484,7 @@ module Writer = struct
     (array_struct, schema_struct : col)
 
   (* TODO: also have a "categorical" version? *)
+  (* TODO: switch to large_utf8 if [sum_length >= Int32.max_value]. *)
   let utf8 array ~name =
     let length = Array.length array in
     let offsets = Bigarray.Array1.create Int32 C_layout (length + 1) in
