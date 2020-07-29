@@ -46,21 +46,27 @@ void close_file(FileReaderPtr *reader) {
 
 struct ArrowArray *chunked_column(FileReaderPtr *reader, int column_idx, int *nchunks, int dt) {
     arrow::Type::type expected_type;
+    const char *expected_type_str = "";
     if (dt == 0) {
       expected_type = arrow::Type::INT64;
+      expected_type_str = "int64";
     }
     else if (dt == 1) {
       expected_type = arrow::Type::DOUBLE;
+      expected_type_str = "float64";
     }
     else if (dt == 2) {
       // TODO: also handle large_utf8 here.
       expected_type = arrow::Type::STRING;
+      expected_type_str = "utf8";
     }
     else if (dt == 3) {
       expected_type = arrow::Type::DATE32;
+      expected_type_str = "date32";
     }
     else if (dt == 4) {
       expected_type = arrow::Type::TIMESTAMP;
+      expected_type_str = "timestamp";
     }
     else {
       char err[128];
@@ -80,7 +86,8 @@ struct ArrowArray *chunked_column(FileReaderPtr *reader, int column_idx, int *nc
       if (chunk->type()->id() != expected_type) {
         char err[128];
         snprintf(err, 127,
-                 "expected type with id %d got %s",
+                 "expected type with %s (id %d) got %s",
+                 expected_type_str,
                  expected_type,
                  chunk->type()->ToString().c_str());
         caml_failwith(err);
