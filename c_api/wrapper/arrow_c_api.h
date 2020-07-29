@@ -18,6 +18,7 @@ typedef void FileReaderPtr;
 #endif
 
 struct ArrowSchema *get_schema(FileReaderPtr*);
+struct ArrowSchema *alloc_schema(char*, char*);
 void free_schema(struct ArrowSchema*);
 
 FileReaderPtr *read_file(char *filename);

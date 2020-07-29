@@ -22,6 +22,66 @@ void free_schema(struct ArrowSchema *schema) {
   free(schema);
 }
 
+static void release_schema(struct ArrowSchema* schema) {
+  for (int64_t i = 0; i < schema->n_children; ++i) {
+    struct ArrowSchema* child = schema->children[i];
+    if (child->release != NULL) {
+      child->release(child);
+      assert(child->release == NULL);
+    }
+    if (child != NULL) {
+      free((void*)child);
+      schema->children[i] = NULL;
+    }
+  }
+
+  struct ArrowSchema* dict = schema->dictionary;
+  if (dict != NULL && dict->release != NULL) {
+    dict->release(dict);
+    assert(dict->release == NULL);
+  }
+
+  if (schema->dictionary != NULL) {
+    free((void*)schema->dictionary);
+    schema->dictionary = NULL;
+  }
+
+  if (schema->children != NULL) {
+    free((void*)schema->children);
+    schema->children = NULL;
+  }
+
+  if (schema->format != NULL) {
+    free((void*)schema->format);
+    schema->format = NULL;
+  }
+
+  if (schema->name != NULL) {
+    free((void*)schema->name);
+    schema->name = NULL;
+  }
+
+  if (schema->metadata != NULL) {
+    free((void*)schema->metadata);
+    schema->name = NULL;
+  }
+
+  schema->release = NULL;
+}
+
+struct ArrowSchema* alloc_schema(char *format, char* name) {
+  struct ArrowSchema *schema = (struct ArrowSchema*)malloc(sizeof *schema);
+  schema->format = strdup(format);
+  schema->name = strdup(name);
+  schema->metadata = NULL;
+  schema->flags = 0;
+  schema->n_children = 0;
+  schema->children = NULL;
+  schema->dictionary = NULL;
+  schema->release = &release_schema;
+  return schema;
+}
+
 // Returns a pointer on the shared-ptr so that deletion can be handled down the
 // line through the close_file function.
 FileReaderPtr *read_file(char *filename) {
@@ -74,8 +134,8 @@ struct ArrowArray *chunked_column(FileReaderPtr *reader, int column_idx, int *nc
         char err[128];
         snprintf(err, 127,
                  "expected type %s got %s",
-                 chunk->type()->ToString().c_str(),
-                 expected_type->ToString().c_str());
+                 expected_type->ToString().c_str(),
+                 chunk->type()->ToString().c_str());
         caml_failwith(err);
       }
       arrow::ExportArray(*chunk, out + i);

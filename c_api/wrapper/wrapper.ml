@@ -1,7 +1,7 @@
 open! Base
 module C = C_api.C
 
-let add_compact = false
+let add_compact = true
 
 external use_value : 'a -> unit = "ctypes_use" [@@noalloc]
 
@@ -319,113 +319,88 @@ module Writer = struct
   let release_schema_ptr =
     Ctypes.(coerce Release_schema_fn_ptr.t (ptr void) release_schema)
 
-  let empty_children = Ctypes.CArray.of_list (Ctypes.ptr C.ArrowSchema.t) []
+  let empty_schema_l = Ctypes.CArray.of_list (Ctypes.ptr C.ArrowSchema.t) []
+  let empty_array_l = Ctypes.CArray.of_list (Ctypes.ptr C.ArrowArray.t) []
   let single_null_buffer = Ctypes.CArray.of_list (Ctypes.ptr Ctypes.void) [ Ctypes.null ]
 
   type col = C.ArrowArray.t * C.ArrowSchema.t
 
-  let int64_ba array ~name =
-    let format = Ctypes.CArray.of_string "l" in
+  let schema_struct ~format ~name ~children =
+    let format = Ctypes.CArray.of_string format in
     let name = Ctypes.CArray.of_string name in
+    let s =
+      Ctypes.make C.ArrowSchema.t ~finalise:(fun _ ->
+          use_value format;
+          use_value name;
+          use_value children)
+    in
+    Ctypes.setf s C.ArrowSchema.format (Ctypes.CArray.start format);
+    Ctypes.setf s C.ArrowSchema.name (Ctypes.CArray.start name);
+    Ctypes.setf s C.ArrowSchema.metadata (Ctypes.null |> Ctypes.from_voidp Ctypes.char);
+    Ctypes.setf s C.ArrowSchema.flags Int64.zero;
+    Ctypes.setf s C.ArrowSchema.n_children (Ctypes.CArray.length children |> Int64.of_int);
+    Ctypes.setf s C.ArrowSchema.children (Ctypes.CArray.start children);
+    Ctypes.setf
+      s
+      C.ArrowSchema.dictionary
+      (Ctypes.null |> Ctypes.from_voidp C.ArrowSchema.t);
+    Ctypes.setf s C.ArrowSchema.release release_schema_ptr;
+    s
+
+  let array_struct ~buffers ~children ~length ~finalise =
+    let a =
+      Ctypes.make
+        ~finalise:(fun _ ->
+          finalise ();
+          use_value buffers;
+          use_value children)
+        C.ArrowArray.t
+    in
+    Ctypes.setf a C.ArrowArray.length (Int64.of_int length);
+    Ctypes.setf a C.ArrowArray.null_count Int64.zero;
+    Ctypes.setf a C.ArrowArray.offset Int64.zero;
+    Ctypes.setf a C.ArrowArray.n_buffers (Ctypes.CArray.length buffers |> Int64.of_int);
+    Ctypes.setf a C.ArrowArray.buffers (Ctypes.CArray.start buffers);
+    Ctypes.setf a C.ArrowArray.n_children (Ctypes.CArray.length children |> Int64.of_int);
+    Ctypes.setf a C.ArrowArray.children (Ctypes.CArray.start children);
+    Ctypes.setf a C.ArrowArray.dictionary (Ctypes.null |> Ctypes.from_voidp C.ArrowArray.t);
+    Ctypes.setf a C.ArrowArray.release release_array_ptr;
+    a
+
+  let int64_ba array ~name =
     let buffers =
       Ctypes.CArray.of_list
         (Ctypes.ptr Ctypes.void)
         [ Ctypes.null; Ctypes.bigarray_start Array1 array |> Ctypes.to_voidp ]
     in
     let array_struct =
-      let a =
-        Ctypes.make
-          ~finalise:(fun _ ->
-            use_value format;
-            use_value name;
-            use_value buffers;
-            use_value array)
-          C.ArrowArray.t
-      in
-      let length = Bigarray.Array1.dim array in
-      Ctypes.setf a C.ArrowArray.length (Int64.of_int length);
-      Ctypes.setf a C.ArrowArray.null_count Int64.zero;
-      Ctypes.setf a C.ArrowArray.offset Int64.zero;
-      Ctypes.setf a C.ArrowArray.n_buffers (Int64.of_int 2);
-      Ctypes.setf a C.ArrowArray.buffers (Ctypes.CArray.start buffers);
-      Ctypes.setf a C.ArrowArray.n_children Int64.zero;
-      Ctypes.setf
-        a
-        C.ArrowArray.dictionary
-        (Ctypes.null |> Ctypes.from_voidp C.ArrowArray.t);
-      Ctypes.setf a C.ArrowArray.release release_array_ptr;
-      a
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~finalise:(fun _ -> use_value array)
+        ~length:(Bigarray.Array1.dim array)
     in
-    let schema_struct =
-      let s = Ctypes.make C.ArrowSchema.t in
-      Ctypes.setf s C.ArrowSchema.format (Ctypes.CArray.start format);
-      Ctypes.setf s C.ArrowSchema.name (Ctypes.CArray.start name);
-      Ctypes.setf s C.ArrowSchema.metadata (Ctypes.null |> Ctypes.from_voidp Ctypes.char);
-      Ctypes.setf s C.ArrowSchema.flags Int64.zero;
-      Ctypes.setf s C.ArrowSchema.n_children Int64.zero;
-      Ctypes.setf s C.ArrowSchema.children (Ctypes.CArray.start empty_children);
-      Ctypes.setf
-        s
-        C.ArrowSchema.dictionary
-        (Ctypes.null |> Ctypes.from_voidp C.ArrowSchema.t);
-      Ctypes.setf s C.ArrowSchema.release release_schema_ptr;
-      s
-    in
+    let schema_struct = schema_struct ~format:"l" ~name ~children:empty_schema_l in
     (array_struct, schema_struct : col)
 
   let float64_ba array ~name =
-    let format = Ctypes.CArray.of_string "g" in
-    let name = Ctypes.CArray.of_string name in
     let buffers =
       Ctypes.CArray.of_list
         (Ctypes.ptr Ctypes.void)
         [ Ctypes.null; Ctypes.bigarray_start Array1 array |> Ctypes.to_voidp ]
     in
     let array_struct =
-      let a =
-        Ctypes.make
-          ~finalise:(fun _ ->
-            use_value format;
-            use_value name;
-            use_value buffers;
-            use_value array)
-          C.ArrowArray.t
-      in
-      let length = Bigarray.Array1.dim array in
-      Ctypes.setf a C.ArrowArray.length (Int64.of_int length);
-      Ctypes.setf a C.ArrowArray.null_count Int64.zero;
-      Ctypes.setf a C.ArrowArray.offset Int64.zero;
-      Ctypes.setf a C.ArrowArray.n_buffers (Int64.of_int 2);
-      Ctypes.setf a C.ArrowArray.buffers (Ctypes.CArray.start buffers);
-      Ctypes.setf a C.ArrowArray.n_children Int64.zero;
-      Ctypes.setf
-        a
-        C.ArrowArray.dictionary
-        (Ctypes.null |> Ctypes.from_voidp C.ArrowArray.t);
-      Ctypes.setf a C.ArrowArray.release release_array_ptr;
-      a
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~finalise:(fun _ -> use_value array)
+        ~length:(Bigarray.Array1.dim array)
     in
-    let schema_struct =
-      let s = Ctypes.make C.ArrowSchema.t in
-      Ctypes.setf s C.ArrowSchema.format (Ctypes.CArray.start format);
-      Ctypes.setf s C.ArrowSchema.name (Ctypes.CArray.start name);
-      Ctypes.setf s C.ArrowSchema.metadata (Ctypes.null |> Ctypes.from_voidp Ctypes.char);
-      Ctypes.setf s C.ArrowSchema.flags Int64.zero;
-      Ctypes.setf s C.ArrowSchema.n_children Int64.zero;
-      Ctypes.setf s C.ArrowSchema.children (Ctypes.CArray.start empty_children);
-      Ctypes.setf
-        s
-        C.ArrowSchema.dictionary
-        (Ctypes.null |> Ctypes.from_voidp C.ArrowSchema.t);
-      Ctypes.setf s C.ArrowSchema.release release_schema_ptr;
-      s
-    in
+    let schema_struct = schema_struct ~format:"g" ~name ~children:empty_schema_l in
     (array_struct, schema_struct : col)
 
   (* TODO: also have a "categorical" version? *)
   let utf8 array ~name =
-    let format = Ctypes.CArray.of_string "u" in
-    let name = Ctypes.CArray.of_string name in
     let length = Array.length array in
     let offsets = Bigarray.Array1.create Int32 C_layout (length + 1) in
     let sum_length =
@@ -449,55 +424,23 @@ module Writer = struct
         ]
     in
     let array_struct =
-      let a =
-        Ctypes.make
-          ~finalise:(fun _ ->
-            use_value format;
-            use_value name;
-            use_value buffers;
-            use_value data;
-            use_value offsets)
-          C.ArrowArray.t
-      in
-      Ctypes.setf a C.ArrowArray.length (Int64.of_int length);
-      Ctypes.setf a C.ArrowArray.null_count Int64.zero;
-      Ctypes.setf a C.ArrowArray.offset Int64.zero;
-      Ctypes.setf a C.ArrowArray.n_buffers (Int64.of_int 3);
-      Ctypes.setf a C.ArrowArray.buffers (Ctypes.CArray.start buffers);
-      Ctypes.setf a C.ArrowArray.n_children Int64.zero;
-      Ctypes.setf
-        a
-        C.ArrowArray.dictionary
-        (Ctypes.null |> Ctypes.from_voidp C.ArrowArray.t);
-      Ctypes.setf a C.ArrowArray.release release_array_ptr;
-      a
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~finalise:(fun _ ->
+          use_value data;
+          use_value offsets)
+        ~length
     in
-    let schema_struct =
-      let s = Ctypes.make C.ArrowSchema.t in
-      Ctypes.setf s C.ArrowSchema.format (Ctypes.CArray.start format);
-      Ctypes.setf s C.ArrowSchema.name (Ctypes.CArray.start name);
-      Ctypes.setf s C.ArrowSchema.metadata (Ctypes.null |> Ctypes.from_voidp Ctypes.char);
-      Ctypes.setf s C.ArrowSchema.flags Int64.zero;
-      Ctypes.setf s C.ArrowSchema.n_children Int64.zero;
-      Ctypes.setf s C.ArrowSchema.children (Ctypes.CArray.start empty_children);
-      Ctypes.setf
-        s
-        C.ArrowSchema.dictionary
-        (Ctypes.null |> Ctypes.from_voidp C.ArrowSchema.t);
-      Ctypes.setf s C.ArrowSchema.release release_schema_ptr;
-      s
-    in
+    let schema_struct = schema_struct ~format:"u" ~name ~children:empty_schema_l in
     (array_struct, schema_struct : col)
 
   let write ?(chunk_size = 1024 * 1024) filename ~cols =
-    let format = Ctypes.CArray.of_string "+s" in
-    let name = Ctypes.CArray.of_string "" in
-    let n_children = List.length cols |> Int64.of_int in
     let children_arrays, children_schemas = List.unzip cols in
     let num_rows =
       match children_arrays with
-      | [] -> Int64.zero
-      | array :: _ -> Ctypes.getf array C.ArrowArray.length
+      | [] -> 0
+      | array :: _ -> Ctypes.getf array C.ArrowArray.length |> Int64.to_int_exn
     in
     let children_arrays =
       List.map children_arrays ~f:Ctypes.addr
@@ -508,45 +451,18 @@ module Writer = struct
       |> Ctypes.CArray.of_list (Ctypes.ptr C.ArrowSchema.t)
     in
     let array_struct =
-      let a = Ctypes.make C.ArrowArray.t in
-      Ctypes.setf a C.ArrowArray.length num_rows;
-      Ctypes.setf a C.ArrowArray.null_count Int64.zero;
-      Ctypes.setf a C.ArrowArray.offset Int64.zero;
-      Ctypes.setf a C.ArrowArray.n_buffers Int64.one;
-      Ctypes.setf a C.ArrowArray.buffers (Ctypes.CArray.start single_null_buffer);
-      Ctypes.setf a C.ArrowArray.n_children n_children;
-      Ctypes.setf a C.ArrowArray.children (Ctypes.CArray.start children_arrays);
-      Ctypes.setf
-        a
-        C.ArrowArray.dictionary
-        (Ctypes.null |> Ctypes.from_voidp C.ArrowArray.t);
-      Ctypes.setf a C.ArrowArray.release release_array_ptr;
-      a
+      array_struct
+        ~finalise:ignore
+        ~length:num_rows
+        ~buffers:single_null_buffer
+        ~children:children_arrays
     in
-    let schema_struct =
-      let s = Ctypes.make C.ArrowSchema.t in
-      Ctypes.setf s C.ArrowSchema.format (Ctypes.CArray.start format);
-      Ctypes.setf s C.ArrowSchema.name (Ctypes.CArray.start name);
-      Ctypes.setf s C.ArrowSchema.metadata (Ctypes.null |> Ctypes.from_voidp Ctypes.char);
-      Ctypes.setf s C.ArrowSchema.flags Int64.zero;
-      Ctypes.setf s C.ArrowSchema.n_children n_children;
-      Ctypes.setf s C.ArrowSchema.children (Ctypes.CArray.start children_schemas);
-      Ctypes.setf
-        s
-        C.ArrowSchema.dictionary
-        (Ctypes.null |> Ctypes.from_voidp C.ArrowSchema.t);
-      Ctypes.setf s C.ArrowSchema.release release_schema_ptr;
-      s
-    in
+    let schema_struct = schema_struct ~format:"+s" ~name:"" ~children:children_schemas in
     if add_compact then Caml.Gc.compact ();
     C.write_file
       filename
       (Ctypes.addr array_struct)
       (Ctypes.addr schema_struct)
       chunk_size;
-    use_value cols;
-    use_value children_arrays;
-    use_value children_schemas;
-    use_value name;
-    use_value format
+    use_value cols
 end
