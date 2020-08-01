@@ -1,7 +1,7 @@
 open! Base
 module C = C_api.C
 
-let add_compact = true
+let add_compact = false
 
 external use_value : 'a -> unit = "ctypes_use" [@@noalloc]
 
@@ -85,7 +85,24 @@ module Format = struct
     | "tiD" -> Interval `days_time
     | "+s" -> Struct
     | "+m" -> Map
-    | unknown -> Unknown unknown
+    | unknown ->
+      (match String.split unknown ~on:':' with
+      | [ "tss"; timezone ] -> Timestamp { precision = `seconds; timezone }
+      | [ "tsm"; timezone ] -> Timestamp { precision = `milliseconds; timezone }
+      | [ "tsu"; timezone ] -> Timestamp { precision = `microseconds; timezone }
+      | [ "tsn"; timezone ] -> Timestamp { precision = `nanoseconds; timezone }
+      | [ "w"; bytes ] ->
+        (match Int.of_string bytes with
+        | bytes -> Fixed_width_binary { bytes }
+        | exception _ -> Unknown unknown)
+      | [ "d"; precision_scale ] ->
+        (match String.split precision_scale ~on:',' with
+        | [ precision; scale ] ->
+          (match Int.of_string precision, Int.of_string scale with
+          | precision, scale -> Decimal128 { precision; scale }
+          | exception _ -> Unknown unknown)
+        | _ -> Unknown unknown)
+      | _ -> Unknown unknown)
 end
 
 module Reader = struct

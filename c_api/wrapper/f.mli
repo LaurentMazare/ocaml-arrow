@@ -1,7 +1,4 @@
-open! Base
-
-module Reader : sig
-  (* A typical use of this module goes as follows:
+(* A typical use of this module goes as follows:
      {|
        type t =
          { x : int
@@ -9,13 +6,16 @@ module Reader : sig
          }
        [@@deriving sexp, fields]
 
-       let read =
-         F.read (Fields.make_creator ~x:F.i64 ~y:F.f64)
+       let `read read, `write write =
+         F.(read_write_fn (Fields.make_creator ~x:i64 ~y:f64))
 
        let ts = read "/path/to/filename.parquet"
+       let () = write ts "/path/to/another.parquet"
      |}
-  *)
+*)
+open! Base
 
+module Reader : sig
   type t
   type 'v col_ = t -> (int -> 'v) * t
   type ('a, 'b, 'c, 'v) col = ('a, 'b, 'c) Field.t_with_perm -> 'v col_
@@ -25,7 +25,6 @@ module Reader : sig
   val str : ('a, 'b, 'c, string) col
   val date : ('a, 'b, 'c, Core_kernel.Date.t) col
   val time_ns : ('a, 'b, 'c, Core_kernel.Time_ns.t) col
-  val const : 'v -> ('a, 'b, 'c, 'v) col
   val read : 'v col_ -> string -> 'v list
 end
 
@@ -39,3 +38,19 @@ module Writer : sig
   val time_ns : 'a state -> ('c, 'a, Core_kernel.Time_ns.t) Field.t_with_perm -> 'a state
   val write : (init:'d state -> 'd state) -> string -> 'd list -> unit
 end
+
+type 'a t =
+  | Read of Reader.t
+  | Write of 'a Writer.state
+
+type ('a, 'b, 'c) col = ('a, 'b, 'c) Field.t_with_perm -> 'b t -> (int -> 'c) * 'b t
+
+val i64 : ('a, 'b, int) col
+val f64 : ('a, 'b, float) col
+val str : ('a, 'b, string) col
+val date : ('a, 'b, Core_kernel.Date.t) col
+val time_ns : ('a, 'b, Core_kernel.Time_ns.t) col
+
+val read_write_fn
+  :  ('a t -> (int -> 'a) * 'a t)
+  -> [ `read of string -> 'a list ] * [ `write of string -> 'a list -> unit ]

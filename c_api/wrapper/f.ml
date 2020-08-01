@@ -53,8 +53,6 @@ module Reader = struct
     let get i = array.(i) in
     get, update_num_rows t ~num_rows:(Array.length array)
 
-  let const v _field reader_and_fields = (fun _idx -> v), reader_and_fields
-
   let read creator filename =
     Reader.with_file filename ~f:(fun reader ->
         let schema = Wrapper.Schema.get reader in
@@ -128,6 +126,92 @@ module Writer = struct
       let length = List.length vs in
       let _length, cols, set = fold ~init:(length, [], fun _idx _t -> ()) in
       List.iteri vs ~f:set;
-      let cols = List.map cols ~f:(fun col -> col ()) in
+      let cols = List.rev_map cols ~f:(fun col -> col ()) in
       Writer.write filename ~cols
 end
+
+type 'a t =
+  | Read of Reader.t
+  | Write of 'a Writer.state
+
+type ('a, 'b, 'c) col = ('a, 'b, 'c) Field.t_with_perm -> 'b t -> (int -> 'c) * 'b t
+
+let i64 field t =
+  match t with
+  | Read reader ->
+    let get, reader = Reader.i64 field reader in
+    get, Read reader
+  | Write writer ->
+    let writer = Writer.i64 writer field in
+    (fun _ -> assert false), Write writer
+
+let f64 field t =
+  match t with
+  | Read reader ->
+    let get, reader = Reader.f64 field reader in
+    get, Read reader
+  | Write writer ->
+    let writer = Writer.f64 writer field in
+    (fun _ -> assert false), Write writer
+
+let str field t =
+  match t with
+  | Read reader ->
+    let get, reader = Reader.str field reader in
+    get, Read reader
+  | Write writer ->
+    let writer = Writer.str writer field in
+    (fun _ -> assert false), Write writer
+
+let date field t =
+  match t with
+  | Read reader ->
+    let get, reader = Reader.date field reader in
+    get, Read reader
+  | Write writer ->
+    let writer = Writer.date writer field in
+    (fun _ -> assert false), Write writer
+
+let time_ns field t =
+  match t with
+  | Read reader ->
+    let get, reader = Reader.time_ns field reader in
+    get, Read reader
+  | Write writer ->
+    let writer = Writer.time_ns writer field in
+    (fun _ -> assert false), Write writer
+
+let read_write_fn creator =
+  let read filename =
+    Wrapper.Reader.with_file filename ~f:(fun reader ->
+        let schema = Wrapper.Schema.get reader in
+        let column_ids =
+          schema.children
+          |> List.mapi ~f:(fun i schema -> schema.Wrapper.Schema.name, i)
+          |> Map.of_alist_exn (module String)
+        in
+        let reader = { Reader.reader; column_ids; num_rows = None } in
+        let get_one, t = creator (Read reader) in
+        let num_rows =
+          match t with
+          | Write _ -> assert false
+          | Read reader ->
+            (match reader.Reader.num_rows with
+            | None -> Printf.failwithf "no column in file %s" filename ()
+            | Some num_rows -> num_rows)
+        in
+        List.init num_rows ~f:get_one)
+  in
+  let write filename values =
+    let length = List.length values in
+    let _get_one, t = creator (Write (length, [], fun _ixd _t -> ())) in
+    let cols, set =
+      match t with
+      | Read _ -> assert false
+      | Write (_length, cols, set) -> cols, set
+    in
+    List.iteri values ~f:set;
+    let cols = List.rev_map cols ~f:(fun col -> col ()) in
+    Wrapper.Writer.write filename ~cols
+  in
+  `read read, `write write
