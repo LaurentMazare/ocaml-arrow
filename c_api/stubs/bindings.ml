@@ -59,5 +59,10 @@ module C (F : Cstubs.FOREIGN) = struct
   let write_file =
     foreign
       "write_file"
-      (string @-> ptr ArrowArray.t @-> ptr ArrowSchema.t @-> int @-> returning void)
+      (string
+      @-> ptr ArrowArray.t
+      @-> ptr ArrowSchema.t
+      @-> int
+      @-> int
+      @-> returning void)
 end

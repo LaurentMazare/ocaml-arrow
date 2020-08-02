@@ -14,97 +14,6 @@ let get_string ptr_char =
   in
   loop [] ptr_char
 
-module Format = struct
-  type t =
-    | Null
-    | Boolean
-    | Int8
-    | Uint8
-    | Int16
-    | Uint16
-    | Int32
-    | Uint32
-    | Int64
-    | Uint64
-    | Float16
-    | Float32
-    | Float64
-    | Binary
-    | Large_binary
-    | Utf8_string
-    | Large_utf8_string
-    | Decimal128 of
-        { precision : int
-        ; scale : int
-        }
-    | Fixed_width_binary of { bytes : int }
-    | Date32 of [ `days ]
-    | Date64 of [ `milliseconds ]
-    | Time32 of [ `seconds | `milliseconds ]
-    | Time64 of [ `microseconds | `nanoseconds ]
-    | Timestamp of
-        { precision : [ `seconds | `milliseconds | `microseconds | `nanoseconds ]
-        ; timezone : string
-        }
-    | Duration of [ `seconds | `milliseconds | `microseconds | `nanoseconds ]
-    | Interval of [ `months | `days_time ]
-    | Struct
-    | Map
-    | Unknown of string
-  [@@deriving sexp]
-
-  let of_string = function
-    | "n" -> Null
-    | "b" -> Boolean
-    | "c" -> Int8
-    | "C" -> Uint8
-    | "s" -> Int16
-    | "S" -> Uint16
-    | "i" -> Int32
-    | "I" -> Uint32
-    | "l" -> Int64
-    | "L" -> Uint64
-    | "e" -> Float16
-    | "f" -> Float32
-    | "g" -> Float64
-    | "z" -> Binary
-    | "Z" -> Large_binary
-    | "u" -> Utf8_string
-    | "U" -> Large_utf8_string
-    | "tdD" -> Date32 `days
-    | "tdm" -> Date64 `milliseconds
-    | "tts" -> Time32 `seconds
-    | "ttm" -> Time32 `milliseconds
-    | "ttu" -> Time64 `microseconds
-    | "ttn" -> Time64 `nanoseconds
-    | "tDs" -> Duration `seconds
-    | "tDm" -> Duration `milliseconds
-    | "tDu" -> Duration `microseconds
-    | "tDn" -> Duration `nanoseconds
-    | "tiM" -> Interval `months
-    | "tiD" -> Interval `days_time
-    | "+s" -> Struct
-    | "+m" -> Map
-    | unknown ->
-      (match String.split unknown ~on:':' with
-      | [ "tss"; timezone ] -> Timestamp { precision = `seconds; timezone }
-      | [ "tsm"; timezone ] -> Timestamp { precision = `milliseconds; timezone }
-      | [ "tsu"; timezone ] -> Timestamp { precision = `microseconds; timezone }
-      | [ "tsn"; timezone ] -> Timestamp { precision = `nanoseconds; timezone }
-      | [ "w"; bytes ] ->
-        (match Int.of_string bytes with
-        | bytes -> Fixed_width_binary { bytes }
-        | exception _ -> Unknown unknown)
-      | [ "d"; precision_scale ] ->
-        (match String.split precision_scale ~on:',' with
-        | [ precision; scale ] ->
-          (match Int.of_string precision, Int.of_string scale with
-          | precision, scale -> Decimal128 { precision; scale }
-          | exception _ -> Unknown unknown)
-        | _ -> Unknown unknown)
-      | _ -> Unknown unknown)
-end
-
 module Reader = struct
   type t = C.Reader.t
 
@@ -147,7 +56,7 @@ module Schema = struct
   end
 
   type t =
-    { format : Format.t
+    { format : Datatype.t
     ; name : string
     ; metadata : (string * string) list
     ; flags : Flags.t
@@ -192,7 +101,8 @@ module Schema = struct
       let n_children = Ctypes.getf schema C.ArrowSchema.n_children |> Int64.to_int_exn in
       let children = Ctypes.getf schema C.ArrowSchema.children in
       let children = List.init n_children ~f:(fun i -> loop Ctypes.(!@(children +@ i))) in
-      { format = Ctypes.getf schema C.ArrowSchema.format |> get_string |> Format.of_string
+      { format =
+          Ctypes.getf schema C.ArrowSchema.format |> get_string |> Datatype.of_cstring
       ; name = Ctypes.getf schema C.ArrowSchema.name |> get_string
       ; metadata = Ctypes.getf schema C.ArrowSchema.metadata |> metadata
       ; flags = Ctypes.getf schema C.ArrowSchema.flags |> Flags.of_cint
@@ -641,7 +551,12 @@ module Writer = struct
     let schema_struct = schema_struct ~format:"u" ~name ~children:empty_schema_l in
     (array_struct, schema_struct : col)
 
-  let write ?(chunk_size = 1024 * 1024) filename ~cols =
+  let write
+      ?(chunk_size = 1024 * 1024)
+      ?(compression = Compression.Uncompressed)
+      filename
+      ~cols
+    =
     let children_arrays, children_schemas = List.unzip cols in
     let num_rows =
       match children_arrays with
@@ -669,6 +584,7 @@ module Writer = struct
       filename
       (Ctypes.addr array_struct)
       (Ctypes.addr schema_struct)
-      chunk_size;
+      chunk_size
+      (Compression.to_cint compression);
     use_value cols
 end

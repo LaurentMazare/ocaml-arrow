@@ -41,7 +41,13 @@ module Writer : sig
   val str : 'a state -> ('c, 'a, string) Field.t_with_perm -> 'a state
   val date : 'a state -> ('c, 'a, Core_kernel.Date.t) Field.t_with_perm -> 'a state
   val time_ns : 'a state -> ('c, 'a, Core_kernel.Time_ns.t) Field.t_with_perm -> 'a state
-  val write : (init:'d state -> 'd state) -> string -> 'd list -> unit
+
+  val write
+    :  (init:'d state -> 'd state)
+    -> ?compression:Compression.t
+    -> string
+    -> 'd list
+    -> unit
 end
 
 type 'a t =
@@ -58,4 +64,5 @@ val time_ns : ('a, 'b, Core_kernel.Time_ns.t) col
 
 val read_write_fn
   :  ('a t -> (int -> 'a) * 'a t)
-  -> [ `read of string -> 'a list ] * [ `write of string -> 'a list -> unit ]
+  -> [ `read of string -> 'a list ]
+     * [ `write of ?compression:Compression.t -> string -> 'a list -> unit ]

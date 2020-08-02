@@ -1,45 +1,5 @@
 open! Base
 
-module Format : sig
-  type t =
-    | Null
-    | Boolean
-    | Int8
-    | Uint8
-    | Int16
-    | Uint16
-    | Int32
-    | Uint32
-    | Int64
-    | Uint64
-    | Float16
-    | Float32
-    | Float64
-    | Binary
-    | Large_binary
-    | Utf8_string
-    | Large_utf8_string
-    | Decimal128 of
-        { precision : int
-        ; scale : int
-        }
-    | Fixed_width_binary of { bytes : int }
-    | Date32 of [ `days ]
-    | Date64 of [ `milliseconds ]
-    | Time32 of [ `seconds | `milliseconds ]
-    | Time64 of [ `microseconds | `nanoseconds ]
-    | Timestamp of
-        { precision : [ `seconds | `milliseconds | `microseconds | `nanoseconds ]
-        ; timezone : string
-        }
-    | Duration of [ `seconds | `milliseconds | `microseconds | `nanoseconds ]
-    | Interval of [ `months | `days_time ]
-    | Struct
-    | Map
-    | Unknown of string
-  [@@deriving sexp]
-end
-
 module Reader : sig
   type t
 
@@ -60,7 +20,7 @@ module Schema : sig
   end
 
   type t =
-    { format : Format.t
+    { format : Datatype.t
     ; name : string
     ; metadata : (string * string) list
     ; flags : Flags.t
@@ -117,5 +77,11 @@ module Writer : sig
   val utf8 : string array -> name:string -> col
   val date : Core_kernel.Date.t array -> name:string -> col
   val time_ns : Core_kernel.Time_ns.t array -> name:string -> col
-  val write : ?chunk_size:int -> string -> cols:col list -> unit
+
+  val write
+    :  ?chunk_size:int
+    -> ?compression:Compression.t
+    -> string
+    -> cols:col list
+    -> unit
 end

@@ -111,7 +111,7 @@ void free_chunked_column(struct ArrowArray *arrays, int nchunks) {
   free(arrays);
 }
 
-void write_file(char *filename, struct ArrowArray *array, struct ArrowSchema *schema, int chunk_size) {
+void write_file(char *filename, struct ArrowArray *array, struct ArrowSchema *schema, int chunk_size, int compression) {
   auto file = arrow::io::FileOutputStream::Open(filename);
   if (!file.ok()) {
     caml_failwith(file.status().ToString().c_str());
@@ -125,11 +125,20 @@ void write_file(char *filename, struct ArrowArray *array, struct ArrowSchema *sc
   if (!table.ok()) {
     caml_failwith(table.status().ToString().c_str());
   }
+  arrow::Compression::type compression_ = arrow::Compression::UNCOMPRESSED;
+  if (compression == 1) compression_ = arrow::Compression::SNAPPY;
+  else if (compression == 2) compression_ = arrow::Compression::GZIP;
+  else if (compression == 3) compression_ = arrow::Compression::BROTLI;
+  else if (compression == 4) compression_ = arrow::Compression::ZSTD;
+  else if (compression == 5) compression_ = arrow::Compression::LZ4;
+  else if (compression == 6) compression_ = arrow::Compression::LZ4_FRAME;
+  else if (compression == 7) compression_ = arrow::Compression::LZO;
+  else if (compression == 8) compression_ = arrow::Compression::BZ2;
   arrow::Status st = parquet::arrow::WriteTable(*(table.ValueOrDie()),
                                                 arrow::default_memory_pool(),
                                                 outfile,
                                                 chunk_size,
-                                                parquet::default_writer_properties(),
+                                                parquet::WriterProperties::Builder().compression(compression_)->build(),
                                                 parquet::ArrowWriterProperties::Builder().enable_deprecated_int96_timestamps()->build());
   if (!st.ok()) {
     caml_failwith(st.ToString().c_str());

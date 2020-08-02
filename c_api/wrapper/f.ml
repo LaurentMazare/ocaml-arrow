@@ -137,12 +137,12 @@ module Writer = struct
 
   let write fold =
     let () = () in
-    fun filename vs ->
+    fun ?compression filename vs ->
       let length = List.length vs in
       let _length, cols, set = fold ~init:(length, [], fun _idx _t -> ()) in
       List.iteri vs ~f:set;
       let cols = List.rev_map cols ~f:(fun col -> col ()) in
-      Writer.write filename ~cols
+      Writer.write ?compression filename ~cols
 end
 
 type 'a t =
@@ -210,7 +210,7 @@ let read_write_fn creator =
         let get_one, _t = creator (Read reader) in
         List.init num_rows ~f:get_one)
   in
-  let write filename values =
+  let write ?compression filename values =
     let length = List.length values in
     let _get_one, t = creator (Write (length, [], fun _ixd _t -> ())) in
     let cols, set =
@@ -220,6 +220,6 @@ let read_write_fn creator =
     in
     List.iteri values ~f:set;
     let cols = List.rev_map cols ~f:(fun col -> col ()) in
-    Wrapper.Writer.write filename ~cols
+    Wrapper.Writer.write ?compression filename ~cols
   in
   `read read, `write write
