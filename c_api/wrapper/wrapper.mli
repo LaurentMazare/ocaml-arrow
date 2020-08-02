@@ -45,6 +45,7 @@ module Reader : sig
 
   val read : string -> t
   val close : t -> unit
+  val num_rows : t -> int
   val with_file : string -> f:(t -> 'a) -> 'a
 end
 

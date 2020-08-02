@@ -109,6 +109,7 @@ module Reader = struct
   type t = C.Reader.t
 
   let read = C.Reader.read_file
+  let num_rows t = C.Reader.num_rows_file t |> Int64.to_int_exn
   let close = C.Reader.close_file
 
   let with_file filename ~f =

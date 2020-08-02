@@ -44,6 +44,13 @@ void close_file(FileReaderPtr *reader) {
     delete reader;
 }
 
+int64_t num_rows_file(FileReaderPtr *reader) {
+  if (reader == NULL || (*reader)->parquet_reader() == NULL) {
+    caml_failwith("num_rows_file got a null ptr");
+  }
+  return (*reader)->parquet_reader()->metadata()->num_rows();
+}
+
 struct ArrowArray *chunked_column(FileReaderPtr *reader, int column_idx, int *nchunks, int dt) {
     arrow::Type::type expected_type;
     const char *expected_type_str = "";

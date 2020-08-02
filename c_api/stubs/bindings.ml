@@ -10,6 +10,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let t : t typ = ptr void
     let read_file = foreign "read_file" (string @-> returning t)
     let close_file = foreign "close_file" (t @-> returning void)
+    let num_rows_file = foreign "num_rows_file" (t @-> returning int64_t)
   end
 
   module ArrowSchema = struct

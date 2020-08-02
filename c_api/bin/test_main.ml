@@ -37,6 +37,8 @@ let () =
     | _ -> Printf.failwithf "usage: %s file.parquet" Caml.Sys.argv.(0) ()
   in
   Reader.with_file filename ~f:(fun reader ->
+      let num_rows = Reader.num_rows reader in
+      Stdio.printf "Rows: %d\n%!" num_rows;
       Schema.get reader
       |> Schema.sexp_of_t
       |> Sexp.to_string_hum
@@ -44,5 +46,3 @@ let () =
   let ts = read filename in
   List.iteri ts ~f:(fun i t ->
       Stdio.printf "%d %s\n%!" i (sexp_of_t t |> Sexp.to_string_mach))
-
-let write = F.Writer.(write (Fields.fold ~x:i64 ~y:f64 ~z:str ~truc:date ~time:time_ns))

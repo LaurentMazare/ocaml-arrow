@@ -6,16 +6,7 @@ module Reader = struct
   type t =
     { reader : Reader.t
     ; column_ids : (string, int, String.comparator_witness) Map.t
-    ; num_rows : int option
     }
-
-  let update_num_rows t ~num_rows =
-    match t.num_rows with
-    | None -> { t with num_rows = Some num_rows }
-    | Some num_rows_ ->
-      if num_rows_ <> num_rows
-      then Printf.failwithf "column lengths mismatch %d <> %d" num_rows num_rows_ ();
-      t
 
   type 'v col_ = t -> (int -> 'v) * t
   type ('a, 'b, 'c, 'v) col = ('a, 'b, 'c) Field.t_with_perm -> 'v col_
@@ -29,72 +20,68 @@ module Reader = struct
     let column_idx = get_idx t field in
     let ba = Wrapper.Column.read_i64_ba t.reader ~column_idx in
     let get i = Int64.to_int_exn ba.{i} in
-    get, update_num_rows t ~num_rows:(Bigarray.Array1.dim ba)
+    get, t
 
   let date field t =
     let column_idx = get_idx t field in
     let a = Wrapper.Column.read_date t.reader ~column_idx in
-    Array.get a, update_num_rows t ~num_rows:(Array.length a)
+    Array.get a, t
 
   let time_ns field t =
     let column_idx = get_idx t field in
     let a = Wrapper.Column.read_time_ns t.reader ~column_idx in
-    Array.get a, update_num_rows t ~num_rows:(Array.length a)
+    Array.get a, t
 
   let f64 field t =
     let column_idx = get_idx t field in
     let ba = Wrapper.Column.read_f64_ba t.reader ~column_idx in
     let get i = ba.{i} in
-    get, update_num_rows t ~num_rows:(Bigarray.Array1.dim ba)
+    get, t
 
   let str field t =
     let column_idx = get_idx t field in
     let array = Wrapper.Column.read_utf8 t.reader ~column_idx in
     let get i = array.(i) in
-    get, update_num_rows t ~num_rows:(Array.length array)
+    get, t
 
   let i64_opt field t =
     let column_idx = get_idx t field in
     let ba, valid = Wrapper.Column.read_i64_ba_opt t.reader ~column_idx in
     let get i = if Valid.get valid i then Some (Int64.to_int_exn ba.{i}) else None in
-    get, update_num_rows t ~num_rows:(Bigarray.Array1.dim ba)
+    get, t
 
   let date_opt field t =
     let column_idx = get_idx t field in
     let a = Wrapper.Column.read_date_opt t.reader ~column_idx in
-    Array.get a, update_num_rows t ~num_rows:(Array.length a)
+    Array.get a, t
 
   let time_ns_opt field t =
     let column_idx = get_idx t field in
     let a = Wrapper.Column.read_time_ns_opt t.reader ~column_idx in
-    Array.get a, update_num_rows t ~num_rows:(Array.length a)
+    Array.get a, t
 
   let f64_opt field t =
     let column_idx = get_idx t field in
     let ba, valid = Wrapper.Column.read_f64_ba_opt t.reader ~column_idx in
     let get i = if Valid.get valid i then Some ba.{i} else None in
-    get, update_num_rows t ~num_rows:(Bigarray.Array1.dim ba)
+    get, t
 
   let str_opt field t =
     let column_idx = get_idx t field in
     let array = Wrapper.Column.read_utf8_opt t.reader ~column_idx in
     let get i = array.(i) in
-    get, update_num_rows t ~num_rows:(Array.length array)
+    get, t
 
   let read creator filename =
     Reader.with_file filename ~f:(fun reader ->
+        let num_rows = Wrapper.Reader.num_rows reader in
         let schema = Wrapper.Schema.get reader in
         let column_ids =
           schema.children
           |> List.mapi ~f:(fun i schema -> schema.Wrapper.Schema.name, i)
           |> Map.of_alist_exn (module String)
         in
-        let get_one, t = creator { reader; column_ids; num_rows = None } in
-        let num_rows =
-          match t.num_rows with
-          | None -> Printf.failwithf "no column in file %s" filename ()
-          | Some num_rows -> num_rows
-        in
+        let get_one, _t = creator { reader; column_ids } in
         List.init num_rows ~f:get_one)
 end
 
@@ -212,22 +199,15 @@ let time_ns field t =
 let read_write_fn creator =
   let read filename =
     Wrapper.Reader.with_file filename ~f:(fun reader ->
+        let num_rows = Wrapper.Reader.num_rows reader in
         let schema = Wrapper.Schema.get reader in
         let column_ids =
           schema.children
           |> List.mapi ~f:(fun i schema -> schema.Wrapper.Schema.name, i)
           |> Map.of_alist_exn (module String)
         in
-        let reader = { Reader.reader; column_ids; num_rows = None } in
-        let get_one, t = creator (Read reader) in
-        let num_rows =
-          match t with
-          | Write _ -> assert false
-          | Read reader ->
-            (match reader.Reader.num_rows with
-            | None -> Printf.failwithf "no column in file %s" filename ()
-            | Some num_rows -> num_rows)
-        in
+        let reader = { Reader.reader; column_ids } in
+        let get_one, _t = creator (Read reader) in
         List.init num_rows ~f:get_one)
   in
   let write filename values =
