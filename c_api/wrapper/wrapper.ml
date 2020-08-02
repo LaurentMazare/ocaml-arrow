@@ -117,14 +117,42 @@ module Reader = struct
 end
 
 module Schema = struct
+  module Flags : sig
+    type t [@@deriving sexp_of]
+
+    val of_cint : Int64.t -> t
+    val to_cint : t -> Int64.t
+    val none : t
+    val dictionary_ordered : t -> bool
+    val nullable : t -> bool
+    val map_keys_sorted : t -> bool
+  end = struct
+    type t = int
+
+    let none = 0
+    let of_cint = Int64.to_int_exn
+    let to_cint = Int64.of_int_exn
+    let dictionary_ordered t = t land 1 <> 0
+    let nullable t = t land 2 <> 0
+    let map_keys_sorted t = t land 4 <> 0
+
+    let sexp_of_t t =
+      let maybe_add bool str acc = if bool then str :: acc else acc in
+      []
+      |> maybe_add (dictionary_ordered t) "dicitionary_ordered"
+      |> maybe_add (nullable t) "nullable"
+      |> maybe_add (map_keys_sorted t) "map_keys_sorted"
+      |> [%sexp_of: string list]
+  end
+
   type t =
     { format : Format.t
     ; name : string
     ; metadata : (string * string) list
-    ; flags : int
+    ; flags : Flags.t
     ; children : t list
     }
-  [@@deriving sexp]
+  [@@deriving sexp_of]
 
   let dereference_int32 ptr =
     if Ctypes.is_null ptr
@@ -166,7 +194,7 @@ module Schema = struct
       { format = Ctypes.getf schema C.ArrowSchema.format |> get_string |> Format.of_string
       ; name = Ctypes.getf schema C.ArrowSchema.name |> get_string
       ; metadata = Ctypes.getf schema C.ArrowSchema.metadata |> metadata
-      ; flags = Ctypes.getf schema C.ArrowSchema.flags |> Int64.to_int_exn
+      ; flags = Ctypes.getf schema C.ArrowSchema.flags |> Flags.of_cint
       ; children
       }
     in
@@ -180,29 +208,26 @@ module Column = struct
       { offset : int
       ; buffers : unit Ctypes.ptr list
       ; length : int
+      ; null_count : int
       }
 
-    let create_no_null chunk =
+    let create chunk ~fail_on_null =
       let null_count = Ctypes.getf chunk C.ArrowArray.null_count |> Int64.to_int_exn in
-      if null_count <> 0
+      if fail_on_null && null_count <> 0
       then Printf.failwithf "expected no null item but got %d" null_count ();
       let offset = Ctypes.getf chunk C.ArrowArray.offset |> Int64.to_int_exn in
       let n_buffers = Ctypes.getf chunk C.ArrowArray.n_buffers |> Int64.to_int_exn in
       let buffers = Ctypes.getf chunk C.ArrowArray.buffers in
       let buffers = List.init n_buffers ~f:(fun i -> Ctypes.(!@(buffers +@ i))) in
       let length = Ctypes.getf chunk C.ArrowArray.length |> Int64.to_int_exn in
-      { offset; buffers; length }
+      { offset; buffers; length; null_count }
 
-    let primitive_data_ptr t ~ctype ~name =
+    let primitive_data_ptr t ~ctype =
       match t.buffers with
-      (* The first array is for the (optional) bitmap. *)
+      (* The first array is for the (optional) validity bitmap. *)
       | _bitmap :: data :: _ -> Ctypes.(from_voidp ctype data +@ t.offset)
       | buffers ->
-        Printf.failwithf
-          "expected 2 columns or more for %s column, got %d"
-          name
-          (List.length buffers)
-          ()
+        Printf.failwithf "expected 2 columns or more, got %d" (List.length buffers) ()
   end
 
   module Datatype = struct
@@ -245,75 +270,103 @@ module Column = struct
         let length = Ctypes.getf chunk C.ArrowArray.length in
         acc + Int64.to_int_exn length)
 
-  let read_i64_ba reader ~column_idx =
-    with_column reader Int64 ~column_idx ~f:(fun chunks ->
+  let of_chunks chunks ~kind ~ctype =
+    let num_rows = num_rows chunks in
+    let dst = Bigarray.Array1.create kind C_layout num_rows in
+    let _num_rows =
+      List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
+          let chunk = Chunk.create chunk ~fail_on_null:true in
+          let ptr = Chunk.primitive_data_ptr chunk ~ctype in
+          let dst = Bigarray.Array1.sub dst dst_offset chunk.length in
+          let src = Ctypes.bigarray_of_ptr Ctypes.array1 chunk.length kind ptr in
+          Bigarray.Array1.blit src dst;
+          dst_offset + chunk.length)
+    in
+    dst
+
+  let read_ba reader ~datatype ~kind ~ctype ~column_idx =
+    with_column reader datatype ~column_idx ~f:(of_chunks ~kind ~ctype)
+
+  let read_ba_opt reader ~datatype ~kind ~ctype ~column_idx =
+    with_column reader datatype ~column_idx ~f:(fun chunks ->
         let num_rows = num_rows chunks in
-        let dst = Bigarray.Array1.create Int64 C_layout num_rows in
+        let dst = Bigarray.Array1.create kind C_layout num_rows in
+        let valid = Valid.create_all_valid num_rows in
         let _num_rows =
           List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
-              let chunk = Chunk.create_no_null chunk in
-              let ptr =
-                Chunk.primitive_data_ptr chunk ~ctype:Ctypes.int64_t ~name:"int64"
-              in
+              let chunk = Chunk.create chunk ~fail_on_null:false in
+              let ptr = Chunk.primitive_data_ptr chunk ~ctype in
               let dst = Bigarray.Array1.sub dst dst_offset chunk.length in
-              let src = Ctypes.bigarray_of_ptr Ctypes.array1 chunk.length Int64 ptr in
+              let src = Ctypes.bigarray_of_ptr Ctypes.array1 chunk.length kind ptr in
               Bigarray.Array1.blit src dst;
+              if chunk.null_count <> 0
+              then (
+                let valid_ptr =
+                  match chunk.buffers with
+                  | bitmap :: _ -> Ctypes.(from_voidp uint8_t bitmap)
+                  | _ -> assert false
+                in
+                (* TODO: optimize with some shift operations. *)
+                for bidx = 0 to ((chunk.length + 7) / 8) - 1 do
+                  let byte = Ctypes.(!@(valid_ptr +@ bidx) |> Unsigned.UInt8.to_int) in
+                  if byte <> 255
+                  then (
+                    let max_idx = min 8 (chunk.length - (8 * bidx)) in
+                    let valid_offset = dst_offset + (8 * bidx) in
+                    for idx = 0 to max_idx - 1 do
+                      let v = byte land (1 lsl idx) <> 0 in
+                      Valid.set valid (valid_offset + idx) v
+                    done)
+                done);
               dst_offset + chunk.length)
         in
-        dst)
+        dst, valid)
+
+  let read_i64_ba = read_ba ~datatype:Int64 ~kind:Int64 ~ctype:Ctypes.int64_t
+  let read_i64_ba_opt = read_ba_opt ~datatype:Int64 ~kind:Int64 ~ctype:Ctypes.int64_t
 
   let read_date reader ~column_idx =
-    with_column reader Date32 ~column_idx ~f:(fun chunks ->
-        let num_rows = num_rows chunks in
-        let dst = Bigarray.Array1.create Int32 C_layout num_rows in
-        let _num_rows =
-          List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
-              let chunk = Chunk.create_no_null chunk in
-              let ptr =
-                Chunk.primitive_data_ptr chunk ~ctype:Ctypes.int32_t ~name:"int32"
-              in
-              let dst = Bigarray.Array1.sub dst dst_offset chunk.length in
-              let src = Ctypes.bigarray_of_ptr Ctypes.array1 chunk.length Int32 ptr in
-              Bigarray.Array1.blit src dst;
-              dst_offset + chunk.length)
-        in
-        Array.init num_rows ~f:(fun idx ->
-            Core_kernel.Date.(add_days unix_epoch (Int32.to_int_exn dst.{idx}))))
+    let dst =
+      read_ba reader ~datatype:Date32 ~kind:Int32 ~ctype:Ctypes.int32_t ~column_idx
+    in
+    let num_rows = Bigarray.Array1.dim dst in
+    Array.init num_rows ~f:(fun idx ->
+        Core_kernel.Date.(add_days unix_epoch (Int32.to_int_exn dst.{idx})))
+
+  let read_date_opt reader ~column_idx =
+    let dst, valid =
+      read_ba_opt reader ~datatype:Date32 ~kind:Int32 ~ctype:Ctypes.int32_t ~column_idx
+    in
+    let num_rows = Bigarray.Array1.dim dst in
+    Array.init num_rows ~f:(fun idx ->
+        if Valid.get valid idx
+        then
+          Core_kernel.Date.(add_days unix_epoch (Int32.to_int_exn dst.{idx}))
+          |> Option.some
+        else None)
 
   let read_time_ns reader ~column_idx =
-    with_column reader Timestamp ~column_idx ~f:(fun chunks ->
-        let num_rows = num_rows chunks in
-        let dst = Bigarray.Array1.create Int64 C_layout num_rows in
-        let _num_rows =
-          List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
-              let chunk = Chunk.create_no_null chunk in
-              let ptr =
-                Chunk.primitive_data_ptr chunk ~ctype:Ctypes.int64_t ~name:"int64"
-              in
-              let dst = Bigarray.Array1.sub dst dst_offset chunk.length in
-              let src = Ctypes.bigarray_of_ptr Ctypes.array1 chunk.length Int64 ptr in
-              Bigarray.Array1.blit src dst;
-              dst_offset + chunk.length)
-        in
-        Array.init num_rows ~f:(fun idx ->
-            Core_kernel.Time_ns.of_int_ns_since_epoch (Int64.to_int_exn dst.{idx})))
+    let dst =
+      read_ba reader ~datatype:Timestamp ~kind:Int64 ~ctype:Ctypes.int64_t ~column_idx
+    in
+    let num_rows = Bigarray.Array1.dim dst in
+    Array.init num_rows ~f:(fun idx ->
+        Core_kernel.Time_ns.of_int_ns_since_epoch (Int64.to_int_exn dst.{idx}))
 
-  let read_f64_ba reader ~column_idx =
-    with_column reader Float64 ~column_idx ~f:(fun chunks ->
-        let num_rows = num_rows chunks in
-        let dst = Bigarray.Array1.create Float64 C_layout num_rows in
-        let _num_rows =
-          List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
-              let chunk = Chunk.create_no_null chunk in
-              let ptr =
-                Chunk.primitive_data_ptr chunk ~ctype:Ctypes.double ~name:"double"
-              in
-              let dst = Bigarray.Array1.sub dst dst_offset chunk.length in
-              let src = Ctypes.bigarray_of_ptr Ctypes.array1 chunk.length Float64 ptr in
-              Bigarray.Array1.blit src dst;
-              dst_offset + chunk.length)
-        in
-        dst)
+  let read_time_ns_opt reader ~column_idx =
+    let dst, valid =
+      read_ba_opt reader ~datatype:Timestamp ~kind:Int64 ~ctype:Ctypes.int64_t ~column_idx
+    in
+    let num_rows = Bigarray.Array1.dim dst in
+    Array.init num_rows ~f:(fun idx ->
+        if Valid.get valid idx
+        then
+          Core_kernel.Time_ns.of_int_ns_since_epoch (Int64.to_int_exn dst.{idx})
+          |> Option.some
+        else None)
+
+  let read_f64_ba = read_ba ~datatype:Float64 ~kind:Float64 ~ctype:Ctypes.double
+  let read_f64_ba_opt = read_ba_opt ~datatype:Float64 ~kind:Float64 ~ctype:Ctypes.double
 
   let read_utf8 reader ~column_idx =
     with_column reader Utf8 ~column_idx ~f:(fun chunks ->
@@ -321,15 +374,13 @@ module Column = struct
         let dst = Array.create "" ~len:num_rows in
         let _num_rows =
           List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
-              let chunk = Chunk.create_no_null chunk in
+              let chunk = Chunk.create chunk ~fail_on_null:true in
               (* The first array is for the (optional) bitmap.
                  The second array contains the offsets, using int32 for the normal string
                  arrays (int64 for large strings).
                  The third array contains the data.
               *)
-              let offsets =
-                Chunk.primitive_data_ptr chunk ~ctype:Ctypes.int32_t ~name:"int32"
-              in
+              let offsets = Chunk.primitive_data_ptr chunk ~ctype:Ctypes.int32_t in
               let data =
                 match chunk.buffers with
                 | [ _; _; data ] -> Ctypes.from_voidp Ctypes.char data
@@ -346,6 +397,58 @@ module Column = struct
                     ~length:(next_str_offset - str_offset)
                 in
                 dst.(dst_offset + idx) <- str
+              done;
+              dst_offset + chunk.length)
+        in
+        dst)
+
+  let read_utf8_opt reader ~column_idx =
+    with_column reader Utf8 ~column_idx ~f:(fun chunks ->
+        let num_rows = num_rows chunks in
+        let dst = Array.create None ~len:num_rows in
+        let _num_rows =
+          List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
+              let chunk = Chunk.create chunk ~fail_on_null:false in
+              (* The first array is for the (optional) valid bitmap.
+                 The second array contains the offsets, using int32 for the normal string
+                 arrays (int64 for large strings).
+                 The third array contains the data.
+              *)
+              let offsets = Chunk.primitive_data_ptr chunk ~ctype:Ctypes.int32_t in
+              let valid, data =
+                match chunk.buffers with
+                | [ valid; _; data ] ->
+                  let valid =
+                    if Ctypes.is_null valid
+                    then None
+                    else Some Ctypes.(from_voidp uint8_t valid)
+                  in
+                  valid, Ctypes.from_voidp Ctypes.char data
+                | _ -> failwith "expected 3 columns for utf8"
+              in
+              for idx = 0 to chunk.length - 1 do
+                let is_valid =
+                  if chunk.null_count = 0
+                  then true
+                  else (
+                    match valid with
+                    | None -> true
+                    | Some valid ->
+                      let b = Ctypes.(!@(valid +@ (idx / 8))) |> Unsigned.UInt8.to_int in
+                      b land (1 lsl (idx land 0b111)) <> 0)
+                in
+                if is_valid
+                then (
+                  let str_offset = Ctypes.(!@(offsets +@ idx)) |> Int32.to_int_exn in
+                  let next_str_offset =
+                    Ctypes.(!@(offsets +@ (idx + 1))) |> Int32.to_int_exn
+                  in
+                  let str =
+                    Ctypes.string_from_ptr
+                      Ctypes.(data +@ str_offset)
+                      ~length:(next_str_offset - str_offset)
+                  in
+                  dst.(dst_offset + idx) <- Some str)
               done;
               dst_offset + chunk.length)
         in
@@ -394,7 +497,7 @@ module Writer = struct
     Ctypes.setf s C.ArrowSchema.format (Ctypes.CArray.start format);
     Ctypes.setf s C.ArrowSchema.name (Ctypes.CArray.start name);
     Ctypes.setf s C.ArrowSchema.metadata (Ctypes.null |> Ctypes.from_voidp Ctypes.char);
-    Ctypes.setf s C.ArrowSchema.flags Int64.zero;
+    Ctypes.setf s C.ArrowSchema.flags Schema.Flags.(to_cint none);
     Ctypes.setf s C.ArrowSchema.n_children (Ctypes.CArray.length children |> Int64.of_int);
     Ctypes.setf s C.ArrowSchema.children (Ctypes.CArray.start children);
     Ctypes.setf

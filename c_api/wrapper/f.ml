@@ -53,6 +53,34 @@ module Reader = struct
     let get i = array.(i) in
     get, update_num_rows t ~num_rows:(Array.length array)
 
+  let i64_opt field t =
+    let column_idx = get_idx t field in
+    let ba, valid = Wrapper.Column.read_i64_ba_opt t.reader ~column_idx in
+    let get i = if Valid.get valid i then Some (Int64.to_int_exn ba.{i}) else None in
+    get, update_num_rows t ~num_rows:(Bigarray.Array1.dim ba)
+
+  let date_opt field t =
+    let column_idx = get_idx t field in
+    let a = Wrapper.Column.read_date_opt t.reader ~column_idx in
+    Array.get a, update_num_rows t ~num_rows:(Array.length a)
+
+  let time_ns_opt field t =
+    let column_idx = get_idx t field in
+    let a = Wrapper.Column.read_time_ns_opt t.reader ~column_idx in
+    Array.get a, update_num_rows t ~num_rows:(Array.length a)
+
+  let f64_opt field t =
+    let column_idx = get_idx t field in
+    let ba, valid = Wrapper.Column.read_f64_ba_opt t.reader ~column_idx in
+    let get i = if Valid.get valid i then Some ba.{i} else None in
+    get, update_num_rows t ~num_rows:(Bigarray.Array1.dim ba)
+
+  let str_opt field t =
+    let column_idx = get_idx t field in
+    let array = Wrapper.Column.read_utf8_opt t.reader ~column_idx in
+    let get i = array.(i) in
+    get, update_num_rows t ~num_rows:(Array.length array)
+
   let read creator filename =
     Reader.with_file filename ~f:(fun reader ->
         let schema = Wrapper.Schema.get reader in

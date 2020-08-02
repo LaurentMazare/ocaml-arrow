@@ -25,6 +25,11 @@ module Reader : sig
   val str : ('a, 'b, 'c, string) col
   val date : ('a, 'b, 'c, Core_kernel.Date.t) col
   val time_ns : ('a, 'b, 'c, Core_kernel.Time_ns.t) col
+  val i64_opt : ('a, 'b, 'c, int option) col
+  val f64_opt : ('a, 'b, 'c, float option) col
+  val str_opt : ('a, 'b, 'c, string option) col
+  val date_opt : ('a, 'b, 'c, Core_kernel.Date.t option) col
+  val time_ns_opt : ('a, 'b, 'c, Core_kernel.Time_ns.t option) col
   val read : 'v col_ -> string -> 'v list
 end
 
