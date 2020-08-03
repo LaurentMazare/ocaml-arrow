@@ -14,37 +14,31 @@ let get_string ptr_char =
   in
   loop [] ptr_char
 
-module Reader = struct
-  type t = C.Reader.t
-
-  let read = C.Reader.read_file
-  let num_rows t = C.Reader.num_rows_file t |> Int64.to_int_exn
-  let close = C.Reader.close_file
-
-  let with_file filename ~f =
-    let t = read filename in
-    Exn.protect ~f:(fun () -> f t) ~finally:(fun () -> close t)
-end
-
 module Schema = struct
   module Flags : sig
     type t [@@deriving sexp_of]
 
     val of_cint : Int64.t -> t
     val to_cint : t -> Int64.t
-    val none : t
+    val all : t list -> t
+    val dictionary_ordered_ : t
+    val nullable_ : t
+    val map_keys_sorted_ : t
     val dictionary_ordered : t -> bool
     val nullable : t -> bool
     val map_keys_sorted : t -> bool
   end = struct
     type t = int
 
-    let none = 0
+    let all ts = List.reduce ts ~f:( lor ) |> Option.value ~default:0
+    let dictionary_ordered_ = 1
+    let nullable_ = 2
+    let map_keys_sorted_ = 4
     let of_cint = Int64.to_int_exn
     let to_cint = Int64.of_int_exn
-    let dictionary_ordered t = t land 1 <> 0
-    let nullable t = t land 2 <> 0
-    let map_keys_sorted t = t land 4 <> 0
+    let dictionary_ordered t = t land dictionary_ordered_ <> 0
+    let nullable t = t land nullable_ <> 0
+    let map_keys_sorted t = t land map_keys_sorted_ <> 0
 
     let sexp_of_t t =
       let maybe_add bool str acc = if bool then str :: acc else acc in
@@ -110,6 +104,19 @@ module Schema = struct
       }
     in
     loop c_schema
+end
+
+module Reader = struct
+  type t = C.Reader.t
+
+  let read = C.Reader.read_file
+  let num_rows t = C.Reader.num_rows_file t |> Int64.to_int_exn
+  let close = C.Reader.close_file
+  let schema = Schema.get
+
+  let with_file filename ~f =
+    let t = read filename in
+    Exn.protect ~f:(fun () -> f t) ~finally:(fun () -> close t)
 end
 
 (* https://arrow.apache.org/docs/format/Columnar.html *)
@@ -396,7 +403,7 @@ module Writer = struct
 
   type col = C.ArrowArray.t * C.ArrowSchema.t
 
-  let schema_struct ~format ~name ~children =
+  let schema_struct ~format ~name ~children ~flag =
     let format = Ctypes.CArray.of_string format in
     let name = Ctypes.CArray.of_string name in
     let s =
@@ -408,7 +415,7 @@ module Writer = struct
     Ctypes.setf s C.ArrowSchema.format (Ctypes.CArray.start format);
     Ctypes.setf s C.ArrowSchema.name (Ctypes.CArray.start name);
     Ctypes.setf s C.ArrowSchema.metadata (Ctypes.null |> Ctypes.from_voidp Ctypes.char);
-    Ctypes.setf s C.ArrowSchema.flags Schema.Flags.(to_cint none);
+    Ctypes.setf s C.ArrowSchema.flags Schema.Flags.(to_cint flag);
     Ctypes.setf s C.ArrowSchema.n_children (Ctypes.CArray.length children |> Int64.of_int);
     Ctypes.setf s C.ArrowSchema.children (Ctypes.CArray.start children);
     Ctypes.setf
@@ -418,7 +425,7 @@ module Writer = struct
     Ctypes.setf s C.ArrowSchema.release release_schema_ptr;
     s
 
-  let array_struct ~buffers ~children ~length ~finalise =
+  let array_struct ~null_count ~buffers ~children ~length ~finalise =
     let a =
       Ctypes.make
         ~finalise:(fun _ ->
@@ -428,7 +435,7 @@ module Writer = struct
         C.ArrowArray.t
     in
     Ctypes.setf a C.ArrowArray.length (Int64.of_int length);
-    Ctypes.setf a C.ArrowArray.null_count Int64.zero;
+    Ctypes.setf a C.ArrowArray.null_count (Int64.of_int null_count);
     Ctypes.setf a C.ArrowArray.offset Int64.zero;
     Ctypes.setf a C.ArrowArray.n_buffers (Ctypes.CArray.length buffers |> Int64.of_int);
     Ctypes.setf a C.ArrowArray.buffers (Ctypes.CArray.start buffers);
@@ -448,10 +455,41 @@ module Writer = struct
       array_struct
         ~buffers
         ~children:empty_array_l
+        ~null_count:0
         ~finalise:(fun _ -> use_value array)
         ~length:(Bigarray.Array1.dim array)
     in
-    let schema_struct = schema_struct ~format:"l" ~name ~children:empty_schema_l in
+    let schema_struct =
+      schema_struct ~format:"l" ~name ~children:empty_schema_l ~flag:(Schema.Flags.all [])
+    in
+    (array_struct, schema_struct : col)
+
+  let int64_ba_opt array valid ~name =
+    if Bigarray.Array1.dim array <> Valid.length valid then failwith "incoherent lengths";
+    let buffers =
+      Ctypes.CArray.of_list
+        (Ctypes.ptr Ctypes.void)
+        [ Ctypes.bigarray_start Array1 (Valid.bigarray valid) |> Ctypes.to_voidp
+        ; Ctypes.bigarray_start Array1 array |> Ctypes.to_voidp
+        ]
+    in
+    let array_struct =
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~null_count:(Valid.num_false valid)
+        ~finalise:(fun _ ->
+          use_value array;
+          use_value valid)
+        ~length:(Bigarray.Array1.dim array)
+    in
+    let schema_struct =
+      schema_struct
+        ~format:"l"
+        ~name
+        ~children:empty_schema_l
+        ~flag:Schema.Flags.nullable_
+    in
     (array_struct, schema_struct : col)
 
   let date date_array ~name =
@@ -470,10 +508,55 @@ module Writer = struct
       array_struct
         ~buffers
         ~children:empty_array_l
+        ~null_count:0
         ~finalise:(fun _ -> use_value array)
         ~length:(Ctypes.CArray.length array)
     in
-    let schema_struct = schema_struct ~format:"tdD" ~name ~children:empty_schema_l in
+    let schema_struct =
+      schema_struct
+        ~format:"tdD"
+        ~name
+        ~children:empty_schema_l
+        ~flag:(Schema.Flags.all [])
+    in
+    (array_struct, schema_struct : col)
+
+  let date_opt date_array ~name =
+    let array = Ctypes.CArray.make Ctypes.int32_t (Array.length date_array) in
+    let valid = Valid.create_all_valid (Array.length date_array) in
+    Array.iteri date_array ~f:(fun idx date ->
+        let date =
+          match date with
+          | Some date -> Core_kernel.Date.(diff date unix_epoch) |> Int32.of_int_exn
+          | None ->
+            Valid.set valid idx false;
+            Int32.zero
+        in
+        Ctypes.CArray.set array idx date);
+    let buffers =
+      Ctypes.CArray.of_list
+        (Ctypes.ptr Ctypes.void)
+        [ Ctypes.bigarray_start Array1 (Valid.bigarray valid) |> Ctypes.to_voidp
+        ; Ctypes.CArray.start array |> Ctypes.to_voidp
+        ]
+    in
+    let array_struct =
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~null_count:(Valid.num_false valid)
+        ~finalise:(fun _ ->
+          use_value array;
+          use_value valid)
+        ~length:(Ctypes.CArray.length array)
+    in
+    let schema_struct =
+      schema_struct
+        ~format:"tdD"
+        ~name
+        ~children:empty_schema_l
+        ~flag:Schema.Flags.nullable_
+    in
     (array_struct, schema_struct : col)
 
   let time_ns time_array ~name =
@@ -492,10 +575,56 @@ module Writer = struct
       array_struct
         ~buffers
         ~children:empty_array_l
+        ~null_count:0
         ~finalise:(fun _ -> use_value array)
         ~length:(Ctypes.CArray.length array)
     in
-    let schema_struct = schema_struct ~format:"tsn:UTC" ~name ~children:empty_schema_l in
+    let schema_struct =
+      schema_struct
+        ~format:"tsn:UTC"
+        ~name
+        ~children:empty_schema_l
+        ~flag:(Schema.Flags.all [])
+    in
+    (array_struct, schema_struct : col)
+
+  let time_ns_opt time_array ~name =
+    let array = Ctypes.CArray.make Ctypes.int64_t (Array.length time_array) in
+    let valid = Valid.create_all_valid (Array.length time_array) in
+    Array.iteri time_array ~f:(fun idx time ->
+        let time =
+          match time with
+          | Some time ->
+            Core_kernel.Time_ns.to_int_ns_since_epoch time |> Int64.of_int_exn
+          | None ->
+            Valid.set valid idx false;
+            Int64.zero
+        in
+        Ctypes.CArray.set array idx time);
+    let buffers =
+      Ctypes.CArray.of_list
+        (Ctypes.ptr Ctypes.void)
+        [ Ctypes.bigarray_start Array1 (Valid.bigarray valid) |> Ctypes.to_voidp
+        ; Ctypes.CArray.start array |> Ctypes.to_voidp
+        ]
+    in
+    let array_struct =
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~null_count:(Valid.num_false valid)
+        ~finalise:(fun _ ->
+          use_value array;
+          use_value valid)
+        ~length:(Ctypes.CArray.length array)
+    in
+    let schema_struct =
+      schema_struct
+        ~format:"tsn:UTC"
+        ~name
+        ~children:empty_schema_l
+        ~flag:Schema.Flags.nullable_
+    in
     (array_struct, schema_struct : col)
 
   let float64_ba array ~name =
@@ -508,10 +637,41 @@ module Writer = struct
       array_struct
         ~buffers
         ~children:empty_array_l
+        ~null_count:0
         ~finalise:(fun _ -> use_value array)
         ~length:(Bigarray.Array1.dim array)
     in
-    let schema_struct = schema_struct ~format:"g" ~name ~children:empty_schema_l in
+    let schema_struct =
+      schema_struct ~format:"g" ~name ~children:empty_schema_l ~flag:(Schema.Flags.all [])
+    in
+    (array_struct, schema_struct : col)
+
+  let float64_ba_opt array valid ~name =
+    if Bigarray.Array1.dim array <> Valid.length valid then failwith "incoherent lengths";
+    let buffers =
+      Ctypes.CArray.of_list
+        (Ctypes.ptr Ctypes.void)
+        [ Ctypes.bigarray_start Array1 (Valid.bigarray valid) |> Ctypes.to_voidp
+        ; Ctypes.bigarray_start Array1 array |> Ctypes.to_voidp
+        ]
+    in
+    let array_struct =
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~null_count:(Valid.num_false valid)
+        ~finalise:(fun _ ->
+          use_value array;
+          use_value valid)
+        ~length:(Bigarray.Array1.dim array)
+    in
+    let schema_struct =
+      schema_struct
+        ~format:"g"
+        ~name
+        ~children:empty_schema_l
+        ~flag:Schema.Flags.nullable_
+    in
     (array_struct, schema_struct : col)
 
   (* TODO: also have a "categorical" version? *)
@@ -543,12 +703,15 @@ module Writer = struct
       array_struct
         ~buffers
         ~children:empty_array_l
+        ~null_count:0
         ~finalise:(fun _ ->
           use_value data;
           use_value offsets)
         ~length
     in
-    let schema_struct = schema_struct ~format:"u" ~name ~children:empty_schema_l in
+    let schema_struct =
+      schema_struct ~format:"u" ~name ~children:empty_schema_l ~flag:(Schema.Flags.all [])
+    in
     (array_struct, schema_struct : col)
 
   let write
@@ -575,10 +738,17 @@ module Writer = struct
       array_struct
         ~finalise:ignore
         ~length:num_rows
+        ~null_count:0
         ~buffers:single_null_buffer
         ~children:children_arrays
     in
-    let schema_struct = schema_struct ~format:"+s" ~name:"" ~children:children_schemas in
+    let schema_struct =
+      schema_struct
+        ~format:"+s"
+        ~name:""
+        ~children:children_schemas
+        ~flag:(Schema.Flags.all [])
+    in
     if add_compact then Caml.Gc.compact ();
     C.write_file
       filename

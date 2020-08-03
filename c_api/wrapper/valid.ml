@@ -1,19 +1,37 @@
 open! Base
 
-type t = (int, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
+type t =
+  { length : int
+  ; data : (int, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
+  }
 
-let create_all_valid dim =
-  let t = Bigarray.Array1.create Int8_unsigned C_layout ((dim + 7) / 8) in
-  Bigarray.Array1.fill t 255;
-  t
+let create_all_valid length =
+  let data = Bigarray.Array1.create Int8_unsigned C_layout ((length + 7) / 8) in
+  Bigarray.Array1.fill data 255;
+  { length; data }
 
 let mask i = 1 lsl (i land 0b111)
 let unmask i = lnot (mask i) land 255
-let get t i = t.{i / 8} land mask i <> 0
+let get t i = t.data.{i / 8} land mask i <> 0
 
 let set t i b =
   let index = i / 8 in
-  if b then t.{index} <- t.{index} lor mask i else t.{index} <- t.{index} land unmask i
+  if b
+  then t.data.{index} <- t.data.{index} lor mask i
+  else t.data.{index} <- t.data.{index} land unmask i
+
+let length t = t.length
+
+let num_true t =
+  (* TODO: optimize or memoize. *)
+  let res = ref 0 in
+  for i = 0 to length t - 1 do
+    if get t i then Int.incr res
+  done;
+  !res
+
+let num_false t = length t - num_true t
+let bigarray t = t.data
 
 let%expect_test _ =
   let round_trip bool_list =

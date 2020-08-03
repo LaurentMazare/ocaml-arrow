@@ -41,6 +41,18 @@ module Writer : sig
   val str : 'a state -> ('c, 'a, string) Field.t_with_perm -> 'a state
   val date : 'a state -> ('c, 'a, Core_kernel.Date.t) Field.t_with_perm -> 'a state
   val time_ns : 'a state -> ('c, 'a, Core_kernel.Time_ns.t) Field.t_with_perm -> 'a state
+  val i64_opt : 'a state -> ('c, 'a, int option) Field.t_with_perm -> 'a state
+  val f64_opt : 'a state -> ('c, 'a, float option) Field.t_with_perm -> 'a state
+
+  val date_opt
+    :  'a state
+    -> ('c, 'a, Core_kernel.Date.t option) Field.t_with_perm
+    -> 'a state
+
+  val time_ns_opt
+    :  'a state
+    -> ('c, 'a, Core_kernel.Time_ns.t option) Field.t_with_perm
+    -> 'a state
 
   val write
     :  (init:'d state -> 'd state)
@@ -61,6 +73,10 @@ val f64 : ('a, 'b, float) col
 val str : ('a, 'b, string) col
 val date : ('a, 'b, Core_kernel.Date.t) col
 val time_ns : ('a, 'b, Core_kernel.Time_ns.t) col
+val i64_opt : ('a, 'b, int option) col
+val f64_opt : ('a, 'b, float option) col
+val date_opt : ('a, 'b, Core_kernel.Date.t option) col
+val time_ns_opt : ('a, 'b, Core_kernel.Time_ns.t option) col
 
 val read_write_fn
   :  ('a t -> (int -> 'a) * 'a t)

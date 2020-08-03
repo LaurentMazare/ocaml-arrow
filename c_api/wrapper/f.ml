@@ -75,7 +75,7 @@ module Reader = struct
   let read creator filename =
     Reader.with_file filename ~f:(fun reader ->
         let num_rows = Wrapper.Reader.num_rows reader in
-        let schema = Wrapper.Schema.get reader in
+        let schema = Wrapper.Reader.schema reader in
         let column_ids =
           schema.children
           |> List.mapi ~f:(fun i schema -> schema.Wrapper.Schema.name, i)
@@ -99,11 +99,35 @@ module Writer = struct
     in
     length, col :: acc_col, set
 
+  let i64_opt (length, acc_col, acc_set) field =
+    let ba = Bigarray.Array1.create Int64 C_layout length in
+    let valid = Valid.create_all_valid length in
+    let col () = Writer.int64_ba_opt ba valid ~name:(Field.name field) in
+    let set idx t =
+      (match Field.get field t with
+      | Some v -> ba.{idx} <- Int64.of_int v
+      | None -> Valid.set valid idx false);
+      acc_set idx t
+    in
+    length, col :: acc_col, set
+
   let f64 (length, acc_col, acc_set) field =
     let ba = Bigarray.Array1.create Float64 C_layout length in
     let col () = Writer.float64_ba ba ~name:(Field.name field) in
     let set idx t =
       ba.{idx} <- Field.get field t;
+      acc_set idx t
+    in
+    length, col :: acc_col, set
+
+  let f64_opt (length, acc_col, acc_set) field =
+    let ba = Bigarray.Array1.create Float64 C_layout length in
+    let valid = Valid.create_all_valid length in
+    let col () = Writer.float64_ba_opt ba valid ~name:(Field.name field) in
+    let set idx t =
+      (match Field.get field t with
+      | Some v -> ba.{idx} <- v
+      | None -> Valid.set valid idx false);
       acc_set idx t
     in
     length, col :: acc_col, set
@@ -126,9 +150,27 @@ module Writer = struct
     in
     length, col :: acc_col, set
 
+  let date_opt (length, acc_col, acc_set) field =
+    let dates = Array.create ~len:length None in
+    let col () = Writer.date_opt dates ~name:(Field.name field) in
+    let set idx t =
+      dates.(idx) <- Field.get field t;
+      acc_set idx t
+    in
+    length, col :: acc_col, set
+
   let time_ns (length, acc_col, acc_set) field =
     let times = Array.create ~len:length Core_kernel.Time_ns.epoch in
     let col () = Writer.time_ns times ~name:(Field.name field) in
+    let set idx t =
+      times.(idx) <- Field.get field t;
+      acc_set idx t
+    in
+    length, col :: acc_col, set
+
+  let time_ns_opt (length, acc_col, acc_set) field =
+    let times = Array.create ~len:length None in
+    let col () = Writer.time_ns_opt times ~name:(Field.name field) in
     let set idx t =
       times.(idx) <- Field.get field t;
       acc_set idx t
@@ -160,6 +202,15 @@ let i64 field t =
     let writer = Writer.i64 writer field in
     (fun _ -> assert false), Write writer
 
+let i64_opt field t =
+  match t with
+  | Read reader ->
+    let get, reader = Reader.i64_opt field reader in
+    get, Read reader
+  | Write writer ->
+    let writer = Writer.i64_opt writer field in
+    (fun _ -> assert false), Write writer
+
 let f64 field t =
   match t with
   | Read reader ->
@@ -167,6 +218,15 @@ let f64 field t =
     get, Read reader
   | Write writer ->
     let writer = Writer.f64 writer field in
+    (fun _ -> assert false), Write writer
+
+let f64_opt field t =
+  match t with
+  | Read reader ->
+    let get, reader = Reader.f64_opt field reader in
+    get, Read reader
+  | Write writer ->
+    let writer = Writer.f64_opt writer field in
     (fun _ -> assert false), Write writer
 
 let str field t =
@@ -187,6 +247,15 @@ let date field t =
     let writer = Writer.date writer field in
     (fun _ -> assert false), Write writer
 
+let date_opt field t =
+  match t with
+  | Read reader ->
+    let get, reader = Reader.date_opt field reader in
+    get, Read reader
+  | Write writer ->
+    let writer = Writer.date_opt writer field in
+    (fun _ -> assert false), Write writer
+
 let time_ns field t =
   match t with
   | Read reader ->
@@ -196,11 +265,20 @@ let time_ns field t =
     let writer = Writer.time_ns writer field in
     (fun _ -> assert false), Write writer
 
+let time_ns_opt field t =
+  match t with
+  | Read reader ->
+    let get, reader = Reader.time_ns_opt field reader in
+    get, Read reader
+  | Write writer ->
+    let writer = Writer.time_ns_opt writer field in
+    (fun _ -> assert false), Write writer
+
 let read_write_fn creator =
   let read filename =
     Wrapper.Reader.with_file filename ~f:(fun reader ->
         let num_rows = Wrapper.Reader.num_rows reader in
-        let schema = Wrapper.Schema.get reader in
+        let schema = Wrapper.Reader.schema reader in
         let column_ids =
           schema.children
           |> List.mapi ~f:(fun i schema -> schema.Wrapper.Schema.name, i)
