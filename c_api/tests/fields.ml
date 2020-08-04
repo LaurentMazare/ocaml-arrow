@@ -17,16 +17,16 @@ type t =
 [@@deriving sexp_of, fields, compare]
 
 let `read read, `write write =
-  F.(
-    read_write_fn
-      (Fields.make_creator
-         ~x:i64
-         ~y:f64
-         ~z:str
-         ~truc:date
-         ~time:time_ns
-         ~y_opt:f64_opt
-         ~cnt:i64_opt))
+  let open F in
+  read_write_fn
+    (Fields.make_creator
+       ~x:i64
+       ~y:f64
+       ~z:str
+       ~truc:date
+       ~time:time_ns
+       ~y_opt:f64_opt
+       ~cnt:i64_opt)
 
 let generate_ts ~cnt =
   let base_time = Core_kernel.Time_ns.now () in

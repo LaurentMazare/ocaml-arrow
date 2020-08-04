@@ -44,6 +44,12 @@ module Reader = struct
     let get i = array.(i) in
     get, t
 
+  let stringable (type a) (module S : Stringable.S with type t = a) field t =
+    let column_idx = get_idx t field in
+    let array = Wrapper.Column.read_utf8 t.reader ~column_idx in
+    let get i = array.(i) |> S.of_string in
+    get, t
+
   let i64_opt field t =
     let column_idx = get_idx t field in
     let ba, valid = Wrapper.Column.read_i64_ba_opt t.reader ~column_idx in
@@ -70,6 +76,17 @@ module Reader = struct
     let column_idx = get_idx t field in
     let array = Wrapper.Column.read_utf8_opt t.reader ~column_idx in
     let get i = array.(i) in
+    get, t
+
+  let stringable_opt (type a) (module S : Stringable.S with type t = a) field t =
+    let column_idx = get_idx t field in
+    let array = Wrapper.Column.read_utf8 t.reader ~column_idx in
+    let get i =
+      let a = array.(i) in
+      match S.of_string a with
+      | v -> Some v
+      | exception _ -> None
+    in
     get, t
 
   let read creator filename =
@@ -137,6 +154,29 @@ module Writer = struct
     let col () = Writer.utf8 strs ~name:(Field.name field) in
     let set idx t =
       strs.(idx) <- Field.get field t;
+      acc_set idx t
+    in
+    length, col :: acc_col, set
+
+  let stringable
+      (type a)
+      (module S : Stringable.S with type t = a)
+      (length, acc_col, acc_set)
+      field
+    =
+    let vs = ref None in
+    let col () = Writer.utf8 (Option.value_exn !vs) ~name:(Field.name field) in
+    let set idx t =
+      let value = Field.get field t |> S.to_string in
+      let vs =
+        match !vs with
+        | Some vs -> vs
+        | None ->
+          let vs_ = Array.create ~len:length value in
+          vs := Some vs_;
+          vs_
+      in
+      vs.(idx) <- Field.get field t |> S.to_string;
       acc_set idx t
     in
     length, col :: acc_col, set
@@ -236,6 +276,15 @@ let str field t =
     get, Read reader
   | Write writer ->
     let writer = Writer.str writer field in
+    (fun _ -> assert false), Write writer
+
+let stringable (type a) (module S : Stringable.S with type t = a) field t =
+  match t with
+  | Read reader ->
+    let get, reader = Reader.stringable (module S) field reader in
+    get, Read reader
+  | Write writer ->
+    let writer = Writer.stringable (module S) writer field in
     (fun _ -> assert false), Write writer
 
 let date field t =
