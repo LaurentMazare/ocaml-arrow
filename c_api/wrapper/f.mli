@@ -56,6 +56,7 @@ module Writer : sig
 
   val write
     :  (init:'d state -> 'd state)
+    -> ?chunk_size:int
     -> ?compression:Compression.t
     -> string
     -> 'd list
@@ -81,4 +82,6 @@ val time_ns_opt : ('a, 'b, Core_kernel.Time_ns.t option) col
 val read_write_fn
   :  ('a t -> (int -> 'a) * 'a t)
   -> [ `read of string -> 'a list ]
-     * [ `write of ?compression:Compression.t -> string -> 'a list -> unit ]
+     * [ `write of
+         ?chunk_size:int -> ?compression:Compression.t -> string -> 'a list -> unit
+       ]
