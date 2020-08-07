@@ -714,6 +714,53 @@ module Writer = struct
     in
     (array_struct, schema_struct : col)
 
+  let utf8_opt array ~name =
+    let valid = Valid.create_all_valid (Array.length array) in
+    let length = Array.length array in
+    let offsets = Bigarray.Array1.create Int32 C_layout (length + 1) in
+    let sum_length =
+      Array.foldi array ~init:0 ~f:(fun i acc str ->
+          offsets.{i} <- Int32.of_int_exn acc;
+          acc + Option.value_map str ~f:String.length ~default:0)
+    in
+    offsets.{length} <- Int32.of_int_exn sum_length;
+    let data = Ctypes.CArray.make Ctypes.char sum_length in
+    Array.iteri array ~f:(fun i str ->
+        match str with
+        | None -> Valid.set valid i false
+        | Some str ->
+          let offset = offsets.{i} |> Int32.to_int_exn in
+          for i = 0 to String.length str - 1 do
+            Ctypes.CArray.set data (i + offset) str.[i]
+          done);
+    let buffers =
+      Ctypes.CArray.of_list
+        (Ctypes.ptr Ctypes.void)
+        [ Ctypes.bigarray_start Array1 (Valid.bigarray valid) |> Ctypes.to_voidp
+        ; Ctypes.bigarray_start Array1 offsets |> Ctypes.to_voidp
+        ; Ctypes.CArray.start data |> Ctypes.to_voidp
+        ]
+    in
+    let array_struct =
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~null_count:(Valid.num_false valid)
+        ~finalise:(fun _ ->
+          use_value data;
+          use_value offsets;
+          use_value valid)
+        ~length
+    in
+    let schema_struct =
+      schema_struct
+        ~format:"u"
+        ~name
+        ~children:empty_schema_l
+        ~flag:Schema.Flags.nullable_
+    in
+    (array_struct, schema_struct : col)
+
   let write
       ?(chunk_size = 1024 * 1024)
       ?(compression = Compression.Uncompressed)

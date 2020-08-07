@@ -12,6 +12,7 @@ type t =
   ; truc : Core_kernel.Date.t
   ; time : time
   ; y_opt : float option
+  ; z_opt : string option
   ; cnt : int option
   }
 [@@deriving sexp_of, fields, compare]
@@ -26,6 +27,7 @@ let `read read, `write write =
        ~truc:date
        ~time:time_ns
        ~y_opt:f64_opt
+       ~z_opt:str_opt
        ~cnt:i64_opt)
 
 let generate_ts ~cnt =
@@ -40,6 +42,7 @@ let generate_ts ~cnt =
       ; truc = date 1
       ; time = time 0.
       ; y_opt = Some 1.414
+      ; z_opt = None
       ; cnt = Some cnt
       }
     ; { x = 42
@@ -48,6 +51,7 @@ let generate_ts ~cnt =
       ; truc = date 1
       ; time = time 0.
       ; y_opt = None
+      ; z_opt = Some (Int.to_string cnt)
       ; cnt = Some cnt
       }
     ; { x = 1337
@@ -56,6 +60,7 @@ let generate_ts ~cnt =
       ; truc = date 0
       ; time = time 123.45
       ; y_opt = None
+      ; z_opt = Some "here!"
       ; cnt = Some cnt
       }
     ; { x = 299792458
@@ -64,6 +69,7 @@ let generate_ts ~cnt =
       ; truc = date 5
       ; time = time 987654.
       ; y_opt = Some 1.732
+      ; z_opt = Some "here again!"
       ; cnt = None
       }
     ]

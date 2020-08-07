@@ -89,6 +89,10 @@ module Reader = struct
     in
     get, t
 
+  let map col ~f field t =
+    let get, t = col field t in
+    (fun i -> get i |> f), t
+
   let read creator filename =
     Reader.with_file filename ~f:(fun reader ->
         let num_rows = Wrapper.Reader.num_rows reader in
@@ -106,6 +110,7 @@ module Writer = struct
   module Writer = Wrapper.Writer
 
   type 'a state = int * (unit -> Wrapper.Writer.col) list * (int -> 'a -> unit)
+  type ('a, 'b, 'c) col = 'a state -> ('b, 'a, 'c) Field.t_with_perm -> 'a state
 
   let i64 (length, acc_col, acc_set) field =
     let ba = Bigarray.Array1.create Int64 C_layout length in
@@ -152,6 +157,15 @@ module Writer = struct
   let str (length, acc_col, acc_set) field =
     let strs = Array.create ~len:length "" in
     let col () = Writer.utf8 strs ~name:(Field.name field) in
+    let set idx t =
+      strs.(idx) <- Field.get field t;
+      acc_set idx t
+    in
+    length, col :: acc_col, set
+
+  let str_opt (length, acc_col, acc_set) field =
+    let strs = Array.create ~len:length None in
+    let col () = Writer.utf8_opt strs ~name:(Field.name field) in
     let set idx t =
       strs.(idx) <- Field.get field t;
       acc_set idx t
@@ -276,6 +290,15 @@ let str field t =
     get, Read reader
   | Write writer ->
     let writer = Writer.str writer field in
+    (fun _ -> assert false), Write writer
+
+let str_opt field t =
+  match t with
+  | Read reader ->
+    let get, reader = Reader.str_opt field reader in
+    get, Read reader
+  | Write writer ->
+    let writer = Writer.str_opt writer field in
     (fun _ -> assert false), Write writer
 
 let stringable (type a) (module S : Stringable.S with type t = a) field t =

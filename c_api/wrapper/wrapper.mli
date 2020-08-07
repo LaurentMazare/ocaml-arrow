@@ -89,6 +89,7 @@ module Writer : sig
     -> col
 
   val utf8 : string array -> name:string -> col
+  val utf8_opt : string option array -> name:string -> col
   val date : Core_kernel.Date.t array -> name:string -> col
   val date_opt : Core_kernel.Date.t option array -> name:string -> col
   val time_ns : Core_kernel.Time_ns.t array -> name:string -> col
