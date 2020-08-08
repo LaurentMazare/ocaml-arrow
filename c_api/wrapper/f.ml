@@ -178,19 +178,10 @@ module Writer = struct
       (length, acc_col, acc_set)
       field
     =
-    let vs = ref None in
-    let col () = Writer.utf8 (Option.value_exn !vs) ~name:(Field.name field) in
+    let strs = Array.create ~len:length "" in
+    let col () = Writer.utf8 strs ~name:(Field.name field) in
     let set idx t =
-      let value = Field.get field t |> S.to_string in
-      let vs =
-        match !vs with
-        | Some vs -> vs
-        | None ->
-          let vs_ = Array.create ~len:length value in
-          vs := Some vs_;
-          vs_
-      in
-      vs.(idx) <- Field.get field t |> S.to_string;
+      strs.(idx) <- Field.get field t |> S.to_string;
       acc_set idx t
     in
     length, col :: acc_col, set

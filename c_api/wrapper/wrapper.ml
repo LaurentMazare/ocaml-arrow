@@ -20,6 +20,7 @@ module Schema = struct
 
     val of_cint : Int64.t -> t
     val to_cint : t -> Int64.t
+    val none : t
     val all : t list -> t
     val dictionary_ordered_ : t
     val nullable_ : t
@@ -30,6 +31,7 @@ module Schema = struct
   end = struct
     type t = int
 
+    let none = 0
     let all ts = List.reduce ts ~f:( lor ) |> Option.value ~default:0
     let dictionary_ordered_ = 1
     let nullable_ = 2
@@ -460,7 +462,7 @@ module Writer = struct
         ~length:(Bigarray.Array1.dim array)
     in
     let schema_struct =
-      schema_struct ~format:"l" ~name ~children:empty_schema_l ~flag:(Schema.Flags.all [])
+      schema_struct ~format:"l" ~name ~children:empty_schema_l ~flag:Schema.Flags.none
     in
     (array_struct, schema_struct : col)
 
@@ -513,11 +515,7 @@ module Writer = struct
         ~length:(Ctypes.CArray.length array)
     in
     let schema_struct =
-      schema_struct
-        ~format:"tdD"
-        ~name
-        ~children:empty_schema_l
-        ~flag:(Schema.Flags.all [])
+      schema_struct ~format:"tdD" ~name ~children:empty_schema_l ~flag:Schema.Flags.none
     in
     (array_struct, schema_struct : col)
 
@@ -584,7 +582,7 @@ module Writer = struct
         ~format:"tsn:UTC"
         ~name
         ~children:empty_schema_l
-        ~flag:(Schema.Flags.all [])
+        ~flag:Schema.Flags.none
     in
     (array_struct, schema_struct : col)
 
@@ -642,7 +640,7 @@ module Writer = struct
         ~length:(Bigarray.Array1.dim array)
     in
     let schema_struct =
-      schema_struct ~format:"g" ~name ~children:empty_schema_l ~flag:(Schema.Flags.all [])
+      schema_struct ~format:"g" ~name ~children:empty_schema_l ~flag:Schema.Flags.none
     in
     (array_struct, schema_struct : col)
 
@@ -710,7 +708,7 @@ module Writer = struct
         ~length
     in
     let schema_struct =
-      schema_struct ~format:"u" ~name ~children:empty_schema_l ~flag:(Schema.Flags.all [])
+      schema_struct ~format:"u" ~name ~children:empty_schema_l ~flag:Schema.Flags.none
     in
     (array_struct, schema_struct : col)
 
@@ -794,7 +792,7 @@ module Writer = struct
         ~format:"+s"
         ~name:""
         ~children:children_schemas
-        ~flag:(Schema.Flags.all [])
+        ~flag:Schema.Flags.none
     in
     if add_compact then Caml.Gc.compact ();
     C.write_file
