@@ -16,8 +16,8 @@
 open! Base
 
 module Reader : sig
-  type t
-  type 'v col_ = t -> (int -> 'v) * t
+  type t = string list
+  type 'v col_ = t -> (Wrapper.Table.t * int -> 'v) * t
   type ('a, 'b, 'c, 'v) col = ('a, 'b, 'c) Field.t_with_perm -> 'v col_
 
   val i64 : ('a, 'b, 'c, int) col
@@ -75,7 +75,8 @@ type 'a t =
   | Read of Reader.t
   | Write of 'a Writer.state
 
-type ('a, 'b, 'c) col = ('a, 'b, 'c) Field.t_with_perm -> 'b t -> (int -> 'c) * 'b t
+type ('a, 'b, 'c) col =
+  ('a, 'b, 'c) Field.t_with_perm -> 'b t -> (Wrapper.Table.t * int -> 'c) * 'b t
 
 val i64 : ('a, 'b, int) col
 val f64 : ('a, 'b, float) col
@@ -90,7 +91,7 @@ val date_opt : ('a, 'b, Core_kernel.Date.t option) col
 val time_ns_opt : ('a, 'b, Core_kernel.Time_ns.t option) col
 
 val read_write_fn
-  :  ('a t -> (int -> 'a) * 'a t)
+  :  ('a t -> (Wrapper.Table.t * int -> 'a) * 'a t)
   -> [ `read of string -> 'a list ]
      * [ `write of
          ?chunk_size:int -> ?compression:Compression.t -> string -> 'a list -> unit

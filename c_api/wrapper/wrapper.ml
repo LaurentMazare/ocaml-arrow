@@ -88,8 +88,7 @@ module Schema = struct
       in
       loop Ctypes.(p +@ 4) [] nfields)
 
-  let get reader =
-    let c_schema = C.ArrowSchema.get reader in
+  let of_c c_schema =
     Caml.Gc.finalise C.ArrowSchema.free c_schema;
     let rec loop c_schema =
       if Ctypes.is_null c_schema then failwith "Got a null schema";
@@ -108,21 +107,50 @@ module Schema = struct
     loop c_schema
 end
 
-module Reader = struct
-  type t = C.Reader.t
+module Table = struct
+  type t = C.Table.t
 
-  let read = C.Reader.read_file
-  let num_rows t = C.Reader.num_rows_file t |> Int64.to_int_exn
-  let close = C.Reader.close_file
-  let schema = Schema.get
+  let schema t = C.Table.schema t |> Schema.of_c
+  let num_rows t = C.Table.num_rows t |> Int64.to_int_exn
+end
 
-  let with_file filename ~f =
-    let t = read filename in
-    Exn.protect ~f:(fun () -> f t) ~finally:(fun () -> close t)
+module Parquet_reader = struct
+  let schema filename = C.Parquet_reader.schema filename |> Schema.of_c
+
+  let table filename ~column_idxs =
+    let column_idxs = Ctypes.CArray.of_list Ctypes.int column_idxs in
+    let table =
+      C.Parquet_reader.read_table
+        filename
+        (Ctypes.CArray.start column_idxs)
+        (Ctypes.CArray.length column_idxs)
+    in
+    Caml.Gc.finalise C.Table.free table;
+    table
+end
+
+module Feather_reader = struct
+  let schema filename = C.Feather_reader.schema filename |> Schema.of_c
+
+  let table filename ~column_idxs =
+    let column_idxs = Ctypes.CArray.of_list Ctypes.int column_idxs in
+    let table =
+      C.Feather_reader.read_table
+        filename
+        (Ctypes.CArray.start column_idxs)
+        (Ctypes.CArray.length column_idxs)
+    in
+    Caml.Gc.finalise C.Table.free table;
+    table
 end
 
 (* https://arrow.apache.org/docs/format/Columnar.html *)
 module Column = struct
+  type column =
+    [ `Index of int
+    | `Name of string
+    ]
+
   module Chunk = struct
     type t =
       { offset : int
@@ -166,14 +194,22 @@ module Column = struct
       | Timestamp -> 4
   end
 
-  let with_column reader dt ~column_idx ~f =
+  let with_column table dt ~column ~f =
     let n_chunks = Ctypes.CArray.make Ctypes.int 1 in
     let chunked_column =
-      C.chunked_column
-        reader
-        column_idx
-        (Ctypes.CArray.start n_chunks)
-        (Datatype.to_int dt)
+      match column with
+      | `Name column_name ->
+        C.Table.chunked_column_by_name
+          table
+          column_name
+          (Ctypes.CArray.start n_chunks)
+          (Datatype.to_int dt)
+      | `Index column_idx ->
+        C.Table.chunked_column
+          table
+          column_idx
+          (Ctypes.CArray.start n_chunks)
+          (Datatype.to_int dt)
     in
     let n_chunks = Ctypes.CArray.get n_chunks 0 in
     Exn.protect
@@ -204,11 +240,11 @@ module Column = struct
     in
     dst
 
-  let read_ba reader ~datatype ~kind ~ctype ~column_idx =
-    with_column reader datatype ~column_idx ~f:(of_chunks ~kind ~ctype)
+  let read_ba table ~datatype ~kind ~ctype ~column =
+    with_column table datatype ~column ~f:(of_chunks ~kind ~ctype)
 
-  let read_ba_opt reader ~datatype ~kind ~ctype ~column_idx =
-    with_column reader datatype ~column_idx ~f:(fun chunks ->
+  let read_ba_opt table ~datatype ~kind ~ctype ~column =
+    with_column table datatype ~column ~f:(fun chunks ->
         let num_rows = num_rows chunks in
         let dst = Bigarray.Array1.create kind C_layout num_rows in
         let valid = Valid.create_all_valid num_rows in
@@ -245,17 +281,15 @@ module Column = struct
   let read_i64_ba = read_ba ~datatype:Int64 ~kind:Int64 ~ctype:Ctypes.int64_t
   let read_i64_ba_opt = read_ba_opt ~datatype:Int64 ~kind:Int64 ~ctype:Ctypes.int64_t
 
-  let read_date reader ~column_idx =
-    let dst =
-      read_ba reader ~datatype:Date32 ~kind:Int32 ~ctype:Ctypes.int32_t ~column_idx
-    in
+  let read_date table ~column =
+    let dst = read_ba table ~datatype:Date32 ~kind:Int32 ~ctype:Ctypes.int32_t ~column in
     let num_rows = Bigarray.Array1.dim dst in
     Array.init num_rows ~f:(fun idx ->
         Core_kernel.Date.(add_days unix_epoch (Int32.to_int_exn dst.{idx})))
 
-  let read_date_opt reader ~column_idx =
+  let read_date_opt table ~column =
     let dst, valid =
-      read_ba_opt reader ~datatype:Date32 ~kind:Int32 ~ctype:Ctypes.int32_t ~column_idx
+      read_ba_opt table ~datatype:Date32 ~kind:Int32 ~ctype:Ctypes.int32_t ~column
     in
     let num_rows = Bigarray.Array1.dim dst in
     Array.init num_rows ~f:(fun idx ->
@@ -265,17 +299,17 @@ module Column = struct
           |> Option.some
         else None)
 
-  let read_time_ns reader ~column_idx =
+  let read_time_ns table ~column =
     let dst =
-      read_ba reader ~datatype:Timestamp ~kind:Int64 ~ctype:Ctypes.int64_t ~column_idx
+      read_ba table ~datatype:Timestamp ~kind:Int64 ~ctype:Ctypes.int64_t ~column
     in
     let num_rows = Bigarray.Array1.dim dst in
     Array.init num_rows ~f:(fun idx ->
         Core_kernel.Time_ns.of_int_ns_since_epoch (Int64.to_int_exn dst.{idx}))
 
-  let read_time_ns_opt reader ~column_idx =
+  let read_time_ns_opt table ~column =
     let dst, valid =
-      read_ba_opt reader ~datatype:Timestamp ~kind:Int64 ~ctype:Ctypes.int64_t ~column_idx
+      read_ba_opt table ~datatype:Timestamp ~kind:Int64 ~ctype:Ctypes.int64_t ~column
     in
     let num_rows = Bigarray.Array1.dim dst in
     Array.init num_rows ~f:(fun idx ->
@@ -288,8 +322,8 @@ module Column = struct
   let read_f64_ba = read_ba ~datatype:Float64 ~kind:Float64 ~ctype:Ctypes.double
   let read_f64_ba_opt = read_ba_opt ~datatype:Float64 ~kind:Float64 ~ctype:Ctypes.double
 
-  let read_utf8 reader ~column_idx =
-    with_column reader Utf8 ~column_idx ~f:(fun chunks ->
+  let read_utf8 table ~column =
+    with_column table Utf8 ~column ~f:(fun chunks ->
         let num_rows = num_rows chunks in
         let dst = Array.create "" ~len:num_rows in
         let _num_rows =
@@ -322,8 +356,8 @@ module Column = struct
         in
         dst)
 
-  let read_utf8_opt reader ~column_idx =
-    with_column reader Utf8 ~column_idx ~f:(fun chunks ->
+  let read_utf8_opt table ~column =
+    with_column table Utf8 ~column ~f:(fun chunks ->
         let num_rows = num_rows chunks in
         let dst = Array.create None ~len:num_rows in
         let _num_rows =
@@ -795,7 +829,12 @@ module Writer = struct
         ~flag:Schema.Flags.none
     in
     if add_compact then Caml.Gc.compact ();
-    C.write_file
+    let write_fn =
+      if String.is_suffix filename ~suffix:".feather"
+      then C.feather_write_file
+      else C.parquet_write_file
+    in
+    write_fn
       filename
       (Ctypes.addr array_struct)
       (Ctypes.addr schema_struct)

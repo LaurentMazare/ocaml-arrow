@@ -4,15 +4,6 @@ open! Ctypes
 module C (F : Cstubs.FOREIGN) = struct
   open! F
 
-  module Reader = struct
-    type t = unit ptr
-
-    let t : t typ = ptr void
-    let read_file = foreign "read_file" (string @-> returning t)
-    let close_file = foreign "close_file" (t @-> returning void)
-    let num_rows_file = foreign "num_rows_file" (t @-> returning int64_t)
-  end
-
   module ArrowSchema = struct
     type t = [ `schema ] structure
 
@@ -27,7 +18,6 @@ module C (F : Cstubs.FOREIGN) = struct
     let release = field t "release" (ptr void)
     let private_data = field t "private_data" (ptr void)
     let () = seal t
-    let get = foreign "get_schema" (Reader.t @-> returning (ptr t))
     let free = foreign "free_schema" (ptr t @-> returning void)
   end
 
@@ -48,17 +38,55 @@ module C (F : Cstubs.FOREIGN) = struct
     let () = seal t
   end
 
-  let chunked_column =
-    foreign
-      "chunked_column"
-      (Reader.t @-> int @-> ptr int @-> int @-> returning (ptr ArrowArray.t))
+  module Table = struct
+    type t = unit ptr
+
+    let t : t typ = ptr void
+    let num_rows = foreign "table_num_rows" (t @-> returning int64_t)
+    let schema = foreign "table_schema" (t @-> returning (ptr ArrowSchema.t))
+    let free = foreign "free_table" (t @-> returning void)
+
+    let chunked_column =
+      foreign
+        "table_chunked_column"
+        (t @-> int @-> ptr int @-> int @-> returning (ptr ArrowArray.t))
+
+    let chunked_column_by_name =
+      foreign
+        "table_chunked_column_by_name"
+        (t @-> string @-> ptr int @-> int @-> returning (ptr ArrowArray.t))
+  end
+
+  module Parquet_reader = struct
+    let schema = foreign "parquet_schema" (string @-> returning (ptr ArrowSchema.t))
+
+    let read_table =
+      foreign "parquet_read_table" (string @-> ptr int @-> int @-> returning Table.t)
+  end
+
+  module Feather_reader = struct
+    let schema = foreign "feather_schema" (string @-> returning (ptr ArrowSchema.t))
+
+    let read_table =
+      foreign "feather_read_table" (string @-> ptr int @-> int @-> returning Table.t)
+  end
 
   let free_chunked_column =
     foreign "free_chunked_column" (ptr ArrowArray.t @-> int @-> returning void)
 
-  let write_file =
+  let parquet_write_file =
     foreign
-      "write_file"
+      "parquet_write_file"
+      (string
+      @-> ptr ArrowArray.t
+      @-> ptr ArrowSchema.t
+      @-> int
+      @-> int
+      @-> returning void)
+
+  let feather_write_file =
+    foreign
+      "feather_write_file"
       (string
       @-> ptr ArrowArray.t
       @-> ptr ArrowSchema.t

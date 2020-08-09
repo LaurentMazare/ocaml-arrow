@@ -79,7 +79,8 @@ let () =
       }
     ]
   in
-  write "/tmp/abc.parquet" ts
+  write "/tmp/abc.parquet" ts;
+  write "/tmp/abc.feather" ts
 
 let () =
   let filename =
@@ -87,13 +88,10 @@ let () =
     | [| _exe; filename |] -> filename
     | _ -> Printf.failwithf "usage: %s file.parquet" Caml.Sys.argv.(0) ()
   in
-  Reader.with_file filename ~f:(fun reader ->
-      let num_rows = Reader.num_rows reader in
-      Stdio.printf "Rows: %d\n%!" num_rows;
-      Reader.schema reader
-      |> Schema.sexp_of_t
-      |> Sexp.to_string_hum
-      |> Stdio.printf "Read schema:\n%s\n%!");
+  let schema = Parquet_reader.schema filename in
+  Schema.sexp_of_t schema |> Sexp.to_string_hum |> Stdio.printf "Read schema:\n%s\n%!";
   let ts = read filename in
   List.iteri ts ~f:(fun i t ->
-      Stdio.printf "%d %s\n%!" i (sexp_of_t t |> Sexp.to_string_mach))
+      Stdio.printf "%d %s\n%!" i (sexp_of_t t |> Sexp.to_string_mach));
+  let schema = Feather_reader.schema "/tmp/foo.feather" in
+  Schema.sexp_of_t schema |> Sexp.to_string_hum |> Stdio.printf "Read schema:\n%s\n%!"

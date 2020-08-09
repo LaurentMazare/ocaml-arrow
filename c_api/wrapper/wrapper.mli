@@ -23,44 +23,56 @@ module Schema : sig
   [@@deriving sexp_of]
 end
 
-module Reader : sig
+module Table : sig
   type t
 
-  val read : string -> t
-  val close : t -> unit
   val num_rows : t -> int
   val schema : t -> Schema.t
-  val with_file : string -> f:(t -> 'a) -> 'a
+end
+
+module Parquet_reader : sig
+  val schema : string -> Schema.t
+  val table : string -> column_idxs:int list -> Table.t
+end
+
+module Feather_reader : sig
+  val schema : string -> Schema.t
+  val table : string -> column_idxs:int list -> Table.t
 end
 
 module Column : sig
+  type column =
+    [ `Index of int
+    | `Name of string
+    ]
+
   val read_i64_ba
-    :  Reader.t
-    -> column_idx:int
+    :  Table.t
+    -> column:column
     -> (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t
 
   val read_f64_ba
-    :  Reader.t
-    -> column_idx:int
+    :  Table.t
+    -> column:column
     -> (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t
 
-  val read_utf8 : Reader.t -> column_idx:int -> string array
-  val read_date : Reader.t -> column_idx:int -> Core_kernel.Date.t array
-  val read_time_ns : Reader.t -> column_idx:int -> Core_kernel.Time_ns.t array
+  val read_utf8 : Table.t -> column:column -> string array
+  val read_date : Table.t -> column:column -> Core_kernel.Date.t array
+  val read_time_ns : Table.t -> column:column -> Core_kernel.Time_ns.t array
 
   val read_i64_ba_opt
-    :  Reader.t
-    -> column_idx:int
+    :  Table.t
+    -> column:column
     -> (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t * Valid.t
 
   val read_f64_ba_opt
-    :  Reader.t
-    -> column_idx:int
+    :  Table.t
+    -> column:column
     -> (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t * Valid.t
 
-  val read_utf8_opt : Reader.t -> column_idx:int -> string option array
-  val read_date_opt : Reader.t -> column_idx:int -> Core_kernel.Date.t option array
-  val read_time_ns_opt : Reader.t -> column_idx:int -> Core_kernel.Time_ns.t option array
+  val read_utf8_opt : Table.t -> column:column -> string option array
+  val read_date_opt : Table.t -> column:column -> Core_kernel.Date.t option array
+  val read_time_ns_opt : Table.t -> column:column -> Core_kernel.Time_ns.t option array
 end
 
 module Writer : sig

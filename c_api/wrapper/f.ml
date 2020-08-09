@@ -1,109 +1,101 @@
 open Base
 
 module Reader = struct
-  module Reader = Wrapper.Reader
+  type t = string list (* the column names *)
 
-  type t =
-    { reader : Reader.t
-    ; column_ids : (string, int, String.comparator_witness) Map.t
-    }
-
-  type 'v col_ = t -> (int -> 'v) * t
+  type 'v col_ = t -> (Wrapper.Table.t * int -> 'v) * t
   type ('a, 'b, 'c, 'v) col = ('a, 'b, 'c) Field.t_with_perm -> 'v col_
 
-  let get_idx t field =
-    match Map.find t.column_ids (Field.name field) with
-    | Some idx -> idx
-    | None -> Printf.failwithf "cannot find column %s" (Field.name field) ()
-
-  let i64 field t =
-    let column_idx = get_idx t field in
-    let ba = Wrapper.Column.read_i64_ba t.reader ~column_idx in
-    let get i = Int64.to_int_exn ba.{i} in
-    get, t
-
-  let date field t =
-    let column_idx = get_idx t field in
-    let a = Wrapper.Column.read_date t.reader ~column_idx in
-    Array.get a, t
-
-  let time_ns field t =
-    let column_idx = get_idx t field in
-    let a = Wrapper.Column.read_time_ns t.reader ~column_idx in
-    Array.get a, t
-
-  let f64 field t =
-    let column_idx = get_idx t field in
-    let ba = Wrapper.Column.read_f64_ba t.reader ~column_idx in
-    let get i = ba.{i} in
-    get, t
-
-  let str field t =
-    let column_idx = get_idx t field in
-    let array = Wrapper.Column.read_utf8 t.reader ~column_idx in
-    let get i = array.(i) in
-    get, t
-
-  let stringable (type a) (module S : Stringable.S with type t = a) field t =
-    let column_idx = get_idx t field in
-    let array = Wrapper.Column.read_utf8 t.reader ~column_idx in
-    let get i = array.(i) |> S.of_string in
-    get, t
-
-  let i64_opt field t =
-    let column_idx = get_idx t field in
-    let ba, valid = Wrapper.Column.read_i64_ba_opt t.reader ~column_idx in
-    let get i = if Valid.get valid i then Some (Int64.to_int_exn ba.{i}) else None in
-    get, t
-
-  let date_opt field t =
-    let column_idx = get_idx t field in
-    let a = Wrapper.Column.read_date_opt t.reader ~column_idx in
-    Array.get a, t
-
-  let time_ns_opt field t =
-    let column_idx = get_idx t field in
-    let a = Wrapper.Column.read_time_ns_opt t.reader ~column_idx in
-    Array.get a, t
-
-  let f64_opt field t =
-    let column_idx = get_idx t field in
-    let ba, valid = Wrapper.Column.read_f64_ba_opt t.reader ~column_idx in
-    let get i = if Valid.get valid i then Some ba.{i} else None in
-    get, t
-
-  let str_opt field t =
-    let column_idx = get_idx t field in
-    let array = Wrapper.Column.read_utf8_opt t.reader ~column_idx in
-    let get i = array.(i) in
-    get, t
-
-  let stringable_opt (type a) (module S : Stringable.S with type t = a) field t =
-    let column_idx = get_idx t field in
-    let array = Wrapper.Column.read_utf8 t.reader ~column_idx in
-    let get i =
-      let a = array.(i) in
-      match S.of_string a with
-      | v -> Some v
-      | exception _ -> None
+  let with_memo ~get_col field_name t =
+    let cache_get = ref None in
+    let get (table, i) =
+      let get =
+        match !cache_get with
+        | Some get -> get
+        | None ->
+          let get = get_col table ~column:(`Name field_name) in
+          cache_get := Some get;
+          get
+      in
+      get i
     in
-    get, t
+    get, field_name :: t
+
+  let i64 field =
+    with_memo (Field.name field) ~get_col:(fun table ~column ->
+        let ba = Wrapper.Column.read_i64_ba table ~column in
+        fun i -> Int64.to_int_exn ba.{i})
+
+  let date field =
+    with_memo (Field.name field) ~get_col:(fun table ~column ->
+        let a = Wrapper.Column.read_date table ~column in
+        fun i -> a.(i))
+
+  let time_ns field =
+    with_memo (Field.name field) ~get_col:(fun table ~column ->
+        let a = Wrapper.Column.read_time_ns table ~column in
+        fun i -> a.(i))
+
+  let f64 field =
+    with_memo (Field.name field) ~get_col:(fun table ~column ->
+        let ba = Wrapper.Column.read_f64_ba table ~column in
+        fun i -> ba.{i})
+
+  let str field =
+    with_memo (Field.name field) ~get_col:(fun table ~column ->
+        let a = Wrapper.Column.read_utf8 table ~column in
+        fun i -> a.(i))
+
+  let stringable (type a) (module S : Stringable.S with type t = a) field =
+    with_memo (Field.name field) ~get_col:(fun table ~column ->
+        let a = Wrapper.Column.read_utf8 table ~column in
+        fun i -> a.(i) |> S.of_string)
+
+  let i64_opt field =
+    with_memo (Field.name field) ~get_col:(fun table ~column ->
+        let ba, valid = Wrapper.Column.read_i64_ba_opt table ~column in
+        fun i -> if Valid.get valid i then Some (Int64.to_int_exn ba.{i}) else None)
+
+  let date_opt field =
+    with_memo (Field.name field) ~get_col:(fun table ~column ->
+        let a = Wrapper.Column.read_date_opt table ~column in
+        fun i -> a.(i))
+
+  let time_ns_opt field =
+    with_memo (Field.name field) ~get_col:(fun table ~column ->
+        let a = Wrapper.Column.read_time_ns_opt table ~column in
+        fun i -> a.(i))
+
+  let f64_opt field =
+    with_memo (Field.name field) ~get_col:(fun table ~column ->
+        let ba, valid = Wrapper.Column.read_f64_ba_opt table ~column in
+        fun i -> if Valid.get valid i then Some ba.{i} else None)
+
+  let str_opt field =
+    with_memo (Field.name field) ~get_col:(fun table ~column ->
+        let a = Wrapper.Column.read_utf8_opt table ~column in
+        fun i -> a.(i))
+
+  let stringable_opt (type a) (module S : Stringable.S with type t = a) field =
+    with_memo (Field.name field) ~get_col:(fun table ~column ->
+        let array = Wrapper.Column.read_utf8_opt table ~column in
+        fun i -> Option.map array.(i) ~f:S.of_string)
 
   let map col ~f field t =
     let get, t = col field t in
     (fun i -> get i |> f), t
 
   let read creator filename =
-    Reader.with_file filename ~f:(fun reader ->
-        let num_rows = Wrapper.Reader.num_rows reader in
-        let schema = Wrapper.Reader.schema reader in
-        let column_ids =
-          schema.children
-          |> List.mapi ~f:(fun i schema -> schema.Wrapper.Schema.name, i)
-          |> Map.of_alist_exn (module String)
-        in
-        let get_one, _t = creator { reader; column_ids } in
-        List.init num_rows ~f:get_one)
+    let get_one, col_names = creator [] in
+    let schema = File_reader.schema filename in
+    let col_names = Set.of_list (module String) col_names in
+    let column_idxs =
+      List.filter_mapi schema.children ~f:(fun i schema ->
+          let col_name = schema.Wrapper.Schema.name in
+          if Set.mem col_names col_name then Some i else None)
+    in
+    let table = File_reader.table filename ~column_idxs in
+    Wrapper.Table.num_rows table |> List.init ~f:(fun i -> get_one (table, i))
 end
 
 module Writer = struct
@@ -236,7 +228,8 @@ type 'a t =
   | Read of Reader.t
   | Write of 'a Writer.state
 
-type ('a, 'b, 'c) col = ('a, 'b, 'c) Field.t_with_perm -> 'b t -> (int -> 'c) * 'b t
+type ('a, 'b, 'c) col =
+  ('a, 'b, 'c) Field.t_with_perm -> 'b t -> (Wrapper.Table.t * int -> 'c) * 'b t
 
 let i64 field t =
   match t with
@@ -339,17 +332,12 @@ let time_ns_opt field t =
 
 let read_write_fn creator =
   let read filename =
-    Wrapper.Reader.with_file filename ~f:(fun reader ->
-        let num_rows = Wrapper.Reader.num_rows reader in
-        let schema = Wrapper.Reader.schema reader in
-        let column_ids =
-          schema.children
-          |> List.mapi ~f:(fun i schema -> schema.Wrapper.Schema.name, i)
-          |> Map.of_alist_exn (module String)
-        in
-        let reader = { Reader.reader; column_ids } in
-        let get_one, _t = creator (Read reader) in
-        List.init num_rows ~f:get_one)
+    Reader.read
+      (fun r ->
+        match creator (Read r) with
+        | get_one, Read col_names -> get_one, col_names
+        | _, Write _ -> assert false)
+      filename
   in
   let write ?chunk_size ?compression filename values =
     let length = List.length values in

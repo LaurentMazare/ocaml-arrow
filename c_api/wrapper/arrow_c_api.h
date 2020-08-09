@@ -7,28 +7,34 @@
 #include<arrow/c/bridge.h>
 #include<arrow/api.h>
 #include<arrow/io/api.h>
+#include "arrow/ipc/feather.h"
 #include<parquet/arrow/reader.h>
 #include<parquet/arrow/writer.h>
 #include<parquet/exception.h>
 
-typedef std::shared_ptr<parquet::arrow::FileReader> FileReaderPtr;
+typedef std::shared_ptr<arrow::Table> TablePtr;
 extern "C" {
 #else
-typedef void FileReaderPtr;
+typedef void TablePtr;
 #endif
 
-struct ArrowSchema *get_schema(FileReaderPtr*);
+struct ArrowSchema *feather_schema(char*);
+struct ArrowSchema *parquet_schema(char*);
 struct ArrowSchema *alloc_schema(char*, char*);
 void free_schema(struct ArrowSchema*);
 
-FileReaderPtr *read_file(char *filename);
-void close_file(FileReaderPtr*);
-int64_t num_rows_file(FileReaderPtr*);
+TablePtr *parquet_read_table(char *, int *col_idxs, int ncols);
+TablePtr *feather_read_table(char *, int *col_idxs, int ncols);
+int64_t table_num_rows(TablePtr*);
+struct ArrowSchema *table_schema(TablePtr*);
+void free_table(TablePtr*);
 
-struct ArrowArray *chunked_column(FileReaderPtr *reader, int column_idx, int *nchunks, int dt);
+struct ArrowArray *table_chunked_column(TablePtr *reader, int column_idx, int *nchunks, int dt);
+struct ArrowArray *table_chunked_column_by_name(TablePtr *reader, char *column_name, int *nchunks, int dt);
 void free_chunked_column(struct ArrowArray *, int nchunks);
 
-void write_file(char *filename, struct ArrowArray *, struct ArrowSchema *, int chunk_size, int compression);
+void parquet_write_file(char *filename, struct ArrowArray *, struct ArrowSchema *, int chunk_size, int compression);
+void feather_write_file(char *filename, struct ArrowArray *, struct ArrowSchema *, int chunk_size, int compression);
 #ifdef __cplusplus
 }
 #endif
