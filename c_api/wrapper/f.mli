@@ -26,6 +26,7 @@ module Reader : sig
   val stringable : (module Stringable.S with type t = 'd) -> ('a, 'b, 'c, 'd) col
   val date : ('a, 'b, 'c, Core_kernel.Date.t) col
   val time_ns : ('a, 'b, 'c, Core_kernel.Time_ns.t) col
+  val bool : ('a, 'b, 'c, bool) col
   val i64_opt : ('a, 'b, 'c, int option) col
   val f64_opt : ('a, 'b, 'c, float option) col
   val str_opt : ('a, 'b, 'c, string option) col
@@ -47,6 +48,7 @@ module Writer : sig
   val i64 : ('a, 'b, int) col
   val f64 : ('a, 'b, float) col
   val str : ('a, 'b, string) col
+  val bool : ('a, 'b, bool) col
 
   val stringable
     :  (module Stringable.S with type t = 'd)
@@ -81,6 +83,7 @@ type ('a, 'b, 'c) col =
 val i64 : ('a, 'b, int) col
 val f64 : ('a, 'b, float) col
 val str : ('a, 'b, string) col
+val bool : ('a, 'b, bool) col
 val stringable : (module Stringable.S with type t = 'd) -> ('a, 'b, 'd) col
 val date : ('a, 'b, Core_kernel.Date.t) col
 val time_ns : ('a, 'b, Core_kernel.Time_ns.t) col

@@ -82,6 +82,10 @@ struct ArrowArray *table_chunked_column_(TablePtr *table, char *column_name, int
       expected_type = arrow::Type::TIMESTAMP;
       expected_type_str = "timestamp";
     }
+    else if (dt == 5) {
+      expected_type = arrow::Type::BOOL;
+      expected_type_str = "bool";
+    }
     else {
       char err[128];
       snprintf(err, 127, "unknown datatype %d", dt);
@@ -273,6 +277,56 @@ TablePtr *feather_read_table(char *filename, int *col_idxs, int ncols) {
     st = reader.ValueOrDie()->Read(std::vector<int>(col_idxs, col_idxs+ncols), &table);
   else
     st = reader.ValueOrDie()->Read(&table);
+  if (!st.ok()) {
+    caml_failwith(st.ToString().c_str());
+  }
+  return new std::shared_ptr<arrow::Table>(std::move(table));
+}
+
+TablePtr *csv_read_table(char *filename) {
+  auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());
+  if (!file.ok()) {
+    caml_failwith(file.status().ToString().c_str());
+  }
+  std::shared_ptr<arrow::io::RandomAccessFile> infile = file.ValueOrDie();
+
+  auto reader =
+    arrow::csv::TableReader::Make(arrow::default_memory_pool(),
+                                  infile,
+                                  arrow::csv::ReadOptions::Defaults(),
+                                  arrow::csv::ParseOptions::Defaults(),
+                                  arrow::csv::ConvertOptions::Defaults());
+
+  if (!reader.ok()) {
+    caml_failwith(reader.status().ToString().c_str());
+  }
+  auto table = reader.ValueOrDie()->Read();
+  if (!table.ok()) {
+    caml_failwith(table.status().ToString().c_str());
+  }
+  return new std::shared_ptr<arrow::Table>(std::move(table.ValueOrDie()));
+}
+
+TablePtr *json_read_table(char *filename) {
+  arrow::Status st;
+  auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());
+  if (!file.ok()) {
+    caml_failwith(file.status().ToString().c_str());
+  }
+  std::shared_ptr<arrow::io::RandomAccessFile> infile = file.ValueOrDie();
+
+  std::shared_ptr<arrow::json::TableReader> reader;
+  st = arrow::json::TableReader::Make(arrow::default_memory_pool(),
+                                      infile,
+                                      arrow::json::ReadOptions::Defaults(),
+                                      arrow::json::ParseOptions::Defaults(),
+                                      &reader);
+
+  if (!st.ok()) {
+    caml_failwith(st.ToString().c_str());
+  }
+  std::shared_ptr<arrow::Table> table;
+  st = reader->Read(&table);
   if (!st.ok()) {
     caml_failwith(st.ToString().c_str());
   }

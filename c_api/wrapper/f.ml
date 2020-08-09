@@ -41,6 +41,11 @@ module Reader = struct
         let ba = Wrapper.Column.read_f64_ba table ~column in
         fun i -> ba.{i})
 
+  let bool field =
+    with_memo (Field.name field) ~get_col:(fun table ~column ->
+        let bs = Wrapper.Column.read_bitset table ~column in
+        fun i -> Valid.get bs i)
+
   let str field =
     with_memo (Field.name field) ~get_col:(fun table ~column ->
         let a = Wrapper.Column.read_utf8 table ~column in
@@ -130,6 +135,15 @@ module Writer = struct
     let col () = Writer.float64_ba ba ~name:(Field.name field) in
     let set idx t =
       ba.{idx} <- Field.get field t;
+      acc_set idx t
+    in
+    length, col :: acc_col, set
+
+  let bool (length, acc_col, acc_set) field =
+    let bs = Valid.create_all_valid length in
+    let col () = Writer.bitset bs ~name:(Field.name field) in
+    let set idx t =
+      Valid.set bs idx (Field.get field t);
       acc_set idx t
     in
     length, col :: acc_col, set
@@ -256,6 +270,15 @@ let f64 field t =
     get, Read reader
   | Write writer ->
     let writer = Writer.f64 writer field in
+    (fun _ -> assert false), Write writer
+
+let bool field t =
+  match t with
+  | Read reader ->
+    let get, reader = Reader.bool field reader in
+    get, Read reader
+  | Write writer ->
+    let writer = Writer.bool writer field in
     (fun _ -> assert false), Write writer
 
 let f64_opt field t =

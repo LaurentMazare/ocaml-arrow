@@ -112,6 +112,17 @@ module Table = struct
 
   let schema t = C.Table.schema t |> Schema.of_c
   let num_rows t = C.Table.num_rows t |> Int64.to_int_exn
+  let free = C.Table.free
+
+  let read_csv filename =
+    let t = C.csv_read_table filename in
+    Caml.Gc.finalise free t;
+    t
+
+  let read_json filename =
+    let t = C.json_read_table filename in
+    Caml.Gc.finalise free t;
+    t
 
   let write_parquet
       ?(chunk_size = 1024 * 1024)
@@ -141,7 +152,7 @@ module Parquet_reader = struct
         (Ctypes.CArray.start column_idxs)
         (Ctypes.CArray.length column_idxs)
     in
-    Caml.Gc.finalise C.Table.free table;
+    Caml.Gc.finalise Table.free table;
     table
 end
 
@@ -201,6 +212,7 @@ module Column = struct
       | Utf8
       | Date32
       | Timestamp
+      | Bool
 
     let to_int = function
       | Int64 -> 0
@@ -208,6 +220,7 @@ module Column = struct
       | Utf8 -> 2
       | Date32 -> 3
       | Timestamp -> 4
+      | Bool -> 5
   end
 
   let with_column table dt ~column ~f =
@@ -293,6 +306,27 @@ module Column = struct
               dst_offset + chunk.length)
         in
         dst, valid)
+
+  let read_bitset table ~column =
+    with_column table Bool ~column ~f:(fun chunks ->
+        let num_rows = num_rows chunks in
+        let bitset = Valid.create_all_valid num_rows in
+        let _num_rows =
+          List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
+              let chunk = Chunk.create chunk ~fail_on_null:true in
+              let ptr_ = Chunk.primitive_data_ptr chunk ~ctype:Ctypes.uint8_t in
+              for bidx = 0 to ((chunk.length + 7) / 8) - 1 do
+                let byte = Ctypes.(!@(ptr_ +@ bidx) |> Unsigned.UInt8.to_int) in
+                let max_idx = min 8 (chunk.length - (8 * bidx)) in
+                let valid_offset = dst_offset + (8 * bidx) in
+                for idx = 0 to max_idx - 1 do
+                  let v = byte land (1 lsl idx) <> 0 in
+                  Valid.set bitset (valid_offset + idx) v
+                done
+              done;
+              dst_offset + chunk.length)
+        in
+        bitset)
 
   let read_i64_ba = read_ba ~datatype:Int64 ~kind:Int64 ~ctype:Ctypes.int64_t
   let read_i64_ba_opt = read_ba_opt ~datatype:Int64 ~kind:Int64 ~ctype:Ctypes.int64_t
@@ -691,6 +725,26 @@ module Writer = struct
     in
     let schema_struct =
       schema_struct ~format:"g" ~name ~children:empty_schema_l ~flag:Schema.Flags.none
+    in
+    (array_struct, schema_struct : col)
+
+  let bitset valid ~name =
+    let array = Valid.bigarray valid in
+    let buffers =
+      Ctypes.CArray.of_list
+        (Ctypes.ptr Ctypes.void)
+        [ Ctypes.null; Ctypes.bigarray_start Array1 array |> Ctypes.to_voidp ]
+    in
+    let array_struct =
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~null_count:0
+        ~finalise:(fun _ -> use_value array)
+        ~length:(Valid.length valid)
+    in
+    let schema_struct =
+      schema_struct ~format:"b" ~name ~children:empty_schema_l ~flag:Schema.Flags.none
     in
     (array_struct, schema_struct : col)
 

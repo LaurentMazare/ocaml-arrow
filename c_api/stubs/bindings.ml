@@ -77,6 +77,9 @@ module C (F : Cstubs.FOREIGN) = struct
       foreign "feather_read_table" (string @-> ptr int @-> int @-> returning Table.t)
   end
 
+  let csv_read_table = foreign "csv_read_table" (string @-> returning Table.t)
+  let json_read_table = foreign "json_read_table" (string @-> returning Table.t)
+
   let free_chunked_column =
     foreign "free_chunked_column" (ptr ArrowArray.t @-> int @-> returning void)
 

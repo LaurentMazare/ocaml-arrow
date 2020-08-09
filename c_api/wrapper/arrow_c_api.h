@@ -6,8 +6,10 @@
 #ifdef __cplusplus
 #include<arrow/c/bridge.h>
 #include<arrow/api.h>
+#include<arrow/csv/api.h>
 #include<arrow/io/api.h>
-#include "arrow/ipc/feather.h"
+#include<arrow/json/api.h>
+#include<arrow/ipc/feather.h>
 #include<parquet/arrow/reader.h>
 #include<parquet/arrow/writer.h>
 #include<parquet/exception.h>
@@ -25,6 +27,8 @@ void free_schema(struct ArrowSchema*);
 
 TablePtr *parquet_read_table(char *, int *col_idxs, int ncols);
 TablePtr *feather_read_table(char *, int *col_idxs, int ncols);
+TablePtr *csv_read_table(char *);
+TablePtr *json_read_table(char *);
 int64_t table_num_rows(TablePtr*);
 struct ArrowSchema *table_schema(TablePtr*);
 void free_table(TablePtr*);
