@@ -28,6 +28,8 @@ module Table : sig
 
   val num_rows : t -> int
   val schema : t -> Schema.t
+  val write_parquet : ?chunk_size:int -> ?compression:Compression.t -> t -> string -> unit
+  val write_feather : ?chunk_size:int -> ?compression:Compression.t -> t -> string -> unit
 end
 
 module Parquet_reader : sig

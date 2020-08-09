@@ -6,6 +6,7 @@ module Feather_reader = Wrapper.Feather_reader
 module Schema = Wrapper.Schema
 module Parquet_reader = Wrapper.Parquet_reader
 module File_reader = File_reader
+module Table = Wrapper.Table
 module Valid = Valid
 module Wrapper = Wrapper
 module Writer = Wrapper.Writer

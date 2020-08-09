@@ -112,6 +112,22 @@ module Table = struct
 
   let schema t = C.Table.schema t |> Schema.of_c
   let num_rows t = C.Table.num_rows t |> Int64.to_int_exn
+
+  let write_parquet
+      ?(chunk_size = 1024 * 1024)
+      ?(compression = Compression.Uncompressed)
+      t
+      filename
+    =
+    C.Table.parquet_write filename t chunk_size (Compression.to_cint compression)
+
+  let write_feather
+      ?(chunk_size = 1024 * 1024)
+      ?(compression = Compression.Uncompressed)
+      t
+      filename
+    =
+    C.Table.feather_write filename t chunk_size (Compression.to_cint compression)
 end
 
 module Parquet_reader = struct

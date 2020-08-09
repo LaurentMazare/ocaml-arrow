@@ -55,6 +55,12 @@ module C (F : Cstubs.FOREIGN) = struct
       foreign
         "table_chunked_column_by_name"
         (t @-> string @-> ptr int @-> int @-> returning (ptr ArrowArray.t))
+
+    let parquet_write =
+      foreign "parquet_write_table" (string @-> t @-> int @-> int @-> returning void)
+
+    let feather_write =
+      foreign "feather_write_table" (string @-> t @-> int @-> int @-> returning void)
   end
 
   module Parquet_reader = struct

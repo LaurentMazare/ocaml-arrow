@@ -201,6 +201,39 @@ void feather_write_file(char *filename, struct ArrowArray *array, struct ArrowSc
   }
 }
 
+void parquet_write_table(char *filename, TablePtr *table, int chunk_size, int compression) {
+  auto file = arrow::io::FileOutputStream::Open(filename);
+  if (!file.ok()) {
+    caml_failwith(file.status().ToString().c_str());
+  }
+  auto outfile = file.ValueOrDie();
+  arrow::Compression::type compression_ = compression_of_int(compression);
+  arrow::Status st = parquet::arrow::WriteTable(**table,
+                                                arrow::default_memory_pool(),
+                                                outfile,
+                                                chunk_size,
+                                                parquet::WriterProperties::Builder().compression(compression_)->build(),
+                                                parquet::ArrowWriterProperties::Builder().enable_deprecated_int96_timestamps()->build());
+  if (!st.ok()) {
+    caml_failwith(st.ToString().c_str());
+  }
+}
+
+void feather_write_table(char *filename, TablePtr *table, int chunk_size, int compression) {
+  auto file = arrow::io::FileOutputStream::Open(filename);
+  if (!file.ok()) {
+    caml_failwith(file.status().ToString().c_str());
+  }
+  auto outfile = file.ValueOrDie();
+  struct arrow::ipc::feather::WriteProperties wp;
+  wp.compression = compression_of_int(compression);
+  wp.chunksize = chunk_size;
+  arrow::Status st = arrow::ipc::feather::WriteTable(**table, &(*outfile), wp);
+  if (!st.ok()) {
+    caml_failwith(st.ToString().c_str());
+  }
+}
+
 TablePtr *parquet_read_table(char *filename, int *col_idxs, int ncols) {
   arrow::Status st;
   auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());
