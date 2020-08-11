@@ -15,9 +15,8 @@ let python_read_and_rewrite ~filename =
     ; Printf.sprintf "df = pd.read_parquet('%s')" filename
     ; "for col in df.columns:"
     ; "  print(''.join(['1' if b else '0' for b in list(df[col])]))"
-      (* ; Printf.sprintf "os.remove('%s')" filename
-         ; Printf.sprintf "df.to_parquet('%s')" filename
-      *)
+    ; Printf.sprintf "os.remove('%s')" filename
+    ; Printf.sprintf "df.to_parquet('%s')" filename
     ];
   Out_channel.close out_channel;
   let lines = In_channel.input_lines in_channel in

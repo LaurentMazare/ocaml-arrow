@@ -142,7 +142,15 @@ module Table = struct
 end
 
 module Parquet_reader = struct
-  let schema filename = C.Parquet_reader.schema filename |> Schema.of_c
+  let schema_and_num_rows filename =
+    let num_rows = Ctypes.CArray.make Ctypes.int64_t 1 in
+    let schema =
+      C.Parquet_reader.schema filename (Ctypes.CArray.start num_rows) |> Schema.of_c
+    in
+    let num_rows = Ctypes.CArray.get num_rows 0 |> Int64.to_int_exn in
+    schema, num_rows
+
+  let schema filename = schema_and_num_rows filename |> fst
 
   let table filename ~column_idxs =
     let column_idxs = Ctypes.CArray.of_list Ctypes.int column_idxs in

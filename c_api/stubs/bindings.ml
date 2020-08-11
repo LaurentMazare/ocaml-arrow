@@ -64,7 +64,8 @@ module C (F : Cstubs.FOREIGN) = struct
   end
 
   module Parquet_reader = struct
-    let schema = foreign "parquet_schema" (string @-> returning (ptr ArrowSchema.t))
+    let schema =
+      foreign "parquet_schema" (string @-> ptr int64_t @-> returning (ptr ArrowSchema.t))
 
     let read_table =
       foreign "parquet_read_table" (string @-> ptr int @-> int @-> returning Table.t)

@@ -21,7 +21,7 @@ struct ArrowSchema *feather_schema(char *filename) {
   return out;
 }
 
-struct ArrowSchema *parquet_schema(char *filename) {
+struct ArrowSchema *parquet_schema(char *filename, int64_t *num_rows) {
   arrow::Status st;
   auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());
   if (!file.ok()) {
@@ -38,6 +38,7 @@ struct ArrowSchema *parquet_schema(char *filename) {
   if (!st.ok()) {
     caml_failwith(st.ToString().c_str());
   }
+  *num_rows = reader->parquet_reader()->metadata()->num_rows();
   struct ArrowSchema *out = (struct ArrowSchema*)malloc(sizeof *out);
   arrow::ExportSchema(*schema, out);
   return out;

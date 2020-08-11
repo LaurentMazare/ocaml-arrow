@@ -36,6 +36,7 @@ end
 
 module Parquet_reader : sig
   val schema : string -> Schema.t
+  val schema_and_num_rows : string -> Schema.t * int
   val table : string -> column_idxs:int list -> Table.t
 end
 
