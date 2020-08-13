@@ -26,6 +26,7 @@ end
 module Table : sig
   type t
 
+  val slice : t -> offset:int -> length:int -> t
   val num_rows : t -> int
   val schema : t -> Schema.t
   val read_csv : string -> t
@@ -37,12 +38,18 @@ end
 module Parquet_reader : sig
   val schema : string -> Schema.t
   val schema_and_num_rows : string -> Schema.t * int
-  val table : string -> column_idxs:int list -> Table.t
+
+  val table
+    :  ?only_first:int
+    -> ?use_threads:bool
+    -> ?column_idxs:int list
+    -> string
+    -> Table.t
 end
 
 module Feather_reader : sig
   val schema : string -> Schema.t
-  val table : string -> column_idxs:int list -> Table.t
+  val table : ?column_idxs:int list -> string -> Table.t
 end
 
 module Column : sig

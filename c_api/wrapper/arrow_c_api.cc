@@ -239,7 +239,7 @@ void feather_write_table(char *filename, TablePtr *table, int chunk_size, int co
   }
 }
 
-TablePtr *parquet_read_table(char *filename, int *col_idxs, int ncols) {
+TablePtr *parquet_read_table(char *filename, int *col_idxs, int ncols, int use_threads, int64_t only_first) {
   arrow::Status st;
   auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());
   if (!file.ok()) {
@@ -251,13 +251,52 @@ TablePtr *parquet_read_table(char *filename, int *col_idxs, int ncols) {
   if (!st.ok()) {
     caml_failwith(st.ToString().c_str());
   }
+  if (use_threads >= 0) reader->set_use_threads(use_threads);
   std::shared_ptr<arrow::Table> table;
-  if (ncols)
-    st = reader->ReadTable(std::vector<int>(col_idxs, col_idxs+ncols), &table);
-  else
-    st = reader->ReadTable(&table);
-  if (!st.ok()) {
-    caml_failwith(st.ToString().c_str());
+  if (only_first < 0) {
+    if (ncols)
+      st = reader->ReadTable(std::vector<int>(col_idxs, col_idxs+ncols), &table);
+    else
+      st = reader->ReadTable(&table);
+    if (!st.ok()) {
+      caml_failwith(st.ToString().c_str());
+    }
+  } else {
+    std::vector<std::shared_ptr<arrow::RecordBatch>> batches;
+    for (int row_group_idx = 0; row_group_idx < reader->num_row_groups(); ++row_group_idx) {
+      std::unique_ptr<arrow::RecordBatchReader> batch_reader;
+      if (ncols)
+        st = reader->GetRecordBatchReader({row_group_idx}, std::vector<int>(col_idxs, col_idxs+ncols), &batch_reader);
+      else
+        st = reader->GetRecordBatchReader({row_group_idx}, &batch_reader);
+      if (!st.ok()) {
+        caml_failwith(st.ToString().c_str());
+      }
+      std::shared_ptr<arrow::RecordBatch> batch;
+      while (only_first > 0) {
+        st = batch_reader->ReadNext(&batch);
+        if (batch == nullptr) break;
+        if (!st.ok()) {
+          caml_failwith(st.ToString().c_str());
+        }
+        if (only_first <= batch->num_rows()) {
+          batches.push_back(std::move(batch->Slice(0, only_first)));
+          only_first = 0;
+          break;
+        }
+        else {
+          only_first -= batch->num_rows();
+          batches.push_back(std::move(batch));
+        }
+      }
+      if (only_first <= 0)
+        break;
+    }
+    auto table_ = arrow::Table::FromRecordBatches(batches);
+    if (!table_.ok()) {
+      caml_failwith(table_.status().ToString().c_str());
+    }
+    table = std::move(table_.ValueOrDie());
   }
   return new std::shared_ptr<arrow::Table>(std::move(table));
 }
@@ -332,6 +371,13 @@ TablePtr *json_read_table(char *filename) {
     caml_failwith(st.ToString().c_str());
   }
   return new std::shared_ptr<arrow::Table>(std::move(table));
+}
+
+TablePtr *table_slice(TablePtr *table, int64_t offset, int64_t length) {
+  if (offset < 0) caml_invalid_argument("negative offset");
+  if (length < 0) caml_invalid_argument("negative length");
+  auto slice = (*table)->Slice(offset, length);
+  return new std::shared_ptr<arrow::Table>(std::move(slice));
 }
 
 int64_t table_num_rows(TablePtr *table) {

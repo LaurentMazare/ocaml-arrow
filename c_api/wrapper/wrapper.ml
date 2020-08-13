@@ -112,17 +112,16 @@ module Table = struct
 
   let schema t = C.Table.schema t |> Schema.of_c
   let num_rows t = C.Table.num_rows t |> Int64.to_int_exn
-  let free = C.Table.free
 
-  let read_csv filename =
-    let t = C.csv_read_table filename in
-    Caml.Gc.finalise free t;
+  let with_free t =
+    Caml.Gc.finalise C.Table.free t;
     t
 
-  let read_json filename =
-    let t = C.json_read_table filename in
-    Caml.Gc.finalise free t;
-    t
+  let slice t ~offset ~length =
+    C.Table.slice t (Int64.of_int offset) (Int64.of_int length) |> with_free
+
+  let read_csv filename = C.csv_read_table filename |> with_free
+  let read_json filename = C.json_read_table filename |> with_free
 
   let write_parquet
       ?(chunk_size = 1024 * 1024)
@@ -152,31 +151,33 @@ module Parquet_reader = struct
 
   let schema filename = schema_and_num_rows filename |> fst
 
-  let table filename ~column_idxs =
-    let column_idxs = Ctypes.CArray.of_list Ctypes.int column_idxs in
-    let table =
-      C.Parquet_reader.read_table
-        filename
-        (Ctypes.CArray.start column_idxs)
-        (Ctypes.CArray.length column_idxs)
+  let table ?(only_first = -1) ?use_threads ?(column_idxs = []) filename =
+    let use_threads =
+      match use_threads with
+      | None -> -1
+      | Some false -> 0
+      | Some true -> 1
     in
-    Caml.Gc.finalise Table.free table;
-    table
+    let column_idxs = Ctypes.CArray.of_list Ctypes.int column_idxs in
+    C.Parquet_reader.read_table
+      filename
+      (Ctypes.CArray.start column_idxs)
+      (Ctypes.CArray.length column_idxs)
+      use_threads
+      (Int64.of_int only_first)
+    |> Table.with_free
 end
 
 module Feather_reader = struct
   let schema filename = C.Feather_reader.schema filename |> Schema.of_c
 
-  let table filename ~column_idxs =
+  let table ?(column_idxs = []) filename =
     let column_idxs = Ctypes.CArray.of_list Ctypes.int column_idxs in
-    let table =
-      C.Feather_reader.read_table
-        filename
-        (Ctypes.CArray.start column_idxs)
-        (Ctypes.CArray.length column_idxs)
-    in
-    Caml.Gc.finalise C.Table.free table;
-    table
+    C.Feather_reader.read_table
+      filename
+      (Ctypes.CArray.start column_idxs)
+      (Ctypes.CArray.length column_idxs)
+    |> Table.with_free
 end
 
 (* https://arrow.apache.org/docs/format/Columnar.html *)

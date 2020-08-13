@@ -42,6 +42,7 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = unit ptr
 
     let t : t typ = ptr void
+    let slice = foreign "table_slice" (t @-> int64_t @-> int64_t @-> returning t)
     let num_rows = foreign "table_num_rows" (t @-> returning int64_t)
     let schema = foreign "table_schema" (t @-> returning (ptr ArrowSchema.t))
     let free = foreign "free_table" (t @-> returning void)
@@ -68,7 +69,9 @@ module C (F : Cstubs.FOREIGN) = struct
       foreign "parquet_schema" (string @-> ptr int64_t @-> returning (ptr ArrowSchema.t))
 
     let read_table =
-      foreign "parquet_read_table" (string @-> ptr int @-> int @-> returning Table.t)
+      foreign
+        "parquet_read_table"
+        (string @-> ptr int @-> int @-> int @-> int64_t @-> returning Table.t)
   end
 
   module Feather_reader = struct

@@ -25,10 +25,11 @@ struct ArrowSchema *parquet_schema(char*, int64_t *num_rows);
 struct ArrowSchema *alloc_schema(char*, char*);
 void free_schema(struct ArrowSchema*);
 
-TablePtr *parquet_read_table(char *, int *col_idxs, int ncols);
+TablePtr *parquet_read_table(char *, int *col_idxs, int ncols, int use_threads, int64_t only_first);
 TablePtr *feather_read_table(char *, int *col_idxs, int ncols);
 TablePtr *csv_read_table(char *);
 TablePtr *json_read_table(char *);
+TablePtr *table_slice(TablePtr*, int64_t, int64_t);
 int64_t table_num_rows(TablePtr*);
 struct ArrowSchema *table_schema(TablePtr*);
 void free_table(TablePtr*);
