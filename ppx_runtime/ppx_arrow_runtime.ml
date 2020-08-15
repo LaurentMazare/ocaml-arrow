@@ -25,7 +25,7 @@ module Int_col : Col_intf with type elem = int = struct
   let set t idx v = t.{idx} <- Int64.of_int v
 end
 
-module Int_opt_col : Col_intf with type elem = int option = struct
+module Int_option_col : Col_intf with type elem = int option = struct
   type t = (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t * Valid.t
   type elem = int option
 
@@ -59,7 +59,7 @@ module Float_col : Col_intf with type elem = float = struct
   let set t idx v = t.{idx} <- v
 end
 
-module Float_opt_col : Col_intf with type elem = float option = struct
+module Float_option_col : Col_intf with type elem = float option = struct
   type t = (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t * Valid.t
   type elem = float option
 

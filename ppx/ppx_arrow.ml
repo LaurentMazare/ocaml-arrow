@@ -1,6 +1,41 @@
-open! Base
-open! Ppxlib
-open! Ast_builder.Default
+open Base
+open Ppxlib
+open Ast_builder.Default
+
+let raise_errorf ~loc fmt = Location.raise_errorf ~loc (Caml.( ^^ ) "ppx_arrow: " fmt)
+
+let floatable =
+  Attribute.declare
+    "arrow.floatable"
+    Attribute.Context.label_declaration
+    Ast_pattern.(pstr nil)
+    (fun x -> x)
+
+let intable =
+  Attribute.declare
+    "arrow.intable"
+    Attribute.Context.label_declaration
+    Ast_pattern.(pstr nil)
+    (fun x -> x)
+
+let stringable =
+  Attribute.declare
+    "arrow.stringable"
+    Attribute.Context.label_declaration
+    Ast_pattern.(pstr nil)
+    (fun x -> x)
+
+let attribute field ~loc =
+  let intable = Attribute.get intable field in
+  let floatable = Attribute.get floatable field in
+  let stringable = Attribute.get stringable field in
+  match intable, floatable, stringable with
+  | Some _, None, None -> Some `intable
+  | None, Some _, None -> Some `floatable
+  | None, None, Some _ -> Some `stringable
+  | None, None, None -> None
+  | _ ->
+    raise_errorf "cannot have more than one of intable, floatable, or stringable" ~loc
 
 let lident ~loc str = Loc.make ~loc (Lident str)
 
@@ -11,12 +46,27 @@ let fresh_label =
     let label = Printf.sprintf "_lbl_%d" !counter in
     ppat_var (Loc.make ~loc label) ~loc, pexp_ident (lident ~loc label) ~loc
 
-let raise_errorf ~loc fmt = Location.raise_errorf ~loc (Caml.( ^^ ) "ppx_arrow: " fmt)
-
 let closure_of_fn (fn : expression -> expression) ~loc : expression =
   let loc = { loc with loc_ghost = true } in
   let arg_pat, arg_expr = fresh_label ~loc in
   pexp_fun Nolabel ~loc None arg_pat (fn arg_expr)
+
+let open_runtime expr ~loc =
+  [%expr
+    let open! Ppx_arrow_runtime in
+    [%e expr]]
+
+let fn_from_field_module field ~fn_name ~loc =
+  let ident =
+    match field.pld_type.ptyp_desc with
+    | Ptyp_constr ({ loc = _; txt }, []) ->
+      (match txt with
+      | Lident _ -> lident ~loc fn_name
+      | Ldot (modl, _) -> Ldot (modl, fn_name) |> Loc.make ~loc
+      | Lapply _ -> raise_errorf ~loc "'%s' apply not supported" (Longident.name txt))
+    | _ -> raise_errorf ~loc "'%a' not supported" Pprintast.core_type field.pld_type
+  in
+  pexp_ident ident ~loc
 
 (* Generated function names. *)
 (* TODO: maybe generate some to_table/of_table functions? *)
@@ -78,24 +128,37 @@ end = struct
     in
     pexp_tuple ~loc exprs
 
+  let extract_ident ident ~loc =
+    let rec loop = function
+      | Lident ident -> [ ident ]
+      | Ldot (modl, ident) -> ident :: loop modl
+      | Lapply _ -> raise_errorf ~loc "'%s' apply not supported" (Longident.name ident)
+    in
+    loop ident
+
   let runtime_fn field ~fn_name ~loc =
     let modl =
-      match field.pld_type.ptyp_desc with
-      | Ptyp_constr ({ loc = _; txt }, []) ->
-        (match txt with
-        | Lident ident -> String.capitalize ident ^ "_col"
-        | Ldot (Lident modl, "t") -> modl ^ "_col"
-        | Ldot _ | Lapply _ ->
-          raise_errorf ~loc "'%s' base type not supported" (Longident.name txt))
-      | Ptyp_constr
-          ( { txt = Lident "option"; _ }
-          , [ { ptyp_desc = Ptyp_constr ({ txt; _ }, []); _ } ] ) ->
-        (match txt with
-        | Lident ident -> String.capitalize ident ^ "_option_col"
-        | Ldot (Lident modl, "t") -> modl ^ "_option_col"
-        | Ldot _ | Lapply _ ->
-          raise_errorf ~loc "'%s' option type not supported" (Longident.name txt))
-      | _ -> raise_errorf ~loc "'%a' not supported" Pprintast.core_type field.pld_type
+      match attribute field ~loc with
+      | Some `intable -> "Int_col"
+      | Some `floatable -> "Float_col"
+      | Some `stringable -> "String_col"
+      | None ->
+        (match field.pld_type.ptyp_desc with
+        | Ptyp_constr ({ loc = _; txt }, []) ->
+          (match extract_ident txt ~loc with
+          | [] -> assert false
+          | [ ident ] -> String.capitalize ident ^ "_col"
+          | "t" :: modl :: _ -> modl ^ "_col"
+          | _ -> raise_errorf ~loc "'%s' base type not supported" (Longident.name txt))
+        | Ptyp_constr
+            ( { txt = Lident "option"; _ }
+            , [ { ptyp_desc = Ptyp_constr ({ txt; _ }, []); _ } ] ) ->
+          (match extract_ident txt ~loc with
+          | [] -> assert false
+          | [ ident ] -> String.capitalize ident ^ "_option_col"
+          | "t" :: modl :: _ -> modl ^ "_option_col"
+          | _ -> raise_errorf ~loc "'%s' option type not supported" (Longident.name txt))
+        | _ -> raise_errorf ~loc "'%a' not supported" Pprintast.core_type field.pld_type)
     in
     pexp_ident (Loc.make (Ldot (Lident modl, fn_name)) ~loc) ~loc
 
@@ -104,6 +167,19 @@ end = struct
       List.map fields ~f:(fun field ->
           let get = runtime_fn field ~fn_name:"get" ~loc in
           let expr = [%expr [%e get] [%e evar field.pld_name.txt ~loc] idx] in
+          let expr =
+            match attribute field ~loc with
+            | Some `stringable ->
+              let of_string = fn_from_field_module field ~fn_name:"of_string" ~loc in
+              pexp_apply of_string ~loc [ Nolabel, expr ]
+            | Some `floatable ->
+              let of_float = fn_from_field_module field ~fn_name:"of_float" ~loc in
+              pexp_apply of_float ~loc [ Nolabel, expr ]
+            | Some `intable ->
+              let of_int = fn_from_field_module field ~fn_name:"of_int_exn" ~loc in
+              pexp_apply of_int ~loc [ Nolabel, expr ]
+            | None -> expr
+          in
           lident field.pld_name.txt ~loc, expr)
     in
     let pat str = ppat_var (Loc.make ~loc str) ~loc in
@@ -127,6 +203,7 @@ end = struct
              ~pat:(pat "table")
              ~expr:[%expr Arrow_c_api.File_reader.table [%e args]]
          ]
+    |> open_runtime ~loc
 
   let write_fields fields ~loc args =
     let pat str = ppat_var (Loc.make ~loc str) ~loc in
@@ -145,6 +222,19 @@ end = struct
               [%expr [%e args].(__arrow_idx)]
               (lident ~loc field.pld_name.txt)
               ~loc
+          in
+          let value =
+            match attribute field ~loc with
+            | Some `stringable ->
+              let to_string = fn_from_field_module field ~fn_name:"to_string" ~loc in
+              pexp_apply to_string ~loc [ Nolabel, value ]
+            | Some `floatable ->
+              let to_float = fn_from_field_module field ~fn_name:"to_float" ~loc in
+              pexp_apply to_float ~loc [ Nolabel, value ]
+            | Some `intable ->
+              let to_int = fn_from_field_module field ~fn_name:"to_int_exn" ~loc in
+              pexp_apply to_int ~loc [ Nolabel, value ]
+            | None -> value
           in
           [%expr [%e set] [%e array] __arrow_idx [%e value]])
     in
@@ -169,10 +259,14 @@ end = struct
                  ~loc
                  ~pat:(pat "__arrow_len")
                  ~expr:[%expr Caml.Array.length [%e args]]
-             ])
+             ]
+        |> open_runtime ~loc)
 
   let gen kind =
-    Deriving.Generator.make_noarg (fun ~loc ~path:_ (rec_flag, tds) ->
+    let attributes =
+      [ Attribute.T intable; Attribute.T floatable; Attribute.T stringable ]
+    in
+    Deriving.Generator.make_noarg ~attributes (fun ~loc ~path:_ (rec_flag, tds) ->
         let mk_pat mk_ =
           let pats =
             List.map tds ~f:(fun td ->
