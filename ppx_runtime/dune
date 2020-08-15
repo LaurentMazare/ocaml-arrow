@@ -1,0 +1,5 @@
+(library
+  (name ppx_arrow_runtime)
+  (public_name arrow.ppx_runtime)
+  (libraries arrow.c_api base core_kernel)
+  (preprocess (pps ppx_expect ppx_sexp_conv)))

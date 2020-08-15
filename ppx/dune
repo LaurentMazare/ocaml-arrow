@@ -1,0 +1,7 @@
+(library
+ (name ppx_arrow)
+ (public_name arrow.ppx)
+ (kind ppx_deriver)
+ (ppx_runtime_libraries arrow.ppx_runtime arrow.c_api base)
+ (libraries base ppxlib)
+ (preprocess (pps ppxlib.metaquot)))
