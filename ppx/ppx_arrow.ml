@@ -87,6 +87,14 @@ end = struct
         | Ldot (Lident modl, "t") -> modl ^ "_col"
         | Ldot _ | Lapply _ ->
           raise_errorf ~loc "'%s' base type not supported" (Longident.name txt))
+      | Ptyp_constr
+          ( { txt = Lident "option"; _ }
+          , [ { ptyp_desc = Ptyp_constr ({ txt; _ }, []); _ } ] ) ->
+        (match txt with
+        | Lident ident -> String.capitalize ident ^ "_option_col"
+        | Ldot (Lident modl, "t") -> modl ^ "_option_col"
+        | Ldot _ | Lapply _ ->
+          raise_errorf ~loc "'%s' option type not supported" (Longident.name txt))
       | _ -> raise_errorf ~loc "'%a' not supported" Pprintast.core_type field.pld_type
     in
     pexp_ident (Loc.make (Ldot (Lident modl, fn_name)) ~loc) ~loc

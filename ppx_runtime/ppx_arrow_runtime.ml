@@ -1,6 +1,7 @@
 open! Base
 module C = Arrow_c_api.Column
 module W = Arrow_c_api.Writer
+module Valid = Arrow_c_api.Valid
 
 module type Col_intf = sig
   type t
@@ -24,6 +25,29 @@ module Int_col : Col_intf with type elem = int = struct
   let set t idx v = t.{idx} <- Int64.of_int v
 end
 
+module Int_opt_col : Col_intf with type elem = int option = struct
+  type t = (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t * Valid.t
+  type elem = int option
+
+  let init len =
+    let ba = Bigarray.Array1.create Int64 C_layout len in
+    let v = Valid.create_all_valid len in
+    ba, v
+
+  let of_table table name = C.read_i64_ba_opt table ~column:(`Name name)
+  let writer_col (ba, valid) name = W.int64_ba_opt ba valid ~name
+
+  let get (ba, valid) idx =
+    if Valid.get valid idx then Some (ba.{idx} |> Int64.to_int_exn) else None
+
+  let set (ba, valid) idx v =
+    match v with
+    | None -> Valid.set valid idx false
+    | Some v ->
+      Valid.set valid idx true;
+      ba.{idx} <- Int64.of_int v
+end
+
 module Float_col : Col_intf with type elem = float = struct
   type t = (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t
   type elem = float
@@ -35,9 +59,28 @@ module Float_col : Col_intf with type elem = float = struct
   let set t idx v = t.{idx} <- v
 end
 
-module Bool_col : Col_intf with type elem = bool = struct
-  module Valid = Arrow_c_api.Valid
+module Float_opt_col : Col_intf with type elem = float option = struct
+  type t = (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t * Valid.t
+  type elem = float option
 
+  let init len =
+    let ba = Bigarray.Array1.create Float64 C_layout len in
+    let v = Valid.create_all_valid len in
+    ba, v
+
+  let of_table table name = C.read_f64_ba_opt table ~column:(`Name name)
+  let writer_col (ba, valid) name = W.float64_ba_opt ba valid ~name
+  let get (ba, valid) idx = if Valid.get valid idx then Some ba.{idx} else None
+
+  let set (ba, valid) idx v =
+    match v with
+    | None -> Valid.set valid idx false
+    | Some v ->
+      Valid.set valid idx true;
+      ba.{idx} <- v
+end
+
+module Bool_col : Col_intf with type elem = bool = struct
   type t = Valid.t
   type elem = bool
 
