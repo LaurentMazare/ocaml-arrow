@@ -72,6 +72,7 @@ module Column : sig
   val read_date : Table.t -> column:column -> Core_kernel.Date.t array
   val read_time_ns : Table.t -> column:column -> Core_kernel.Time_ns.t array
   val read_bitset : Table.t -> column:column -> Valid.t
+  val read_bitset_opt : Table.t -> column:column -> Valid.t * Valid.t
 
   val read_i64_ba_opt
     :  Table.t
@@ -120,6 +121,7 @@ module Writer : sig
   val time_ns : Core_kernel.Time_ns.t array -> name:string -> col
   val time_ns_opt : Core_kernel.Time_ns.t option array -> name:string -> col
   val bitset : Valid.t -> name:string -> col
+  val bitset_opt : Valid.t -> valid:Valid.t -> name:string -> col
 
   val write
     :  ?chunk_size:int

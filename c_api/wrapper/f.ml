@@ -81,6 +81,11 @@ module Reader = struct
         let a = Wrapper.Column.read_utf8_opt table ~column in
         fun i -> a.(i))
 
+  let bool_opt field =
+    with_memo (Field.name field) ~get_col:(fun table ~column ->
+        let bs, valid = Wrapper.Column.read_bitset_opt table ~column in
+        fun i -> if Valid.get valid i then Some (Valid.get bs i) else None)
+
   let stringable_opt (type a) (module S : Stringable.S with type t = a) field =
     with_memo (Field.name field) ~get_col:(fun table ~column ->
         let array = Wrapper.Column.read_utf8_opt table ~column in
@@ -144,6 +149,18 @@ module Writer = struct
     let col () = Writer.bitset bs ~name:(Field.name field) in
     let set idx t =
       Valid.set bs idx (Field.get field t);
+      acc_set idx t
+    in
+    length, col :: acc_col, set
+
+  let bool_opt (length, acc_col, acc_set) field =
+    let bs = Valid.create_all_valid length in
+    let valid = Valid.create_all_valid length in
+    let col () = Writer.bitset_opt bs ~valid ~name:(Field.name field) in
+    let set idx t =
+      (match Field.get field t with
+      | Some v -> Valid.set bs idx v
+      | None -> Valid.set valid idx false);
       acc_set idx t
     in
     length, col :: acc_col, set
@@ -351,6 +368,15 @@ let time_ns_opt field t =
     get, Read reader
   | Write writer ->
     let writer = Writer.time_ns_opt writer field in
+    (fun _ -> assert false), Write writer
+
+let bool_opt field t =
+  match t with
+  | Read reader ->
+    let get, reader = Reader.bool_opt field reader in
+    get, Read reader
+  | Write writer ->
+    let writer = Writer.bool_opt writer field in
     (fun _ -> assert false), Write writer
 
 let read_write_fn creator =

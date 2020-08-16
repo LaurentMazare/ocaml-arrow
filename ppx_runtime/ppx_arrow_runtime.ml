@@ -91,6 +91,33 @@ module Bool_col : Col_intf with type elem = bool = struct
   let set = Valid.set
 end
 
+module Bool_option_col : Col_intf with type elem = bool option = struct
+  type t =
+    { content : Valid.t
+    ; valid : Valid.t
+    }
+
+  type elem = bool option
+
+  let init len =
+    { content = Valid.create_all_valid len; valid = Valid.create_all_valid len }
+
+  let of_table table name =
+    let content, valid = C.read_bitset_opt table ~column:(`Name name) in
+    { content; valid }
+
+  let writer_col { content; valid } name = W.bitset_opt content ~valid ~name
+
+  let get { content; valid } idx =
+    if Valid.get valid idx then Some (Valid.get content idx) else None
+
+  let set { valid; content } idx = function
+    | None -> Valid.set valid idx false
+    | Some v ->
+      Valid.set content idx v;
+      Valid.set valid idx true
+end
+
 module String_col : Col_intf with type elem = string = struct
   type t = string array
   type elem = string

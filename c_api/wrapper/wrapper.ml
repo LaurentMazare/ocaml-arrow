@@ -337,6 +337,47 @@ module Column = struct
         in
         bitset)
 
+  let read_bitset_opt table ~column =
+    with_column table Bool ~column ~f:(fun chunks ->
+        let num_rows = num_rows chunks in
+        let bitset = Valid.create_all_valid num_rows in
+        let valid = Valid.create_all_valid num_rows in
+        let _num_rows =
+          List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
+              let chunk = Chunk.create chunk ~fail_on_null:true in
+              let ptr_ = Chunk.primitive_data_ptr chunk ~ctype:Ctypes.uint8_t in
+              for bidx = 0 to ((chunk.length + 7) / 8) - 1 do
+                let byte = Ctypes.(!@(ptr_ +@ bidx) |> Unsigned.UInt8.to_int) in
+                let max_idx = min 8 (chunk.length - (8 * bidx)) in
+                let valid_offset = dst_offset + (8 * bidx) in
+                for idx = 0 to max_idx - 1 do
+                  let v = byte land (1 lsl idx) <> 0 in
+                  Valid.set bitset (valid_offset + idx) v
+                done
+              done;
+              if chunk.null_count <> 0
+              then (
+                let valid_ptr =
+                  match chunk.buffers with
+                  | bitmap :: _ -> Ctypes.(from_voidp uint8_t bitmap)
+                  | _ -> assert false
+                in
+                (* TODO: optimize with some shift operations. *)
+                for bidx = 0 to ((chunk.length + 7) / 8) - 1 do
+                  let byte = Ctypes.(!@(valid_ptr +@ bidx) |> Unsigned.UInt8.to_int) in
+                  if byte <> 255
+                  then (
+                    let max_idx = min 8 (chunk.length - (8 * bidx)) in
+                    let valid_offset = dst_offset + (8 * bidx) in
+                    for idx = 0 to max_idx - 1 do
+                      let v = byte land (1 lsl idx) <> 0 in
+                      Valid.set valid (valid_offset + idx) v
+                    done)
+                done);
+              dst_offset + chunk.length)
+        in
+        bitset, valid)
+
   let read_i64_ba = read_ba ~datatype:Int64 ~kind:Int64 ~ctype:Ctypes.int64_t
   let read_i64_ba_opt = read_ba_opt ~datatype:Int64 ~kind:Int64 ~ctype:Ctypes.int64_t
 
@@ -779,6 +820,35 @@ module Writer = struct
     let schema_struct =
       schema_struct
         ~format:"g"
+        ~name
+        ~children:empty_schema_l
+        ~flag:Schema.Flags.nullable_
+    in
+    (array_struct, schema_struct : col)
+
+  let bitset_opt content ~valid ~name =
+    if Valid.length content <> Valid.length valid then failwith "incoherent lengths";
+    let array = Valid.bigarray content in
+    let buffers =
+      Ctypes.CArray.of_list
+        (Ctypes.ptr Ctypes.void)
+        [ Ctypes.bigarray_start Array1 (Valid.bigarray valid) |> Ctypes.to_voidp
+        ; Ctypes.bigarray_start Array1 array |> Ctypes.to_voidp
+        ]
+    in
+    let array_struct =
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~null_count:(Valid.num_false valid)
+        ~finalise:(fun _ ->
+          use_value array;
+          use_value valid)
+        ~length:(Valid.length content)
+    in
+    let schema_struct =
+      schema_struct
+        ~format:"b"
         ~name
         ~children:empty_schema_l
         ~flag:Schema.Flags.nullable_
