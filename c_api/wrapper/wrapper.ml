@@ -344,7 +344,7 @@ module Column = struct
         let valid = Valid.create_all_valid num_rows in
         let _num_rows =
           List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
-              let chunk = Chunk.create chunk ~fail_on_null:true in
+              let chunk = Chunk.create chunk ~fail_on_null:false in
               let ptr_ = Chunk.primitive_data_ptr chunk ~ctype:Ctypes.uint8_t in
               for bidx = 0 to ((chunk.length + 7) / 8) - 1 do
                 let byte = Ctypes.(!@(ptr_ +@ bidx) |> Unsigned.UInt8.to_int) in
