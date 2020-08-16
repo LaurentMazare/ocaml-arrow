@@ -25,14 +25,26 @@ let stringable =
     Ast_pattern.(pstr nil)
     (fun x -> x)
 
+module Attr = struct
+  type t =
+    { kind : [ `intable | `stringable | `floatable ]
+    ; is_option : bool
+    }
+end
+
 let attribute field ~loc =
   let intable = Attribute.get intable field in
   let floatable = Attribute.get floatable field in
   let stringable = Attribute.get stringable field in
+  let is_option =
+    match field.pld_type.ptyp_desc with
+    | Ptyp_constr ({ txt = Lident "option"; _ }, [ _ ]) -> true
+    | _ -> false
+  in
   match intable, floatable, stringable with
-  | Some _, None, None -> Some `intable
-  | None, Some _, None -> Some `floatable
-  | None, None, Some _ -> Some `stringable
+  | Some _, None, None -> Some { Attr.kind = `intable; is_option }
+  | None, Some _, None -> Some { Attr.kind = `floatable; is_option }
+  | None, None, Some _ -> Some { Attr.kind = `stringable; is_option }
   | None, None, None -> None
   | _ ->
     raise_errorf "cannot have more than one of intable, floatable, or stringable" ~loc
@@ -56,15 +68,23 @@ let open_runtime expr ~loc =
     let open! Ppx_arrow_runtime in
     [%e expr]]
 
+(* If a field has type [A.B.t] return [A.B.fn_name] as an expr. *)
 let fn_from_field_module field ~fn_name ~loc =
   let ident =
     match field.pld_type.ptyp_desc with
+    | Ptyp_constr
+        ({ txt = Lident "option"; _ }, [ { ptyp_desc = Ptyp_constr ({ txt; _ }, []); _ } ])
     | Ptyp_constr ({ loc = _; txt }, []) ->
       (match txt with
       | Lident _ -> lident ~loc fn_name
       | Ldot (modl, _) -> Ldot (modl, fn_name) |> Loc.make ~loc
       | Lapply _ -> raise_errorf ~loc "'%s' apply not supported" (Longident.name txt))
-    | _ -> raise_errorf ~loc "'%a' not supported" Pprintast.core_type field.pld_type
+    | _ ->
+      raise_errorf
+        ~loc
+        "cannot extract module name from '%a'"
+        Pprintast.core_type
+        field.pld_type
   in
   pexp_ident ident ~loc
 
@@ -139,9 +159,12 @@ end = struct
   let runtime_fn field ~fn_name ~loc =
     let modl =
       match attribute field ~loc with
-      | Some `intable -> "Int_col"
-      | Some `floatable -> "Float_col"
-      | Some `stringable -> "String_col"
+      | Some { kind = `intable; is_option = false } -> "Int_col"
+      | Some { kind = `intable; is_option = true } -> "Int_option_col"
+      | Some { kind = `floatable; is_option = false } -> "Float_col"
+      | Some { kind = `floatable; is_option = true } -> "Float_option_col"
+      | Some { kind = `stringable; is_option = false } -> "String_col"
+      | Some { kind = `stringable; is_option = true } -> "String_option_col"
       | None ->
         (match field.pld_type.ptyp_desc with
         | Ptyp_constr ({ loc = _; txt }, []) ->
@@ -167,17 +190,20 @@ end = struct
       List.map fields ~f:(fun field ->
           let get = runtime_fn field ~fn_name:"get" ~loc in
           let expr = [%expr [%e get] [%e evar field.pld_name.txt ~loc] idx] in
+          let apply_fn ~fn_name ~is_option =
+            let fn = fn_from_field_module field ~fn_name ~loc in
+            if is_option
+            then [%expr Option.map ~f:[%e fn] [%e expr]]
+            else pexp_apply fn ~loc [ Nolabel, expr ]
+          in
           let expr =
             match attribute field ~loc with
-            | Some `stringable ->
-              let of_string = fn_from_field_module field ~fn_name:"of_string" ~loc in
-              pexp_apply of_string ~loc [ Nolabel, expr ]
-            | Some `floatable ->
-              let of_float = fn_from_field_module field ~fn_name:"of_float" ~loc in
-              pexp_apply of_float ~loc [ Nolabel, expr ]
-            | Some `intable ->
-              let of_int = fn_from_field_module field ~fn_name:"of_int_exn" ~loc in
-              pexp_apply of_int ~loc [ Nolabel, expr ]
+            | Some { kind = `stringable; is_option } ->
+              apply_fn ~fn_name:"of_string" ~is_option
+            | Some { kind = `floatable; is_option } ->
+              apply_fn ~fn_name:"of_float" ~is_option
+            | Some { kind = `intable; is_option } ->
+              apply_fn ~fn_name:"of_int_exn" ~is_option
             | None -> expr
           in
           lident field.pld_name.txt ~loc, expr)
@@ -223,17 +249,20 @@ end = struct
               (lident ~loc field.pld_name.txt)
               ~loc
           in
+          let apply_fn ~fn_name ~is_option =
+            let fn = fn_from_field_module field ~fn_name ~loc in
+            if is_option
+            then [%expr Option.map ~f:[%e fn] [%e value]]
+            else pexp_apply fn ~loc [ Nolabel, value ]
+          in
           let value =
             match attribute field ~loc with
-            | Some `stringable ->
-              let to_string = fn_from_field_module field ~fn_name:"to_string" ~loc in
-              pexp_apply to_string ~loc [ Nolabel, value ]
-            | Some `floatable ->
-              let to_float = fn_from_field_module field ~fn_name:"to_float" ~loc in
-              pexp_apply to_float ~loc [ Nolabel, value ]
-            | Some `intable ->
-              let to_int = fn_from_field_module field ~fn_name:"to_int_exn" ~loc in
-              pexp_apply to_int ~loc [ Nolabel, value ]
+            | Some { kind = `stringable; is_option } ->
+              apply_fn ~fn_name:"to_string" ~is_option
+            | Some { kind = `floatable; is_option } ->
+              apply_fn ~fn_name:"to_float" ~is_option
+            | Some { kind = `intable; is_option } ->
+              apply_fn ~fn_name:"to_int_exn" ~is_option
             | None -> value
           in
           [%expr [%e set] [%e array] __arrow_idx [%e value]])
