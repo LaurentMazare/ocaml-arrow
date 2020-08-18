@@ -155,6 +155,18 @@ arrow::Compression::type compression_of_int(int compression) {
   return compression_;
 }
 
+TablePtr *create_table(struct ArrowArray *array, struct ArrowSchema *schema) {
+  auto record_batch = arrow::ImportRecordBatch(array, schema);
+  if (!record_batch.ok()) {
+    caml_failwith(record_batch.status().ToString().c_str());
+  }
+  auto table = arrow::Table::FromRecordBatches({record_batch.ValueOrDie()});
+  if (!table.ok()) {
+    caml_failwith(table.status().ToString().c_str());
+  }
+  return new std::shared_ptr<arrow::Table>(std::move(table.ValueOrDie()));
+}
+
 void parquet_write_file(char *filename, struct ArrowArray *array, struct ArrowSchema *schema, int chunk_size, int compression) {
   auto file = arrow::io::FileOutputStream::Open(filename);
   if (!file.ok()) {

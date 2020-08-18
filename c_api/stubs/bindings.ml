@@ -62,6 +62,9 @@ module C (F : Cstubs.FOREIGN) = struct
 
     let feather_write =
       foreign "feather_write_table" (string @-> t @-> int @-> int @-> returning void)
+
+    let create =
+      foreign "create_table" (ptr ArrowArray.t @-> ptr ArrowSchema.t @-> returning t)
   end
 
   module Parquet_reader = struct

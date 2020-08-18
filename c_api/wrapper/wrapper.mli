@@ -129,4 +129,6 @@ module Writer : sig
     -> string
     -> cols:col list
     -> unit
+
+  val create_table : cols:col list -> Table.t
 end

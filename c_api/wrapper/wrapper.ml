@@ -195,11 +195,17 @@ module Column = struct
       ; null_count : int
       }
 
-    let create chunk ~fail_on_null =
+    let create chunk ~fail_on_null ~fail_on_offset =
       let null_count = Ctypes.getf chunk C.ArrowArray.null_count |> Int64.to_int_exn in
       if fail_on_null && null_count <> 0
       then Printf.failwithf "expected no null item but got %d" null_count ();
       let offset = Ctypes.getf chunk C.ArrowArray.offset |> Int64.to_int_exn in
+      if fail_on_offset && offset <> 0
+      then
+        Printf.failwithf
+          "offsets are not supported for this column type, got %d"
+          offset
+          ();
       let n_buffers = Ctypes.getf chunk C.ArrowArray.n_buffers |> Int64.to_int_exn in
       let buffers = Ctypes.getf chunk C.ArrowArray.buffers in
       let buffers = List.init n_buffers ~f:(fun i -> Ctypes.(!@(buffers +@ i))) in
@@ -269,7 +275,7 @@ module Column = struct
     let dst = Bigarray.Array1.create kind C_layout num_rows in
     let _num_rows =
       List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
-          let chunk = Chunk.create chunk ~fail_on_null:true in
+          let chunk = Chunk.create chunk ~fail_on_null:true ~fail_on_offset:false in
           let ptr = Chunk.primitive_data_ptr chunk ~ctype in
           let dst = Bigarray.Array1.sub dst dst_offset chunk.length in
           let src = Ctypes.bigarray_of_ptr Ctypes.array1 chunk.length kind ptr in
@@ -288,7 +294,7 @@ module Column = struct
         let valid = Valid.create_all_valid num_rows in
         let _num_rows =
           List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
-              let chunk = Chunk.create chunk ~fail_on_null:false in
+              let chunk = Chunk.create chunk ~fail_on_null:false ~fail_on_offset:true in
               let ptr = Chunk.primitive_data_ptr chunk ~ctype in
               let dst = Bigarray.Array1.sub dst dst_offset chunk.length in
               let src = Ctypes.bigarray_of_ptr Ctypes.array1 chunk.length kind ptr in
@@ -322,7 +328,7 @@ module Column = struct
         let bitset = Valid.create_all_valid num_rows in
         let _num_rows =
           List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
-              let chunk = Chunk.create chunk ~fail_on_null:true in
+              let chunk = Chunk.create chunk ~fail_on_null:true ~fail_on_offset:true in
               let ptr_ = Chunk.primitive_data_ptr chunk ~ctype:Ctypes.uint8_t in
               for bidx = 0 to ((chunk.length + 7) / 8) - 1 do
                 let byte = Ctypes.(!@(ptr_ +@ bidx) |> Unsigned.UInt8.to_int) in
@@ -344,7 +350,7 @@ module Column = struct
         let valid = Valid.create_all_valid num_rows in
         let _num_rows =
           List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
-              let chunk = Chunk.create chunk ~fail_on_null:false in
+              let chunk = Chunk.create chunk ~fail_on_null:false ~fail_on_offset:true in
               let ptr_ = Chunk.primitive_data_ptr chunk ~ctype:Ctypes.uint8_t in
               for bidx = 0 to ((chunk.length + 7) / 8) - 1 do
                 let byte = Ctypes.(!@(ptr_ +@ bidx) |> Unsigned.UInt8.to_int) in
@@ -428,7 +434,7 @@ module Column = struct
         let dst = Array.create "" ~len:num_rows in
         let _num_rows =
           List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
-              let chunk = Chunk.create chunk ~fail_on_null:true in
+              let chunk = Chunk.create chunk ~fail_on_null:true ~fail_on_offset:false in
               (* The first array is for the (optional) bitmap.
                  The second array contains the offsets, using int32 for the normal string
                  arrays (int64 for large strings).
@@ -462,7 +468,7 @@ module Column = struct
         let dst = Array.create None ~len:num_rows in
         let _num_rows =
           List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
-              let chunk = Chunk.create chunk ~fail_on_null:false in
+              let chunk = Chunk.create chunk ~fail_on_null:false ~fail_on_offset:true in
               (* The first array is for the (optional) valid bitmap.
                  The second array contains the offsets, using int32 for the normal string
                  arrays (int64 for large strings).
@@ -990,4 +996,42 @@ module Writer = struct
       chunk_size
       (Compression.to_cint compression);
     use_value cols
+
+  let create_table ~cols =
+    let children_arrays, children_schemas = List.unzip cols in
+    let num_rows =
+      match children_arrays with
+      | [] -> 0
+      | array :: _ -> Ctypes.getf array C.ArrowArray.length |> Int64.to_int_exn
+    in
+    let children_arrays =
+      List.map children_arrays ~f:Ctypes.addr
+      |> Ctypes.CArray.of_list (Ctypes.ptr C.ArrowArray.t)
+    in
+    let children_schemas =
+      List.map children_schemas ~f:Ctypes.addr
+      |> Ctypes.CArray.of_list (Ctypes.ptr C.ArrowSchema.t)
+    in
+    let array_struct =
+      array_struct
+        ~finalise:ignore
+        ~length:num_rows
+        ~null_count:0
+        ~buffers:single_null_buffer
+        ~children:children_arrays
+    in
+    let schema_struct =
+      schema_struct
+        ~format:"+s"
+        ~name:""
+        ~children:children_schemas
+        ~flag:Schema.Flags.none
+    in
+    if add_compact then Caml.Gc.compact ();
+    let table =
+      C.Table.create (Ctypes.addr array_struct) (Ctypes.addr schema_struct)
+      |> Table.with_free
+    in
+    use_value cols;
+    table
 end

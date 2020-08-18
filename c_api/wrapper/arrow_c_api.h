@@ -38,6 +38,7 @@ struct ArrowArray *table_chunked_column(TablePtr *reader, int column_idx, int *n
 struct ArrowArray *table_chunked_column_by_name(TablePtr *reader, char *column_name, int *nchunks, int dt);
 void free_chunked_column(struct ArrowArray *, int nchunks);
 
+TablePtr *create_table(struct ArrowArray *array, struct ArrowSchema *schema);
 void parquet_write_file(char *filename, struct ArrowArray *, struct ArrowSchema *, int chunk_size, int compression);
 void feather_write_file(char *filename, struct ArrowArray *, struct ArrowSchema *, int chunk_size, int compression);
 void parquet_write_table(char *filename, TablePtr *table, int chunk_size, int compression);

@@ -108,3 +108,33 @@ let%expect_test _ =
     ~f:(fun (len, chunk_size) -> test len ~chunk_size)
     [ 16, 32; 32, 32; 32, 31; 32, 11; 32, 16; 69, 32; 69, 27 ];
   [%expect {||}]
+
+let%expect_test _ =
+  let run len =
+    let bitset_and_valids =
+      List.init 32 ~f:(fun _ ->
+          let rnd () =
+            let bitset = Valid.create_all_valid len in
+            for i = 0 to len - 1 do
+              Valid.set bitset i (Random.bool ())
+            done;
+            bitset
+          in
+          rnd (), rnd ())
+    in
+    let cols =
+      List.mapi bitset_and_valids ~f:(fun i (bitset, valid) ->
+          Wrapper.Writer.bitset_opt bitset ~valid ~name:(Int.to_string i))
+    in
+    let table =
+      Wrapper.Writer.create_table ~cols |> Wrapper.Table.slice ~offset:0 ~length:10000
+    in
+    List.iteri bitset_and_valids ~f:(fun i (bitset, valid) ->
+        let bitset = bitset_opt_to_string bitset ~valid in
+        let bitset', valid' =
+          Wrapper.Column.read_bitset_opt table ~column:(`Name (Int.to_string i))
+        in
+        let bitset' = bitset_opt_to_string bitset' ~valid:valid' in
+        if String.( <> ) bitset bitset' then Stdio.printf "%s\n%s\n\n" bitset bitset')
+  in
+  List.iter [ 16; 23; 61 ] ~f:run
