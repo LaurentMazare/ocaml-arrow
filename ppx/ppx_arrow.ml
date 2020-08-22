@@ -25,9 +25,16 @@ let stringable =
     Ast_pattern.(pstr nil)
     (fun x -> x)
 
+let boolable =
+  Attribute.declare
+    "arrow.boolable"
+    Attribute.Context.label_declaration
+    Ast_pattern.(pstr nil)
+    (fun x -> x)
+
 module Attr = struct
   type t =
-    { kind : [ `intable | `stringable | `floatable ]
+    { kind : [ `intable | `stringable | `floatable | `boolable ]
     ; is_option : bool
     }
 end
@@ -36,18 +43,22 @@ let attribute field ~loc =
   let intable = Attribute.get intable field in
   let floatable = Attribute.get floatable field in
   let stringable = Attribute.get stringable field in
+  let boolable = Attribute.get boolable field in
   let is_option =
     match field.pld_type.ptyp_desc with
     | Ptyp_constr ({ txt = Lident "option"; _ }, [ _ ]) -> true
     | _ -> false
   in
-  match intable, floatable, stringable with
-  | Some _, None, None -> Some { Attr.kind = `intable; is_option }
-  | None, Some _, None -> Some { Attr.kind = `floatable; is_option }
-  | None, None, Some _ -> Some { Attr.kind = `stringable; is_option }
-  | None, None, None -> None
+  match intable, floatable, stringable, boolable with
+  | Some _, None, None, None -> Some { Attr.kind = `intable; is_option }
+  | None, Some _, None, None -> Some { Attr.kind = `floatable; is_option }
+  | None, None, Some _, None -> Some { Attr.kind = `stringable; is_option }
+  | None, None, None, Some _ -> Some { Attr.kind = `boolable; is_option }
+  | None, None, None, None -> None
   | _ ->
-    raise_errorf "cannot have more than one of intable, floatable, or stringable" ~loc
+    raise_errorf
+      "cannot have more than one of intable, floatable, boolable, or stringable"
+      ~loc
 
 let lident ~loc str = Loc.make ~loc (Lident str)
 
@@ -165,6 +176,8 @@ end = struct
       | Some { kind = `floatable; is_option = true } -> "Float_option_col"
       | Some { kind = `stringable; is_option = false } -> "String_col"
       | Some { kind = `stringable; is_option = true } -> "String_option_col"
+      | Some { kind = `boolable; is_option = false } -> "Bool_col"
+      | Some { kind = `boolable; is_option = true } -> "Bool_option_col"
       | None ->
         (match field.pld_type.ptyp_desc with
         | Ptyp_constr ({ loc = _; txt }, []) ->
@@ -198,6 +211,8 @@ end = struct
           in
           let expr =
             match attribute field ~loc with
+            | Some { kind = `boolable; is_option } ->
+              apply_fn ~fn_name:"of_bool" ~is_option
             | Some { kind = `stringable; is_option } ->
               apply_fn ~fn_name:"of_string" ~is_option
             | Some { kind = `floatable; is_option } ->
@@ -257,6 +272,8 @@ end = struct
           in
           let value =
             match attribute field ~loc with
+            | Some { kind = `boolable; is_option } ->
+              apply_fn ~fn_name:"to_bool" ~is_option
             | Some { kind = `stringable; is_option } ->
               apply_fn ~fn_name:"to_string" ~is_option
             | Some { kind = `floatable; is_option } ->
@@ -293,7 +310,11 @@ end = struct
 
   let gen kind =
     let attributes =
-      [ Attribute.T intable; Attribute.T floatable; Attribute.T stringable ]
+      [ Attribute.T intable
+      ; Attribute.T floatable
+      ; Attribute.T stringable
+      ; Attribute.T boolable
+      ]
     in
     Deriving.Generator.make_noarg ~attributes (fun ~loc ~path:_ (rec_flag, tds) ->
         let mk_pat mk_ =
