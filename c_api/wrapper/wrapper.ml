@@ -125,7 +125,7 @@ module Table = struct
 
   let write_parquet
       ?(chunk_size = 1024 * 1024)
-      ?(compression = Compression.Uncompressed)
+      ?(compression = Compression.Snappy)
       t
       filename
     =
@@ -133,7 +133,7 @@ module Table = struct
 
   let write_feather
       ?(chunk_size = 1024 * 1024)
-      ?(compression = Compression.Uncompressed)
+      ?(compression = Compression.Snappy)
       t
       filename
     =
@@ -295,29 +295,35 @@ module Column = struct
         let _num_rows =
           List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
               let chunk = Chunk.create chunk ~fail_on_null:false ~fail_on_offset:true in
-              let ptr = Chunk.primitive_data_ptr chunk ~ctype in
-              let dst = Bigarray.Array1.sub dst dst_offset chunk.length in
-              let src = Ctypes.bigarray_of_ptr Ctypes.array1 chunk.length kind ptr in
-              Bigarray.Array1.blit src dst;
-              if chunk.null_count <> 0
-              then (
-                let valid_ptr =
-                  match chunk.buffers with
-                  | bitmap :: _ -> Ctypes.(from_voidp uint8_t bitmap)
-                  | _ -> assert false
-                in
-                (* TODO: optimize with some shift operations. *)
-                for bidx = 0 to ((chunk.length + 7) / 8) - 1 do
-                  let byte = Ctypes.(!@(valid_ptr +@ bidx) |> Unsigned.UInt8.to_int) in
-                  if byte <> 255
-                  then (
-                    let max_idx = min 8 (chunk.length - (8 * bidx)) in
-                    let valid_offset = dst_offset + (8 * bidx) in
-                    for idx = 0 to max_idx - 1 do
-                      let v = byte land (1 lsl idx) <> 0 in
-                      Valid.set valid (valid_offset + idx) v
-                    done)
-                done);
+              if chunk.null_count = chunk.length
+              then
+                for i = 0 to chunk.length - 1 do
+                  Valid.set valid (dst_offset + i) false
+                done
+              else (
+                let ptr = Chunk.primitive_data_ptr chunk ~ctype in
+                let dst = Bigarray.Array1.sub dst dst_offset chunk.length in
+                let src = Ctypes.bigarray_of_ptr Ctypes.array1 chunk.length kind ptr in
+                Bigarray.Array1.blit src dst;
+                if chunk.null_count <> 0
+                then (
+                  let valid_ptr =
+                    match chunk.buffers with
+                    | bitmap :: _ -> Ctypes.(from_voidp uint8_t bitmap)
+                    | _ -> assert false
+                  in
+                  (* TODO: optimize with some shift operations. *)
+                  for bidx = 0 to ((chunk.length + 7) / 8) - 1 do
+                    let byte = Ctypes.(!@(valid_ptr +@ bidx) |> Unsigned.UInt8.to_int) in
+                    if byte <> 255
+                    then (
+                      let max_idx = min 8 (chunk.length - (8 * bidx)) in
+                      let valid_offset = dst_offset + (8 * bidx) in
+                      for idx = 0 to max_idx - 1 do
+                        let v = byte land (1 lsl idx) <> 0 in
+                        Valid.set valid (valid_offset + idx) v
+                      done)
+                  done));
               dst_offset + chunk.length)
         in
         dst, valid)
@@ -351,35 +357,41 @@ module Column = struct
         let _num_rows =
           List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
               let chunk = Chunk.create chunk ~fail_on_null:false ~fail_on_offset:true in
-              let ptr_ = Chunk.primitive_data_ptr chunk ~ctype:Ctypes.uint8_t in
-              for bidx = 0 to ((chunk.length + 7) / 8) - 1 do
-                let byte = Ctypes.(!@(ptr_ +@ bidx) |> Unsigned.UInt8.to_int) in
-                let max_idx = min 8 (chunk.length - (8 * bidx)) in
-                let valid_offset = dst_offset + (8 * bidx) in
-                for idx = 0 to max_idx - 1 do
-                  let v = byte land (1 lsl idx) <> 0 in
-                  Valid.set bitset (valid_offset + idx) v
+              if chunk.null_count = chunk.length
+              then
+                for i = 0 to chunk.length - 1 do
+                  Valid.set valid (dst_offset + i) false
                 done
-              done;
-              if chunk.null_count <> 0
-              then (
-                let valid_ptr =
-                  match chunk.buffers with
-                  | bitmap :: _ -> Ctypes.(from_voidp uint8_t bitmap)
-                  | _ -> assert false
-                in
-                (* TODO: optimize with some shift operations. *)
+              else (
+                let ptr_ = Chunk.primitive_data_ptr chunk ~ctype:Ctypes.uint8_t in
                 for bidx = 0 to ((chunk.length + 7) / 8) - 1 do
-                  let byte = Ctypes.(!@(valid_ptr +@ bidx) |> Unsigned.UInt8.to_int) in
-                  if byte <> 255
-                  then (
-                    let max_idx = min 8 (chunk.length - (8 * bidx)) in
-                    let valid_offset = dst_offset + (8 * bidx) in
-                    for idx = 0 to max_idx - 1 do
-                      let v = byte land (1 lsl idx) <> 0 in
-                      Valid.set valid (valid_offset + idx) v
-                    done)
-                done);
+                  let byte = Ctypes.(!@(ptr_ +@ bidx) |> Unsigned.UInt8.to_int) in
+                  let max_idx = min 8 (chunk.length - (8 * bidx)) in
+                  let valid_offset = dst_offset + (8 * bidx) in
+                  for idx = 0 to max_idx - 1 do
+                    let v = byte land (1 lsl idx) <> 0 in
+                    Valid.set bitset (valid_offset + idx) v
+                  done
+                done;
+                if chunk.null_count <> 0
+                then (
+                  let valid_ptr =
+                    match chunk.buffers with
+                    | bitmap :: _ -> Ctypes.(from_voidp uint8_t bitmap)
+                    | _ -> assert false
+                  in
+                  (* TODO: optimize with some shift operations. *)
+                  for bidx = 0 to ((chunk.length + 7) / 8) - 1 do
+                    let byte = Ctypes.(!@(valid_ptr +@ bidx) |> Unsigned.UInt8.to_int) in
+                    if byte <> 255
+                    then (
+                      let max_idx = min 8 (chunk.length - (8 * bidx)) in
+                      let valid_offset = dst_offset + (8 * bidx) in
+                      for idx = 0 to max_idx - 1 do
+                        let v = byte land (1 lsl idx) <> 0 in
+                        Valid.set valid (valid_offset + idx) v
+                      done)
+                  done));
               dst_offset + chunk.length)
         in
         bitset, valid)
@@ -469,47 +481,51 @@ module Column = struct
         let _num_rows =
           List.fold chunks ~init:0 ~f:(fun dst_offset chunk ->
               let chunk = Chunk.create chunk ~fail_on_null:false ~fail_on_offset:true in
-              (* The first array is for the (optional) valid bitmap.
-                 The second array contains the offsets, using int32 for the normal string
-                 arrays (int64 for large strings).
-                 The third array contains the data.
-              *)
-              let offsets = Chunk.primitive_data_ptr chunk ~ctype:Ctypes.int32_t in
-              let valid, data =
-                match chunk.buffers with
-                | [ valid; _; data ] ->
-                  let valid =
-                    if Ctypes.is_null valid
-                    then None
-                    else Some Ctypes.(from_voidp uint8_t valid)
-                  in
-                  valid, Ctypes.from_voidp Ctypes.char data
-                | _ -> failwith "expected 3 columns for utf8"
-              in
-              for idx = 0 to chunk.length - 1 do
-                let is_valid =
-                  if chunk.null_count = 0
-                  then true
-                  else (
-                    match valid with
-                    | None -> true
-                    | Some valid ->
-                      let b = Ctypes.(!@(valid +@ (idx / 8))) |> Unsigned.UInt8.to_int in
-                      b land (1 lsl (idx land 0b111)) <> 0)
+              if chunk.null_count <> chunk.length
+              then (
+                (* The first array is for the (optional) valid bitmap.
+                   The second array contains the offsets, using int32 for the normal string
+                   arrays (int64 for large strings).
+                   The third array contains the data.
+                *)
+                let offsets = Chunk.primitive_data_ptr chunk ~ctype:Ctypes.int32_t in
+                let valid, data =
+                  match chunk.buffers with
+                  | [ valid; _; data ] ->
+                    let valid =
+                      if Ctypes.is_null valid
+                      then None
+                      else Some Ctypes.(from_voidp uint8_t valid)
+                    in
+                    valid, Ctypes.from_voidp Ctypes.char data
+                  | _ -> failwith "expected 3 columns for utf8"
                 in
-                if is_valid
-                then (
-                  let str_offset = Ctypes.(!@(offsets +@ idx)) |> Int32.to_int_exn in
-                  let next_str_offset =
-                    Ctypes.(!@(offsets +@ (idx + 1))) |> Int32.to_int_exn
+                for idx = 0 to chunk.length - 1 do
+                  let is_valid =
+                    if chunk.null_count = 0
+                    then true
+                    else (
+                      match valid with
+                      | None -> true
+                      | Some valid ->
+                        let b =
+                          Ctypes.(!@(valid +@ (idx / 8))) |> Unsigned.UInt8.to_int
+                        in
+                        b land (1 lsl (idx land 0b111)) <> 0)
                   in
-                  let str =
-                    Ctypes.string_from_ptr
-                      Ctypes.(data +@ str_offset)
-                      ~length:(next_str_offset - str_offset)
-                  in
-                  dst.(dst_offset + idx) <- Some str)
-              done;
+                  if is_valid
+                  then (
+                    let str_offset = Ctypes.(!@(offsets +@ idx)) |> Int32.to_int_exn in
+                    let next_str_offset =
+                      Ctypes.(!@(offsets +@ (idx + 1))) |> Int32.to_int_exn
+                    in
+                    let str =
+                      Ctypes.string_from_ptr
+                        Ctypes.(data +@ str_offset)
+                        ~length:(next_str_offset - str_offset)
+                    in
+                    dst.(dst_offset + idx) <- Some str)
+                done);
               dst_offset + chunk.length)
         in
         dst)
@@ -948,11 +964,7 @@ module Writer = struct
     in
     (array_struct, schema_struct : col)
 
-  let write
-      ?(chunk_size = 1024 * 1024)
-      ?(compression = Compression.Uncompressed)
-      filename
-      ~cols
+  let write ?(chunk_size = 1024 * 1024) ?(compression = Compression.Snappy) filename ~cols
     =
     let children_arrays, children_schemas = List.unzip cols in
     let num_rows =
