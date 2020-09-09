@@ -29,6 +29,7 @@ TablePtr *parquet_read_table(char *, int *col_idxs, int ncols, int use_threads, 
 TablePtr *feather_read_table(char *, int *col_idxs, int ncols);
 TablePtr *csv_read_table(char *);
 TablePtr *json_read_table(char *);
+TablePtr *table_concatenate(TablePtr **tables, int ntables);
 TablePtr *table_slice(TablePtr*, int64_t, int64_t);
 int64_t table_num_rows(TablePtr*);
 struct ArrowSchema *table_schema(TablePtr*);

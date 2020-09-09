@@ -26,6 +26,7 @@ end
 module Table : sig
   type t
 
+  val concatenate : t list -> t
   val slice : t -> offset:int -> length:int -> t
   val num_rows : t -> int
   val schema : t -> Schema.t
@@ -68,6 +69,8 @@ module Column : sig
     -> column:column
     -> (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t
 
+  val read_int : Table.t -> column:column -> int array
+  val read_float : Table.t -> column:column -> float array
   val read_utf8 : Table.t -> column:column -> string array
   val read_date : Table.t -> column:column -> Core_kernel.Date.t array
   val read_time_ns : Table.t -> column:column -> Core_kernel.Time_ns.t array
@@ -84,6 +87,8 @@ module Column : sig
     -> column:column
     -> (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t * Valid.t
 
+  val read_int_opt : Table.t -> column:column -> int option array
+  val read_float_opt : Table.t -> column:column -> float option array
   val read_utf8_opt : Table.t -> column:column -> string option array
   val read_date_opt : Table.t -> column:column -> Core_kernel.Date.t option array
   val read_time_ns_opt : Table.t -> column:column -> Core_kernel.Time_ns.t option array
@@ -103,6 +108,9 @@ module Writer : sig
     -> name:string
     -> col
 
+  val int : int array -> name:string -> col
+  val int_opt : int option array -> name:string -> col
+
   val float64_ba
     :  (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t
     -> name:string
@@ -114,6 +122,8 @@ module Writer : sig
     -> name:string
     -> col
 
+  val float : float array -> name:string -> col
+  val float_opt : float option array -> name:string -> col
   val utf8 : string array -> name:string -> col
   val utf8_opt : string option array -> name:string -> col
   val date : Core_kernel.Date.t array -> name:string -> col

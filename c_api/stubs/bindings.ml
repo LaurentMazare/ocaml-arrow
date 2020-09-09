@@ -42,6 +42,7 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = unit ptr
 
     let t : t typ = ptr void
+    let concatenate = foreign "table_concatenate" (ptr t @-> int @-> returning t)
     let slice = foreign "table_slice" (t @-> int64_t @-> int64_t @-> returning t)
     let num_rows = foreign "table_num_rows" (t @-> returning int64_t)
     let schema = foreign "table_schema" (t @-> returning (ptr ArrowSchema.t))

@@ -385,6 +385,16 @@ TablePtr *json_read_table(char *filename) {
   return new std::shared_ptr<arrow::Table>(std::move(table));
 }
 
+TablePtr *table_concatenate(TablePtr **tables, int ntables) {
+  std::vector<std::shared_ptr<arrow::Table>> vec;
+  for (int i = 0; i < ntables; ++i) vec.push_back(**(tables+i));
+  auto table = arrow::ConcatenateTables(vec);
+  if (!table.ok()) {
+    caml_failwith(table.status().ToString().c_str());
+  }
+  return new std::shared_ptr<arrow::Table>(std::move(table.ValueOrDie()));
+}
+
 TablePtr *table_slice(TablePtr *table, int64_t offset, int64_t length) {
   if (offset < 0) caml_invalid_argument("negative offset");
   if (length < 0) caml_invalid_argument("negative length");

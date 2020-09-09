@@ -117,6 +117,15 @@ module Table = struct
     Caml.Gc.finalise C.Table.free t;
     t
 
+  let concatenate ts =
+    let array = Ctypes.CArray.of_list C.Table.t ts in
+    let t =
+      C.Table.concatenate (Ctypes.CArray.start array) (Ctypes.CArray.length array)
+      |> with_free
+    in
+    use_value array;
+    t
+
   let slice t ~offset ~length =
     C.Table.slice t (Int64.of_int offset) (Int64.of_int length) |> with_free
 
@@ -529,6 +538,24 @@ module Column = struct
               dst_offset + chunk.length)
         in
         dst)
+
+  let read_int table ~column =
+    let ba = read_i64_ba table ~column in
+    Array.init (Bigarray.Array1.dim ba) ~f:(fun i -> ba.{i} |> Int64.to_int_exn)
+
+  let read_int_opt table ~column =
+    let ba, valid = read_i64_ba_opt table ~column in
+    Array.init (Bigarray.Array1.dim ba) ~f:(fun i ->
+        if Valid.get valid i then Some (Int64.to_int_exn ba.{i}) else None)
+
+  let read_float table ~column =
+    let ba = read_f64_ba table ~column in
+    Array.init (Bigarray.Array1.dim ba) ~f:(fun i -> ba.{i})
+
+  let read_float_opt table ~column =
+    let ba, valid = read_f64_ba_opt table ~column in
+    Array.init (Bigarray.Array1.dim ba) ~f:(fun i ->
+        if Valid.get valid i then Some ba.{i} else None)
 end
 
 module Writer = struct
@@ -1046,4 +1073,34 @@ module Writer = struct
     in
     use_value cols;
     table
+
+  let int array ~name =
+    let ba = Bigarray.Array1.create Int64 C_layout (Array.length array) in
+    Array.iteri array ~f:(fun i a -> ba.{i} <- Int64.of_int_exn a);
+    int64_ba ba ~name
+
+  let int_opt array ~name =
+    let len = Array.length array in
+    let ba = Bigarray.Array1.create Int64 C_layout len in
+    let valid = Valid.create_all_valid len in
+    Array.iteri array ~f:(fun i a ->
+        match a with
+        | Some a -> ba.{i} <- Int64.of_int_exn a
+        | None -> Valid.set valid i false);
+    int64_ba_opt ba valid ~name
+
+  let float array ~name =
+    let ba = Bigarray.Array1.create Float64 C_layout (Array.length array) in
+    Array.iteri array ~f:(fun i a -> ba.{i} <- a);
+    int64_ba ba ~name
+
+  let float_opt array ~name =
+    let len = Array.length array in
+    let ba = Bigarray.Array1.create Float64 C_layout len in
+    let valid = Valid.create_all_valid len in
+    Array.iteri array ~f:(fun i a ->
+        match a with
+        | Some a -> ba.{i} <- a
+        | None -> Valid.set valid i false);
+    float64_ba_opt ba valid ~name
 end
