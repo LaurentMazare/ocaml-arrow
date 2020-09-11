@@ -100,9 +100,10 @@ let fn_from_field_module field ~fn_name ~loc =
   pexp_ident ident ~loc
 
 (* Generated function names. *)
-(* TODO: maybe generate some to_table/of_table functions? *)
 let arrow_read tname = "arrow_read_" ^ tname
 let arrow_write tname = "arrow_write_" ^ tname
+let arrow_of_table tname = "arrow_" ^ tname ^ "_of_table"
+let arrow_table_of tname = "arrow_table_of_" ^ tname
 
 module Signature : sig
   val gen
@@ -113,7 +114,13 @@ end = struct
     [%type: string -> [%t Ppxlib.core_type_of_type_declaration td] array]
 
   let write_type td ~loc =
-    [%type: string -> [%t Ppxlib.core_type_of_type_declaration td] array -> unit]
+    [%type: [%t Ppxlib.core_type_of_type_declaration td] array -> string -> unit]
+
+  let table_of_type td ~loc =
+    [%type: [%t Ppxlib.core_type_of_type_declaration td] array -> Arrow_c_api.Table.t]
+
+  let of_table_type td ~loc =
+    [%type: Arrow_c_api.Table.t -> [%t Ppxlib.core_type_of_type_declaration td] array]
 
   let of_td ~kind td : signature_item list =
     let { Location.loc; txt = tname } = td.ptype_name in
@@ -124,13 +131,23 @@ end = struct
     in
     let read_type = read_type td ~loc in
     let write_type = write_type td ~loc in
+    let table_of_type = table_of_type td ~loc in
+    let of_table_type = of_table_type td ~loc in
     match kind with
     | `both ->
       [ psig_value ~name:(arrow_read tname) ~type_:read_type
       ; psig_value ~name:(arrow_write tname) ~type_:write_type
+      ; psig_value ~name:(arrow_of_table tname) ~type_:of_table_type
+      ; psig_value ~name:(arrow_table_of tname) ~type_:table_of_type
       ]
-    | `read -> [ psig_value ~name:(arrow_read tname) ~type_:read_type ]
-    | `write -> [ psig_value ~name:(arrow_write tname) ~type_:write_type ]
+    | `read ->
+      [ psig_value ~name:(arrow_read tname) ~type_:read_type
+      ; psig_value ~name:(arrow_of_table tname) ~type_:of_table_type
+      ]
+    | `write ->
+      [ psig_value ~name:(arrow_write tname) ~type_:write_type
+      ; psig_value ~name:(arrow_table_of tname) ~type_:table_of_type
+      ]
 
   let gen kind =
     Deriving.Generator.make_noarg (fun ~loc:_ ~path:_ (_rec_flag, tds) ->
@@ -198,7 +215,7 @@ end = struct
     in
     pexp_ident (Loc.make (Ldot (Lident modl, fn_name)) ~loc) ~loc
 
-  let read_fields fields ~loc args =
+  let read_or_of_table fields ~loc args ~which =
     let record_fields =
       List.map fields ~f:(fun field ->
           let get = runtime_fn field ~fn_name:"get" ~loc in
@@ -231,6 +248,12 @@ end = struct
           let expr = [%expr [%e of_table] table [%e name_as_string]] in
           value_binding ~loc ~pat:(pat field.pld_name.txt) ~expr)
     in
+    let input_table_expr =
+      match which with
+      (* TODO: only select the appropriate columns. *)
+      | `read -> [%expr Arrow_c_api.File_reader.table [%e args]]
+      | `of_table -> args
+    in
     [%expr
       Caml.Array.init (Arrow_c_api.Table.num_rows table) (fun idx ->
           [%e pexp_record record_fields ~loc None])]
@@ -238,15 +261,13 @@ end = struct
     |> pexp_let
          ~loc
          Nonrecursive
-         (* TODO: only select the appropriate columns. *)
-         [ value_binding
-             ~loc
-             ~pat:(pat "table")
-             ~expr:[%expr Arrow_c_api.File_reader.table [%e args]]
-         ]
+         [ value_binding ~loc ~pat:(pat "table") ~expr:input_table_expr ]
     |> open_runtime ~loc
 
-  let write_fields fields ~loc args =
+  let read_fields = read_or_of_table ~which:`read
+  let of_table_fields = read_or_of_table ~which:`of_table
+
+  let write_or_table_of fields ~loc args ~which =
     let pat str = ppat_var (Loc.make ~loc str) ~loc in
     let create_columns =
       List.map fields ~f:(fun field ->
@@ -291,22 +312,43 @@ end = struct
           let array = evar field.pld_name.txt ~loc in
           [%expr [%e writer_col] [%e array] [%e name_as_string]])
     in
-    closure_of_fn ~loc (fun filename ->
-        [%expr
-          for __arrow_idx = 0 to __arrow_len - 1 do
-            [%e esequence set_columns ~loc]
-          done;
-          Arrow_c_api.Writer.write [%e filename] ~cols:[%e elist col_list ~loc]]
-        |> pexp_let ~loc Nonrecursive create_columns
-        |> pexp_let
-             ~loc
-             Nonrecursive
-             [ value_binding
-                 ~loc
-                 ~pat:(pat "__arrow_len")
-                 ~expr:[%expr Caml.Array.length [%e args]]
-             ]
-        |> open_runtime ~loc)
+    match which with
+    | `table_of ->
+      [%expr
+        for __arrow_idx = 0 to __arrow_len - 1 do
+          [%e esequence set_columns ~loc]
+        done;
+        Arrow_c_api.Writer.create_table ~cols:[%e elist col_list ~loc]]
+      |> pexp_let ~loc Nonrecursive create_columns
+      |> pexp_let
+           ~loc
+           Nonrecursive
+           [ value_binding
+               ~loc
+               ~pat:(pat "__arrow_len")
+               ~expr:[%expr Caml.Array.length [%e args]]
+           ]
+      |> open_runtime ~loc
+    | `write ->
+      closure_of_fn ~loc (fun filename ->
+          [%expr
+            for __arrow_idx = 0 to __arrow_len - 1 do
+              [%e esequence set_columns ~loc]
+            done;
+            Arrow_c_api.Writer.write [%e filename] ~cols:[%e elist col_list ~loc]]
+          |> pexp_let ~loc Nonrecursive create_columns
+          |> pexp_let
+               ~loc
+               Nonrecursive
+               [ value_binding
+                   ~loc
+                   ~pat:(pat "__arrow_len")
+                   ~expr:[%expr Caml.Array.length [%e args]]
+               ]
+          |> open_runtime ~loc)
+
+  let write_fields = write_or_table_of ~which:`write
+  let table_of_fields = write_or_table_of ~which:`table_of
 
   let gen kind =
     let attributes =
@@ -329,15 +371,24 @@ end = struct
         let tds = List.map tds ~f:name_type_params_in_td in
         let read_expr = expr_of_tds ~loc ~record:read_fields in
         let write_expr = expr_of_tds ~loc ~record:write_fields in
+        let table_of_expr = expr_of_tds ~loc ~record:table_of_fields in
+        let of_table_expr = expr_of_tds ~loc ~record:of_table_fields in
         let bindings =
           match kind with
           | `both ->
             [ value_binding ~loc ~pat:(mk_pat arrow_read) ~expr:(read_expr tds)
             ; value_binding ~loc ~pat:(mk_pat arrow_write) ~expr:(write_expr tds)
+            ; value_binding ~loc ~pat:(mk_pat arrow_of_table) ~expr:(of_table_expr tds)
+            ; value_binding ~loc ~pat:(mk_pat arrow_table_of) ~expr:(table_of_expr tds)
             ]
-          | `read -> [ value_binding ~loc ~pat:(mk_pat arrow_read) ~expr:(read_expr tds) ]
+          | `read ->
+            [ value_binding ~loc ~pat:(mk_pat arrow_read) ~expr:(read_expr tds)
+            ; value_binding ~loc ~pat:(mk_pat arrow_of_table) ~expr:(of_table_expr tds)
+            ]
           | `write ->
-            [ value_binding ~loc ~pat:(mk_pat arrow_write) ~expr:(write_expr tds) ]
+            [ value_binding ~loc ~pat:(mk_pat arrow_write) ~expr:(write_expr tds)
+            ; value_binding ~loc ~pat:(mk_pat arrow_table_of) ~expr:(table_of_expr tds)
+            ]
         in
         [ pstr_value ~loc (really_recursive rec_flag tds) bindings ])
 end
