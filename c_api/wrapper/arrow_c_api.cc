@@ -2,6 +2,8 @@
 
 #include<iostream>
 
+#include <caml/mlvalues.h>
+#include <caml/threads.h>
 #include<caml/fail.h>
 
 struct ArrowSchema *feather_schema(char *filename) {
@@ -182,12 +184,14 @@ void parquet_write_file(char *filename, struct ArrowArray *array, struct ArrowSc
     caml_failwith(table.status().ToString().c_str());
   }
   arrow::Compression::type compression_ = compression_of_int(compression);
+  caml_release_runtime_system();
   arrow::Status st = parquet::arrow::WriteTable(*(table.ValueOrDie()),
                                                 arrow::default_memory_pool(),
                                                 outfile,
                                                 chunk_size,
                                                 parquet::WriterProperties::Builder().compression(compression_)->build(),
                                                 parquet::ArrowWriterProperties::Builder().enable_deprecated_int96_timestamps()->build());
+  caml_acquire_runtime_system();
   if (!st.ok()) {
     caml_failwith(st.ToString().c_str());
   }
@@ -210,9 +214,11 @@ void feather_write_file(char *filename, struct ArrowArray *array, struct ArrowSc
   struct arrow::ipc::feather::WriteProperties wp;
   wp.compression = compression_of_int(compression);
   wp.chunksize = chunk_size;
+  caml_release_runtime_system();
   arrow::Status st = arrow::ipc::feather::WriteTable(*(table.ValueOrDie()),
                                                 &(*outfile),
                                                 wp);
+  caml_acquire_runtime_system();
   if (!st.ok()) {
     caml_failwith(st.ToString().c_str());
   }
@@ -225,12 +231,14 @@ void parquet_write_table(char *filename, TablePtr *table, int chunk_size, int co
   }
   auto outfile = file.ValueOrDie();
   arrow::Compression::type compression_ = compression_of_int(compression);
+  caml_release_runtime_system();
   arrow::Status st = parquet::arrow::WriteTable(**table,
                                                 arrow::default_memory_pool(),
                                                 outfile,
                                                 chunk_size,
                                                 parquet::WriterProperties::Builder().compression(compression_)->build(),
                                                 parquet::ArrowWriterProperties::Builder().enable_deprecated_int96_timestamps()->build());
+  caml_acquire_runtime_system();
   if (!st.ok()) {
     caml_failwith(st.ToString().c_str());
   }
@@ -245,7 +253,9 @@ void feather_write_table(char *filename, TablePtr *table, int chunk_size, int co
   struct arrow::ipc::feather::WriteProperties wp;
   wp.compression = compression_of_int(compression);
   wp.chunksize = chunk_size;
+  caml_release_runtime_system();
   arrow::Status st = arrow::ipc::feather::WriteTable(**table, &(*outfile), wp);
+  caml_acquire_runtime_system();
   if (!st.ok()) {
     caml_failwith(st.ToString().c_str());
   }
@@ -265,12 +275,14 @@ TablePtr *parquet_read_table(char *filename, int *col_idxs, int ncols, int use_t
   }
   if (use_threads >= 0) reader->set_use_threads(use_threads);
   std::shared_ptr<arrow::Table> table;
+  caml_release_runtime_system();
   if (only_first < 0) {
     if (ncols)
       st = reader->ReadTable(std::vector<int>(col_idxs, col_idxs+ncols), &table);
     else
       st = reader->ReadTable(&table);
     if (!st.ok()) {
+      caml_acquire_runtime_system();
       caml_failwith(st.ToString().c_str());
     }
   } else {
@@ -282,6 +294,7 @@ TablePtr *parquet_read_table(char *filename, int *col_idxs, int ncols, int use_t
       else
         st = reader->GetRecordBatchReader({row_group_idx}, &batch_reader);
       if (!st.ok()) {
+        caml_acquire_runtime_system();
         caml_failwith(st.ToString().c_str());
       }
       std::shared_ptr<arrow::RecordBatch> batch;
@@ -289,6 +302,7 @@ TablePtr *parquet_read_table(char *filename, int *col_idxs, int ncols, int use_t
         st = batch_reader->ReadNext(&batch);
         if (batch == nullptr) break;
         if (!st.ok()) {
+          caml_acquire_runtime_system();
           caml_failwith(st.ToString().c_str());
         }
         if (only_first <= batch->num_rows()) {
@@ -306,10 +320,12 @@ TablePtr *parquet_read_table(char *filename, int *col_idxs, int ncols, int use_t
     }
     auto table_ = arrow::Table::FromRecordBatches(batches);
     if (!table_.ok()) {
+      caml_acquire_runtime_system();
       caml_failwith(table_.status().ToString().c_str());
     }
     table = std::move(table_.ValueOrDie());
   }
+  caml_acquire_runtime_system();
   return new std::shared_ptr<arrow::Table>(std::move(table));
 }
 
@@ -325,10 +341,12 @@ TablePtr *feather_read_table(char *filename, int *col_idxs, int ncols) {
     caml_failwith(reader.status().ToString().c_str());
   }
   std::shared_ptr<arrow::Table> table;
+  caml_release_runtime_system();
   if (ncols)
     st = reader.ValueOrDie()->Read(std::vector<int>(col_idxs, col_idxs+ncols), &table);
   else
     st = reader.ValueOrDie()->Read(&table);
+  caml_acquire_runtime_system();
   if (!st.ok()) {
     caml_failwith(st.ToString().c_str());
   }
@@ -352,7 +370,9 @@ TablePtr *csv_read_table(char *filename) {
   if (!reader.ok()) {
     caml_failwith(reader.status().ToString().c_str());
   }
+  caml_release_runtime_system();
   auto table = reader.ValueOrDie()->Read();
+  caml_acquire_runtime_system();
   if (!table.ok()) {
     caml_failwith(table.status().ToString().c_str());
   }
@@ -378,7 +398,9 @@ TablePtr *json_read_table(char *filename) {
     caml_failwith(st.ToString().c_str());
   }
   std::shared_ptr<arrow::Table> table;
+  caml_release_runtime_system();
   st = reader->Read(&table);
+  caml_acquire_runtime_system();
   if (!st.ok()) {
     caml_failwith(st.ToString().c_str());
   }
