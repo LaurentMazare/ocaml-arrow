@@ -250,8 +250,14 @@ end = struct
     in
     let input_table_expr =
       match which with
-      (* TODO: only select the appropriate columns. *)
-      | `read -> [%expr Arrow_c_api.File_reader.table [%e args]]
+      | `read ->
+        let col_names =
+          List.map fields ~f:(fun field -> estring ~loc field.pld_name.txt)
+        in
+        [%expr
+          Arrow_c_api.File_reader.table
+            ~columns:(`names [%e elist col_names ~loc])
+            [%e args]]
       | `of_table -> args
     in
     [%expr

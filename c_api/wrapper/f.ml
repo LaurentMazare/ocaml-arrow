@@ -97,14 +97,7 @@ module Reader = struct
 
   let read creator filename =
     let get_one, col_names = creator [] in
-    let schema = File_reader.schema filename in
-    let col_names = Set.of_list (module String) col_names in
-    let column_idxs =
-      List.filter_mapi schema.children ~f:(fun i schema ->
-          let col_name = schema.Wrapper.Schema.name in
-          if Set.mem col_names col_name then Some i else None)
-    in
-    let table = File_reader.table filename ~column_idxs in
+    let table = File_reader.table filename ~columns:(`names col_names) in
     Wrapper.Table.num_rows table |> List.init ~f:(fun i -> get_one (table, i))
 end
 
