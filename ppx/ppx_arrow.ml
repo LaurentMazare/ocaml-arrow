@@ -25,6 +25,13 @@ let stringable =
     Ast_pattern.(pstr nil)
     (fun x -> x)
 
+let sexpable =
+  Attribute.declare
+    "arrow.sexpable"
+    Attribute.Context.label_declaration
+    Ast_pattern.(pstr nil)
+    (fun x -> x)
+
 let boolable =
   Attribute.declare
     "arrow.boolable"
@@ -34,7 +41,7 @@ let boolable =
 
 module Attr = struct
   type t =
-    { kind : [ `intable | `stringable | `floatable | `boolable ]
+    { kind : [ `intable | `stringable | `sexpable | `floatable | `boolable ]
     ; is_option : bool
     }
 end
@@ -43,21 +50,23 @@ let attribute field ~loc =
   let intable = Attribute.get intable field in
   let floatable = Attribute.get floatable field in
   let stringable = Attribute.get stringable field in
+  let sexpable = Attribute.get sexpable field in
   let boolable = Attribute.get boolable field in
   let is_option =
     match field.pld_type.ptyp_desc with
     | Ptyp_constr ({ txt = Lident "option"; _ }, [ _ ]) -> true
     | _ -> false
   in
-  match intable, floatable, stringable, boolable with
-  | Some _, None, None, None -> Some { Attr.kind = `intable; is_option }
-  | None, Some _, None, None -> Some { Attr.kind = `floatable; is_option }
-  | None, None, Some _, None -> Some { Attr.kind = `stringable; is_option }
-  | None, None, None, Some _ -> Some { Attr.kind = `boolable; is_option }
-  | None, None, None, None -> None
+  match intable, floatable, stringable, sexpable, boolable with
+  | Some _, None, None, None, None -> Some { Attr.kind = `intable; is_option }
+  | None, Some _, None, None, None -> Some { Attr.kind = `floatable; is_option }
+  | None, None, Some _, None, None -> Some { Attr.kind = `stringable; is_option }
+  | None, None, None, Some _, None -> Some { Attr.kind = `sexpable; is_option }
+  | None, None, None, None, Some _ -> Some { Attr.kind = `boolable; is_option }
+  | None, None, None, None, None -> None
   | _ ->
     raise_errorf
-      "cannot have more than one of intable, floatable, boolable, or stringable"
+      "cannot have more than one of intable, floatable, boolable, sexpable, or stringable"
       ~loc
 
 let lident ~loc str = Loc.make ~loc (Lident str)
@@ -191,8 +200,8 @@ end = struct
       | Some { kind = `intable; is_option = true } -> "Int_option_col"
       | Some { kind = `floatable; is_option = false } -> "Float_col"
       | Some { kind = `floatable; is_option = true } -> "Float_option_col"
-      | Some { kind = `stringable; is_option = false } -> "String_col"
-      | Some { kind = `stringable; is_option = true } -> "String_option_col"
+      | Some { kind = `stringable | `sexpable; is_option = false } -> "String_col"
+      | Some { kind = `stringable | `sexpable; is_option = true } -> "String_option_col"
       | Some { kind = `boolable; is_option = false } -> "Bool_col"
       | Some { kind = `boolable; is_option = true } -> "Bool_option_col"
       | None ->
@@ -224,7 +233,7 @@ end = struct
             let fn = fn_from_field_module field ~fn_name ~loc in
             if is_option
             then [%expr Option.map ~f:[%e fn] [%e expr]]
-            else pexp_apply fn ~loc [ Nolabel, expr ]
+            else [%expr [%e fn] [%e expr]]
           in
           let expr =
             match attribute field ~loc with
@@ -232,6 +241,11 @@ end = struct
               apply_fn ~fn_name:"of_bool" ~is_option
             | Some { kind = `stringable; is_option } ->
               apply_fn ~fn_name:"of_string" ~is_option
+            | Some { kind = `sexpable; is_option } ->
+              let typ_ = field.pld_type in
+              if is_option
+              then [%expr Sexp.of_string [%e expr] |> Option.map ~f:[%of_sexp: [%t typ_]]]
+              else [%expr Sexp.of_string [%e expr] |> [%of_sexp: [%t typ_]]]
             | Some { kind = `floatable; is_option } ->
               apply_fn ~fn_name:"of_float" ~is_option
             | Some { kind = `intable; is_option } ->
@@ -295,7 +309,7 @@ end = struct
             let fn = fn_from_field_module field ~fn_name ~loc in
             if is_option
             then [%expr Option.map ~f:[%e fn] [%e value]]
-            else pexp_apply fn ~loc [ Nolabel, value ]
+            else [%expr [%e fn] [%e value]]
           in
           let value =
             match attribute field ~loc with
@@ -303,6 +317,12 @@ end = struct
               apply_fn ~fn_name:"to_bool" ~is_option
             | Some { kind = `stringable; is_option } ->
               apply_fn ~fn_name:"to_string" ~is_option
+            | Some { kind = `sexpable; is_option } ->
+              let typ_ = field.pld_type in
+              if is_option
+              then
+                [%expr Option.map ~f:[%sexp_of: [%t typ_]] [%e value] |> Sexp.to_string]
+              else [%expr [%sexp_of: [%t typ_]] [%e value] |> Sexp.to_string]
             | Some { kind = `floatable; is_option } ->
               apply_fn ~fn_name:"to_float" ~is_option
             | Some { kind = `intable; is_option } ->
