@@ -8,8 +8,8 @@ let unknown_suffix filename =
 
 let schema filename =
   match String.rsplit2 filename ~on:'.' with
-  | Some (_, "csv") -> Wrapper.Table.read_csv filename |> Wrapper.Table.schema
-  | Some (_, "json") -> Wrapper.Table.read_json filename |> Wrapper.Table.schema
+  | Some (_, "csv") -> Table.read_csv filename |> Table.schema
+  | Some (_, "json") -> Table.read_json filename |> Table.schema
   | Some (_, "feather") -> Wrapper.Feather_reader.schema filename
   | Some (_, "parquet") -> Wrapper.Parquet_reader.schema filename
   | Some _ | None -> unknown_suffix filename
@@ -26,8 +26,8 @@ let indexes columns ~filename =
 
 let table ?columns filename =
   match String.rsplit2 filename ~on:'.' with
-  | Some (_, "csv") -> Wrapper.Table.read_csv filename
-  | Some (_, "json") -> Wrapper.Table.read_json filename
+  | Some (_, "csv") -> Table.read_csv filename
+  | Some (_, "json") -> Table.read_json filename
   | Some (_, "feather") ->
     let column_idxs = Option.map columns ~f:(indexes ~filename) in
     Wrapper.Feather_reader.table ?column_idxs filename
