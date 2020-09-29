@@ -1,16 +1,16 @@
 open Base
 include Wrapper.Table
 
-type _ type_ =
-  | Int : int type_
-  | Float : float type_
-  | Utf8 : string type_
-  | Date : Core_kernel.Date.t type_
-  | Time_ns : Core_kernel.Time_ns.t type_
-  | Bool : bool type_
+type _ col_type =
+  | Int : int col_type
+  | Float : float col_type
+  | Utf8 : string col_type
+  | Date : Core_kernel.Date.t col_type
+  | Time_ns : Core_kernel.Time_ns.t col_type
+  | Bool : bool col_type
 
-let read (type a) t ~column (type_ : a type_) : a array =
-  match type_ with
+let read (type a) t ~column (col_type : a col_type) : a array =
+  match col_type with
   | Int -> Wrapper.Column.read_int t ~column
   | Float -> Wrapper.Column.read_float t ~column
   | Utf8 -> Wrapper.Column.read_utf8 t ~column
@@ -20,8 +20,8 @@ let read (type a) t ~column (type_ : a type_) : a array =
     let bs = Wrapper.Column.read_bitset t ~column in
     Array.init (Valid.length bs) ~f:(Valid.get bs)
 
-let read_opt (type a) t ~column (type_ : a type_) : a option array =
-  match type_ with
+let read_opt (type a) t ~column (col_type : a col_type) : a option array =
+  match col_type with
   | Int -> Wrapper.Column.read_int_opt t ~column
   | Float -> Wrapper.Column.read_float_opt t ~column
   | Utf8 -> Wrapper.Column.read_utf8_opt t ~column

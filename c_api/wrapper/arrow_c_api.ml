@@ -9,4 +9,4 @@ module File_reader = File_reader
 module Table = Table
 module Valid = Valid
 module Wrapper = Wrapper
-module Writer = Wrapper.Writer
+module Writer = Writer

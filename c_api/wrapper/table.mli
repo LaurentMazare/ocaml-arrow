@@ -1,12 +1,12 @@
 include module type of Wrapper.Table with type t = Wrapper.Table.t
 
-type _ type_ =
-  | Int : int type_
-  | Float : float type_
-  | Utf8 : string type_
-  | Date : Core_kernel.Date.t type_
-  | Time_ns : Core_kernel.Time_ns.t type_
-  | Bool : bool type_
+type _ col_type =
+  | Int : int col_type
+  | Float : float col_type
+  | Utf8 : string col_type
+  | Date : Core_kernel.Date.t col_type
+  | Time_ns : Core_kernel.Time_ns.t col_type
+  | Bool : bool col_type
 
-val read : t -> column:Wrapper.Column.column -> 'a type_ -> 'a array
-val read_opt : t -> column:Wrapper.Column.column -> 'a type_ -> 'a option array
+val read : t -> column:Wrapper.Column.column -> 'a col_type -> 'a array
+val read_opt : t -> column:Wrapper.Column.column -> 'a col_type -> 'a option array
