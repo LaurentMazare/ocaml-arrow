@@ -33,4 +33,12 @@ let%expect_test _ =
     ((x 5)(y 1.4142135623730951)(z"foo 2")(x_opt())(y_opt(7.38905609893065))(z_opt(2-2)))
     ((x 7)(y 1.7320508075688772)(z"foo 3")(x_opt(3))(y_opt())(z_opt(3-3)))
     ((x 9)(y 2)(z"foo 4")(x_opt())(y_opt(54.598150033144236))(z_opt()))
-      |}]
+      |}];
+  let col = Arrow_c_api.Table.read table ~column:(`Name "y") Float in
+  Stdio.printf "%s\n%!" ([%sexp_of: float array] col |> Sexp.to_string);
+  let col = Arrow_c_api.Table.read_opt table ~column:(`Name "y") Float in
+  Stdio.printf "%s\n%!" ([%sexp_of: float option array] col |> Sexp.to_string);
+  [%expect
+    {|
+    (0 1 1.4142135623730951 1.7320508075688772 2 0 1 1.4142135623730951 1.7320508075688772 2 0 1 1.4142135623730951 1.7320508075688772 2)
+    ((0)(1)(1.4142135623730951)(1.7320508075688772)(2)(0)(1)(1.4142135623730951)(1.7320508075688772)(2)(0)(1)(1.4142135623730951)(1.7320508075688772)(2)) |}]
