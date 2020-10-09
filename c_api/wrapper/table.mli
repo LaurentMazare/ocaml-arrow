@@ -12,7 +12,7 @@ type packed_col =
   | P : 'a col_type * 'a array -> packed_col
   | O : 'a col_type * 'a option array -> packed_col
 
-val create : (string * packed_col) list -> t
+val create : Wrapper.Writer.col list -> t
 val named_col : packed_col -> name:string -> Wrapper.Writer.col
 val col : 'a array -> 'a col_type -> name:string -> Wrapper.Writer.col
 val col_opt : 'a option array -> 'a col_type -> name:string -> Wrapper.Writer.col

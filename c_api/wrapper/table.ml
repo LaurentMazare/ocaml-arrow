@@ -49,9 +49,7 @@ let named_col packed_col ~name =
   | P (typ_, data) -> col data typ_ ~name
   | O (typ_, data) -> col_opt data typ_ ~name
 
-let create cols =
-  let cols = List.map cols ~f:(fun (name, packed_col) -> named_col packed_col ~name) in
-  Writer.create_table ~cols
+let create cols = Writer.create_table ~cols
 
 let read (type a) t ~column (col_type : a col_type) : a array =
   match col_type with
