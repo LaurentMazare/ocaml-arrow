@@ -2,7 +2,8 @@ open! Base
 
 let unknown_suffix filename =
   Printf.failwithf
-    "cannot infer the file format from suffix %s (try using .parquet as a suffix)"
+    "cannot infer the file format from suffix %s (supported suffixes are \
+     csv/json/feather/parquet)"
     filename
     ()
 
