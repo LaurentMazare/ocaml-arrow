@@ -23,7 +23,7 @@ let gen =
   { x; y; z = Printf.sprintf "foo%d" z; z_opt }
 
 let python_read_and_rewrite ~filename =
-  let in_channel, out_channel = Unix.open_process "python" in
+  let in_channel, out_channel = Caml_unix.open_process "python" in
   Out_channel.output_lines
     out_channel
     [ "import os"

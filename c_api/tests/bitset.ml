@@ -11,7 +11,7 @@ let bitset_opt_to_string bitset ~valid =
   |> String.of_char_list
 
 let python_read_and_rewrite ~filename =
-  let in_channel, out_channel = Unix.open_process "python" in
+  let in_channel, out_channel = Caml_unix.open_process "python" in
   Out_channel.output_lines
     out_channel
     [ "import os"

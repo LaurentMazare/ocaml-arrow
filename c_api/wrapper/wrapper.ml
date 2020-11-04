@@ -630,7 +630,10 @@ module Writer = struct
     Ctypes.setf a C.ArrowArray.release release_array_ptr;
     a
 
-  let int64_ba array ~name =
+  let int64_ba
+      (array : (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t)
+      ~name
+    =
     let buffers =
       Ctypes.CArray.of_list
         (Ctypes.ptr Ctypes.void)
@@ -649,7 +652,11 @@ module Writer = struct
     in
     (array_struct, schema_struct : col)
 
-  let int64_ba_opt array valid ~name =
+  let int64_ba_opt
+      (array : (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t)
+      valid
+      ~name
+    =
     if Bigarray.Array1.dim array <> Valid.length valid then failwith "incoherent lengths";
     let buffers =
       Ctypes.CArray.of_list
@@ -808,7 +815,10 @@ module Writer = struct
     in
     (array_struct, schema_struct : col)
 
-  let float64_ba array ~name =
+  let float64_ba
+      (array : (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t)
+      ~name
+    =
     let buffers =
       Ctypes.CArray.of_list
         (Ctypes.ptr Ctypes.void)
@@ -847,7 +857,11 @@ module Writer = struct
     in
     (array_struct, schema_struct : col)
 
-  let float64_ba_opt array valid ~name =
+  let float64_ba_opt
+      (array : (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t)
+      valid
+      ~name
+    =
     if Bigarray.Array1.dim array <> Valid.length valid then failwith "incoherent lengths";
     let buffers =
       Ctypes.CArray.of_list
@@ -1092,7 +1106,7 @@ module Writer = struct
   let float array ~name =
     let ba = Bigarray.Array1.create Float64 C_layout (Array.length array) in
     Array.iteri array ~f:(fun i a -> ba.{i} <- a);
-    int64_ba ba ~name
+    float64_ba ba ~name
 
   let float_opt array ~name =
     let len = Array.length array in
