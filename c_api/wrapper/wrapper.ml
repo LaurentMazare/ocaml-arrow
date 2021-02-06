@@ -1040,7 +1040,9 @@ module Writer = struct
     let write_fn =
       if String.is_suffix filename ~suffix:".feather"
       then C.feather_write_file
-      else C.parquet_write_file
+      else if String.is_suffix filename ~suffix:".parquet"
+      then C.parquet_write_file
+      else fun f a s cs _comp -> C.arrow_write_file f a s cs
     in
     write_fn
       filename

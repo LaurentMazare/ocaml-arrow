@@ -197,6 +197,33 @@ void parquet_write_file(char *filename, struct ArrowArray *array, struct ArrowSc
   }
 }
 
+void arrow_write_file(char *filename, struct ArrowArray *array, struct ArrowSchema *schema, int chunk_size) {
+  auto file = arrow::io::FileOutputStream::Open(filename);
+  if (!file.ok()) {
+    caml_failwith(file.status().ToString().c_str());
+  }
+  auto outfile = file.ValueOrDie();
+  auto record_batch = arrow::ImportRecordBatch(array, schema);
+  if (!record_batch.ok()) {
+    caml_failwith(record_batch.status().ToString().c_str());
+  }
+  auto table = arrow::Table::FromRecordBatches({record_batch.ValueOrDie()});
+  if (!table.ok()) {
+    caml_failwith(table.status().ToString().c_str());
+  }
+  auto table_ = table.ValueOrDie();
+  auto batch_writer = arrow::ipc::NewFileWriter(&(*outfile), table_->schema());
+  if (!table.ok()) {
+    caml_failwith(batch_writer.status().ToString().c_str());
+  }
+  caml_release_runtime_system();
+  arrow::Status st = batch_writer.ValueOrDie()->WriteTable(*table_);
+  caml_acquire_runtime_system();
+  if (!st.ok()) {
+    caml_failwith(st.ToString().c_str());
+  }
+}
+
 void feather_write_file(char *filename, struct ArrowArray *array, struct ArrowSchema *schema, int chunk_size, int compression) {
   auto file = arrow::io::FileOutputStream::Open(filename);
   if (!file.ok()) {

@@ -91,6 +91,11 @@ module C (F : Cstubs.FOREIGN) = struct
   let free_chunked_column =
     foreign "free_chunked_column" (ptr ArrowArray.t @-> int @-> returning void)
 
+  let arrow_write_file =
+    foreign
+      "arrow_write_file"
+      (string @-> ptr ArrowArray.t @-> ptr ArrowSchema.t @-> int @-> returning void)
+
   let parquet_write_file =
     foreign
       "parquet_write_file"

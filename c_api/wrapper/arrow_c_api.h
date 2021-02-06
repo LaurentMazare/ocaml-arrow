@@ -9,6 +9,7 @@
 #include<arrow/csv/api.h>
 #include<arrow/io/api.h>
 #include<arrow/json/api.h>
+#include<arrow/ipc/api.h>
 #include<arrow/ipc/feather.h>
 #include<parquet/arrow/reader.h>
 #include<parquet/arrow/writer.h>
@@ -40,6 +41,7 @@ struct ArrowArray *table_chunked_column_by_name(TablePtr *reader, char *column_n
 void free_chunked_column(struct ArrowArray *, int nchunks);
 
 TablePtr *create_table(struct ArrowArray *array, struct ArrowSchema *schema);
+void arrow_write_file(char *filename, struct ArrowArray *, struct ArrowSchema *, int chunk_size);
 void parquet_write_file(char *filename, struct ArrowArray *, struct ArrowSchema *, int chunk_size, int compression);
 void feather_write_file(char *filename, struct ArrowArray *, struct ArrowSchema *, int chunk_size, int compression);
 void parquet_write_table(char *filename, TablePtr *table, int chunk_size, int compression);
