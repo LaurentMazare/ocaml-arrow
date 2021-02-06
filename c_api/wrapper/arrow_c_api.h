@@ -21,6 +21,7 @@ extern "C" {
 typedef void TablePtr;
 #endif
 
+struct ArrowSchema *arrow_schema(char*);
 struct ArrowSchema *feather_schema(char*);
 struct ArrowSchema *parquet_schema(char*, int64_t *num_rows);
 struct ArrowSchema *alloc_schema(char*, char*);

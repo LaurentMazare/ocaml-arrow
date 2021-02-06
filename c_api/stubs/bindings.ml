@@ -78,6 +78,10 @@ module C (F : Cstubs.FOREIGN) = struct
         (string @-> ptr int @-> int @-> int @-> int64_t @-> returning Table.t)
   end
 
+  module Arrow_reader = struct
+    let schema = foreign "arrow_schema" (string @-> returning (ptr ArrowSchema.t))
+  end
+
   module Feather_reader = struct
     let schema = foreign "feather_schema" (string @-> returning (ptr ArrowSchema.t))
 

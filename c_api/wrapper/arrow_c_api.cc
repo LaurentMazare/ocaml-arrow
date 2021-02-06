@@ -6,6 +6,23 @@
 #include <caml/threads.h>
 #include<caml/fail.h>
 
+struct ArrowSchema *arrow_schema(char *filename) {
+  arrow::Status st;
+  auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());
+  if (!file.ok()) {
+    caml_failwith(file.status().ToString().c_str());
+  }
+  std::shared_ptr<arrow::io::RandomAccessFile> infile = file.ValueOrDie();
+  auto reader = arrow::ipc::RecordBatchFileReader::Open(infile);
+  if (!reader.ok()) {
+    caml_failwith(reader.status().ToString().c_str());
+  }
+  std::shared_ptr<arrow::Schema> schema = reader.ValueOrDie()->schema();
+  struct ArrowSchema *out = (struct ArrowSchema*)malloc(sizeof *out);
+  arrow::ExportSchema(*schema, out);
+  return out;
+}
+
 struct ArrowSchema *feather_schema(char *filename) {
   arrow::Status st;
   auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());
