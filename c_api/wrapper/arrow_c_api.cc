@@ -319,9 +319,6 @@ ParquetReader *parquet_reader_open(char *filename, int *col_idxs, int ncols, int
   }
   if (use_threads >= 0) reader->set_use_threads(use_threads);
   std::unique_ptr<arrow::RecordBatchReader> batch_reader;
-  for (int row_group_idx = 0; row_group_idx < reader->num_row_groups(); ++row_group_idx) {
-  }
-
   if (ncols)
     st = reader->GetRecordBatchReader(
       std::vector<int>(0, reader->num_row_groups()),
