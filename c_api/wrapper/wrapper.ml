@@ -150,6 +150,32 @@ module Table = struct
 end
 
 module Parquet_reader = struct
+  type t = C.Parquet_reader.t
+
+  let create ?use_threads ?(column_idxs = []) filename =
+    let use_threads =
+      match use_threads with
+      | None -> -1
+      | Some false -> 0
+      | Some true -> 1
+    in
+    let column_idxs = Ctypes.CArray.of_list Ctypes.int column_idxs in
+    let t =
+      C.Parquet_reader.open_
+        filename
+        (Ctypes.CArray.start column_idxs)
+        (Ctypes.CArray.length column_idxs)
+        use_threads
+    in
+    Caml.Gc.finalise C.Parquet_reader.free t;
+    t
+
+  let next t =
+    let table_ptr = C.Parquet_reader.next t in
+    if Ctypes.is_null table_ptr then None else Table.with_free table_ptr |> Option.some
+
+  let close = C.Parquet_reader.close
+
   let schema_and_num_rows filename =
     let num_rows = Ctypes.CArray.make Ctypes.int64_t 1 in
     let schema =

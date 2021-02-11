@@ -305,6 +305,59 @@ void feather_write_table(char *filename, TablePtr *table, int chunk_size, int co
   }
 }
 
+ParquetReader *parquet_reader_open(char *filename, int *col_idxs, int ncols, int use_threads) {
+  arrow::Status st;
+  auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());
+  if (!file.ok()) {
+    caml_failwith(file.status().ToString().c_str());
+  }
+  std::shared_ptr<arrow::io::RandomAccessFile> infile = file.ValueOrDie();
+  std::unique_ptr<parquet::arrow::FileReader> reader;
+  st = parquet::arrow::OpenFile(infile, arrow::default_memory_pool(), &reader);
+  if (!st.ok()) {
+    caml_failwith(st.ToString().c_str());
+  }
+  if (use_threads >= 0) reader->set_use_threads(use_threads);
+  std::unique_ptr<arrow::RecordBatchReader> batch_reader;
+  for (int row_group_idx = 0; row_group_idx < reader->num_row_groups(); ++row_group_idx) {
+  }
+
+  if (ncols)
+    st = reader->GetRecordBatchReader(
+      std::vector<int>(0, reader->num_row_groups()),
+      std::vector<int>(col_idxs, col_idxs+ncols),
+      &batch_reader);
+  else
+    st = reader->GetRecordBatchReader(std::vector<int>(0, reader->num_row_groups()), &batch_reader);
+  if (!st.ok()) {
+    caml_failwith(st.ToString().c_str());
+  }
+  return new ParquetReader{ std::move(reader), std::move(batch_reader)};
+}
+
+TablePtr *parquet_reader_next(ParquetReader *pr) {
+  if (!pr->batch_reader) caml_failwith("reader has already been closed");
+  arrow::Status st;
+  std::shared_ptr<arrow::RecordBatch> batch;
+  st = pr->batch_reader->ReadNext(&batch);
+  if (batch == nullptr) return nullptr;
+  auto table_ = arrow::Table::FromRecordBatches({batch});
+  if (!table_.ok()) {
+    caml_failwith(table_.status().ToString().c_str());
+  }
+  std::shared_ptr<arrow::Table> table = std::move(table_.ValueOrDie());
+  return new std::shared_ptr<arrow::Table>(std::move(table));
+}
+
+void parquet_reader_close(ParquetReader *pr) {
+  pr->batch_reader.reset();
+  pr->reader.reset();
+}
+
+void parquet_reader_free(ParquetReader *pr) {
+  delete pr;
+}
+
 TablePtr *parquet_read_table(char *filename, int *col_idxs, int ncols, int use_threads, int64_t only_first) {
   arrow::Status st;
   auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());

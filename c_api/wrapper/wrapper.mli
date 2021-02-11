@@ -37,6 +37,11 @@ module Table : sig
 end
 
 module Parquet_reader : sig
+  type t
+
+  val create : ?use_threads:bool -> ?column_idxs:int list -> string -> t
+  val next : t -> Table.t option
+  val close : t -> unit
   val schema : string -> Schema.t
   val schema_and_num_rows : string -> Schema.t * int
 

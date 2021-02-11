@@ -16,9 +16,16 @@
 #include<parquet/exception.h>
 
 typedef std::shared_ptr<arrow::Table> TablePtr;
+
+struct ParquetReader {
+  std::unique_ptr<parquet::arrow::FileReader> reader;
+  std::unique_ptr<arrow::RecordBatchReader> batch_reader;
+};
+
 extern "C" {
 #else
 typedef void TablePtr;
+typedef void ParquetReader;
 #endif
 
 struct ArrowSchema *arrow_schema(char*);
@@ -47,6 +54,11 @@ void parquet_write_file(char *filename, struct ArrowArray *, struct ArrowSchema 
 void feather_write_file(char *filename, struct ArrowArray *, struct ArrowSchema *, int chunk_size, int compression);
 void parquet_write_table(char *filename, TablePtr *table, int chunk_size, int compression);
 void feather_write_table(char *filename, TablePtr *table, int chunk_size, int compression);
+
+ParquetReader *parquet_reader_open(char *filename, int *col_idxs, int ncols, int use_threads);
+TablePtr *parquet_reader_next(ParquetReader *pr);
+void parquet_reader_close(ParquetReader *pr);
+void parquet_reader_free(ParquetReader *pr);
 #ifdef __cplusplus
 }
 #endif
