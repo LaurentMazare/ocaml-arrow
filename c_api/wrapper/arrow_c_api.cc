@@ -340,7 +340,12 @@ TablePtr *parquet_reader_next(ParquetReader *pr) {
   arrow::Status st;
   std::shared_ptr<arrow::RecordBatch> batch;
   st = pr->batch_reader->ReadNext(&batch);
-  if (batch == nullptr) return nullptr;
+  if (!st.ok()) {
+    caml_failwith(st.ToString().c_str());
+  }
+  if (batch == nullptr) {
+    return nullptr;
+  }
   auto table_ = arrow::Table::FromRecordBatches({batch});
   if (!table_.ok()) {
     caml_failwith(table_.status().ToString().c_str());
@@ -397,11 +402,11 @@ TablePtr *parquet_read_table(char *filename, int *col_idxs, int ncols, int use_t
       std::shared_ptr<arrow::RecordBatch> batch;
       while (only_first > 0) {
         st = batch_reader->ReadNext(&batch);
-        if (batch == nullptr) break;
         if (!st.ok()) {
           caml_acquire_runtime_system();
           caml_failwith(st.ToString().c_str());
         }
+        if (batch == nullptr) break;
         if (only_first <= batch->num_rows()) {
           batches.push_back(std::move(batch->Slice(0, only_first)));
           only_first = 0;
