@@ -319,13 +319,15 @@ ParquetReader *parquet_reader_open(char *filename, int *col_idxs, int ncols, int
   }
   if (use_threads >= 0) reader->set_use_threads(use_threads);
   std::unique_ptr<arrow::RecordBatchReader> batch_reader;
+  std::vector<int> all_groups(reader->num_row_groups());
+  std::iota(all_groups.begin(), all_groups.end(), 0);
   if (ncols)
     st = reader->GetRecordBatchReader(
-      std::vector<int>(0, reader->num_row_groups()),
+      all_groups,
       std::vector<int>(col_idxs, col_idxs+ncols),
       &batch_reader);
   else
-    st = reader->GetRecordBatchReader(std::vector<int>(0, reader->num_row_groups()), &batch_reader);
+    st = reader->GetRecordBatchReader(all_groups, &batch_reader);
   if (!st.ok()) {
     caml_failwith(st.ToString().c_str());
   }

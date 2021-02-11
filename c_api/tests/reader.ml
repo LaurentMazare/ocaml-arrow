@@ -35,5 +35,7 @@ let%expect_test _ =
   [%expect {|
     file has 100000 rows
     created reader
+    65536
+    34464
     closing reader
     |}]
