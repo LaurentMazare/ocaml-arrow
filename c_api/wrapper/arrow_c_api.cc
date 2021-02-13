@@ -305,15 +305,11 @@ void feather_write_table(char *filename, TablePtr *table, int chunk_size, int co
   }
 }
 
-ParquetReader *parquet_reader_open(char *filename, int *col_idxs, int ncols, int use_threads) {
+ParquetReader *parquet_reader_open(char *filename, int *col_idxs, int ncols, int use_threads, int mmap) {
   arrow::Status st;
-  auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());
-  if (!file.ok()) {
-    caml_failwith(file.status().ToString().c_str());
-  }
-  std::shared_ptr<arrow::io::RandomAccessFile> infile = file.ValueOrDie();
+  std::unique_ptr<parquet::ParquetFileReader> preader = parquet::ParquetFileReader::OpenFile(filename, mmap);
   std::unique_ptr<parquet::arrow::FileReader> reader;
-  st = parquet::arrow::OpenFile(infile, arrow::default_memory_pool(), &reader);
+  st = parquet::arrow::FileReader::Make(arrow::default_memory_pool(), std::move(preader), &reader);
   if (!st.ok()) {
     caml_failwith(st.ToString().c_str());
   }

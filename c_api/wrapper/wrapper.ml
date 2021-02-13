@@ -152,7 +152,7 @@ end
 module Parquet_reader = struct
   type t = C.Parquet_reader.t
 
-  let create ?use_threads ?(column_idxs = []) filename =
+  let create ?use_threads ?(column_idxs = []) ?(mmap = false) filename =
     let use_threads =
       match use_threads with
       | None -> -1
@@ -166,6 +166,7 @@ module Parquet_reader = struct
         (Ctypes.CArray.start column_idxs)
         (Ctypes.CArray.length column_idxs)
         use_threads
+        (if mmap then 1 else 0)
     in
     Caml.Gc.finalise C.Parquet_reader.free t;
     t

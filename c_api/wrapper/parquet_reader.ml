@@ -7,8 +7,8 @@ let create = P.create
 let next = P.next
 let close = P.close
 
-let iter_batches ?use_threads ?column_idxs filename ~f =
-  let t = P.create ?use_threads ?column_idxs filename in
+let iter_batches ?use_threads ?column_idxs ?mmap filename ~f =
+  let t = P.create ?use_threads ?column_idxs ?mmap filename in
   Exn.protect
     ~finally:(fun () -> close t)
     ~f:(fun () ->
@@ -21,8 +21,8 @@ let iter_batches ?use_threads ?column_idxs filename ~f =
       in
       loop_read ())
 
-let fold_batches ?use_threads ?column_idxs filename ~init ~f =
-  let t = P.create ?use_threads ?column_idxs filename in
+let fold_batches ?use_threads ?column_idxs ?mmap filename ~init ~f =
+  let t = P.create ?use_threads ?column_idxs ?mmap filename in
   Exn.protect
     ~finally:(fun () -> close t)
     ~f:(fun () ->

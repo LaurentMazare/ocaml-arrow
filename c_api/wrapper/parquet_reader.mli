@@ -1,12 +1,13 @@
 type t
 
-val create : ?use_threads:bool -> ?column_idxs:int list -> string -> t
+val create : ?use_threads:bool -> ?column_idxs:int list -> ?mmap:bool -> string -> t
 val next : t -> Table.t option
 val close : t -> unit
 
 val iter_batches
   :  ?use_threads:bool
   -> ?column_idxs:int list
+  -> ?mmap:bool
   -> string
   -> f:(Table.t -> unit)
   -> unit
@@ -14,6 +15,7 @@ val iter_batches
 val fold_batches
   :  ?use_threads:bool
   -> ?column_idxs:int list
+  -> ?mmap:bool
   -> string
   -> init:'a
   -> f:('a -> Table.t -> 'a)
