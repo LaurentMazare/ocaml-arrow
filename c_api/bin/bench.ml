@@ -46,6 +46,7 @@ let () =
     | [| _exe; filename |] -> filename
     | _ -> Printf.failwithf "usage: %s file.parquet" Caml.Sys.argv.(0) ()
   in
+  let prev_time = ref (Time_ns.now ()) in
   A.Parquet_reader.iter_batches filename ~f:(fun table ->
       let num_rows = A.Table.num_rows table in
       let col_readers = col_readers table in
@@ -53,4 +54,8 @@ let () =
         let _value = List.map col_readers ~f:(fun col_reader -> col_reader row_idx) in
         ignore (_value : _ list)
       done;
-      Stdio.printf "read batch with %d rows\n%!" num_rows)
+      let now = Time_ns.now () in
+      let dt = Time_ns.diff now !prev_time |> Time_ns.Span.to_sec in
+      let krows_per_sec = Float.of_int num_rows /. dt /. 1000. in
+      prev_time := now;
+      Stdio.printf "read batch with %d rows, %.0f krows/sec\n%!" num_rows krows_per_sec)
