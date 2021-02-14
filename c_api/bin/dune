@@ -2,4 +2,10 @@
   (names test_main)
   (modules test_main)
   (libraries base core_kernel arrow.c_api stdio)
-  (preprocess (pps ppx_fields_conv ppx_sexp_conv)))
+  (preprocess (pps ppx_jane)))
+
+(executables
+  (names bench)
+  (modules bench)
+  (libraries base core_kernel arrow.c_api stdio)
+  (preprocess (pps ppx_jane)))
