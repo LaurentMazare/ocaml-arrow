@@ -1,6 +1,7 @@
 open Core_kernel
 module A = Arrow_c_api
 
+let fast = true
 let debug = false
 
 type t =
@@ -33,7 +34,11 @@ let col_readers table =
       | Utf8_string ->
         if A.Schema.Flags.nullable flags
         then (
-          let arr = A.Column.read_utf8_opt table ~column:(`Index col_idx) in
+          let arr =
+            if fast
+            then A.Column.experimental_fast_read table col_idx
+            else A.Column.read_utf8_opt table ~column:(`Index col_idx)
+          in
           fun i ->
             match arr.(i) with
             | None -> Null

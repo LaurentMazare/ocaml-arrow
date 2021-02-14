@@ -218,6 +218,15 @@ end
 
 (* https://arrow.apache.org/docs/format/Columnar.html *)
 module Column = struct
+  external fast_read
+    :  _ Cstubs_internals.fatptr
+    -> int
+    -> string option array
+    = "fast_col_read"
+
+  let experimental_fast_read (Cstubs_internals.CPointer ptr) col_index =
+    fast_read ptr col_index
+
   type column =
     [ `Index of int
     | `Name of string

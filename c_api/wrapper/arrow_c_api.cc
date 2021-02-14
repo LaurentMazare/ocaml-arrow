@@ -508,3 +508,39 @@ void free_table(TablePtr *table) {
   if (table != NULL)
     delete table;
 }
+
+/* Below are the non ctypes bindings. */
+
+#include "ctypes_cstubs_internals.h"
+
+extern "C" {
+value fast_col_read(value tbl, value col_idx) {
+  CAMLparam2(tbl, col_idx);
+  CAMLlocal2(res, some);
+  TablePtr* table = (TablePtr*)CTYPES_ADDR_OF_FATPTR(tbl);
+  long int index = Long_val(col_idx);
+
+  std::shared_ptr<arrow::ChunkedArray> array = (*table)->column(index);
+  int64_t total_len = array->length();
+  res = caml_alloc_tuple(total_len);
+  long int res_index = 0;
+  for (int chunk_idx = 0; chunk_idx < array->num_chunks(); ++chunk_idx) {
+    std::shared_ptr<arrow::Array> chunk = array->chunk(chunk_idx);
+    auto str_array = std::dynamic_pointer_cast<arrow::StringArray>(chunk);
+    if (str_array == nullptr) caml_failwith("not a string array");
+    int64_t chunk_len = str_array->length();
+    for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
+      if (str_array->IsValid(row_index)) {
+        some = caml_alloc_tuple(1);
+        auto view = str_array->GetView(row_index);
+        Store_field(some, 0, caml_alloc_initialized_string(view.length(), view.data()));
+        Store_field(res, res_index++, some);
+      }
+      else {
+        Store_field(res, res_index++, Val_int(0));
+      }
+    }
+  }
+  CAMLreturn(res);
+}
+}
