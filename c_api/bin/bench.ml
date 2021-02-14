@@ -1,11 +1,14 @@
 open Core_kernel
 module A = Arrow_c_api
 
+let debug = false
+
 type t =
   | Null
   | Int of int
   | Float of float
   | String of string
+[@@deriving sexp]
 
 let col_readers table =
   let schema = A.Table.schema table in
@@ -51,8 +54,8 @@ let () =
       let num_rows = A.Table.num_rows table in
       let col_readers = col_readers table in
       for row_idx = 0 to num_rows - 1 do
-        let _value = List.map col_readers ~f:(fun col_reader -> col_reader row_idx) in
-        ignore (_value : _ list)
+        let values = List.map col_readers ~f:(fun col_reader -> col_reader row_idx) in
+        if debug then print_s ([%sexp_of: t list] values)
       done;
       let now = Time_ns.now () in
       let dt = Time_ns.diff now !prev_time |> Time_ns.Span.to_sec in
