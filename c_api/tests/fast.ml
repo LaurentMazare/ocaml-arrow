@@ -14,15 +14,16 @@ let%expect_test _ =
         Wrapper.Writer.create_table ~cols)
     |> Wrapper.Table.concatenate
   in
-  print_s ~mach:() ([%sexp_of: string option array] (Column.experimental_fast_read t 0));
-  print_s ~mach:() ([%sexp_of: string option array] (Column.experimental_fast_read t 1));
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 0));
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 1));
   [%expect
     {|
-    ((v1)(v2)(v3)(v1)(v2)(v3)(v1)(v2)(v3)(v1)(v2)(v3)(v1)(v2)(v3)(v1)(v2)(v3)(v1)(v2)(v3)(v1)(v2)(v3)(v1)(v2)(v3)(v1)(v2)(v3)(v1)(v2)(v3)(v1)(v2)(v3))
-    (()("hello 0")(world)()("hello 1")(world)()("hello 2")(world)()("hello 3")(world)()("hello 4")(world)()("hello 5")(world)()("hello 6")(world)()("hello 7")(world)()("hello 8")(world)()("hello 9")(world)()("hello 10")(world)()("hello 11")(world)) |}];
+    (String(v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3))
+    (String_option(()("hello 0")(world)()("hello 1")(world)()("hello 2")(world)()("hello 3")(world)()("hello 4")(world)()("hello 5")(world)()("hello 6")(world)()("hello 7")(world)()("hello 8")(world)()("hello 9")(world)()("hello 10")(world)()("hello 11")(world))) |}];
   let t = Table.slice t ~offset:8 ~length:5 in
-  print_s ~mach:() ([%sexp_of: string option array] (Column.experimental_fast_read t 0));
-  print_s ~mach:() ([%sexp_of: string option array] (Column.experimental_fast_read t 1));
-  [%expect {|
-    ((v3)(v1)(v2)(v3)(v1))
-    ((world)()("hello 3")(world)()) |}]
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 0));
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 1));
+  [%expect
+    {|
+    (String(v3 v1 v2 v3 v1))
+    (String_option((world)()("hello 3")(world)())) |}]

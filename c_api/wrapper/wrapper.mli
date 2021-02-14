@@ -97,7 +97,13 @@ module Column : sig
   val read_utf8_opt : Table.t -> column:column -> string option array
   val read_date_opt : Table.t -> column:column -> Core_kernel.Date.t option array
   val read_time_ns_opt : Table.t -> column:column -> Core_kernel.Time_ns.t option array
-  val experimental_fast_read : Table.t -> int -> string option array
+
+  type t =
+    | String of string array
+    | String_option of string option array
+  [@@deriving sexp]
+
+  val experimental_fast_read : Table.t -> int -> t
 end
 
 module Writer : sig

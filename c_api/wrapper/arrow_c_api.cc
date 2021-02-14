@@ -17,8 +17,8 @@
 
 #include<iostream>
 
-#include <caml/mlvalues.h>
-#include <caml/threads.h>
+#include<caml/mlvalues.h>
+#include<caml/threads.h>
 #include<caml/fail.h>
 // invalid_argument is defined in the ocaml runtime and would
 // shadow the C++ std::invalid_argument
@@ -514,33 +514,48 @@ void free_table(TablePtr *table) {
 #include "ctypes_cstubs_internals.h"
 
 extern "C" {
+  value fast_col_read(value tbl, value col_idx);
+}
+
 value fast_col_read(value tbl, value col_idx) {
   CAMLparam2(tbl, col_idx);
-  CAMLlocal2(res, some);
+  CAMLlocal3(ocaml_array, some, result);
   TablePtr* table = (TablePtr*)CTYPES_ADDR_OF_FATPTR(tbl);
   long int index = Long_val(col_idx);
 
   std::shared_ptr<arrow::ChunkedArray> array = (*table)->column(index);
+  bool has_null = array->null_count();
   int64_t total_len = array->length();
-  res = caml_alloc_tuple(total_len);
+  ocaml_array = caml_alloc_tuple(total_len);
+
   long int res_index = 0;
   for (int chunk_idx = 0; chunk_idx < array->num_chunks(); ++chunk_idx) {
     std::shared_ptr<arrow::Array> chunk = array->chunk(chunk_idx);
     auto str_array = std::dynamic_pointer_cast<arrow::StringArray>(chunk);
     if (str_array == nullptr) caml_failwith("not a string array");
     int64_t chunk_len = str_array->length();
-    for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
-      if (str_array->IsValid(row_index)) {
-        some = caml_alloc_tuple(1);
-        auto view = str_array->GetView(row_index);
-        Store_field(some, 0, caml_alloc_initialized_string(view.length(), view.data()));
-        Store_field(res, res_index++, some);
+
+    if (has_null) {
+      for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
+        if (str_array->IsValid(row_index)) {
+          some = caml_alloc_tuple(1);
+          auto view = str_array->GetView(row_index);
+          Store_field(some, 0, caml_alloc_initialized_string(view.length(), view.data()));
+          Store_field(ocaml_array, res_index++, some);
+        }
+        else {
+          Store_field(ocaml_array, res_index++, Val_int(0));
+        }
       }
-      else {
-        Store_field(res, res_index++, Val_int(0));
+    }
+    else {
+      for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
+        auto view = str_array->GetView(row_index);
+        Store_field(ocaml_array, res_index++, caml_alloc_initialized_string(view.length(), view.data()));
       }
     }
   }
-  CAMLreturn(res);
-}
+  result = caml_alloc_small(1, has_null ? 1 : 0);
+  Store_field(result, 0, ocaml_array);
+  CAMLreturn(result);
 }

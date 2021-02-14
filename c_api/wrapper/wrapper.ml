@@ -218,11 +218,13 @@ end
 
 (* https://arrow.apache.org/docs/format/Columnar.html *)
 module Column = struct
-  external fast_read
-    :  _ Cstubs_internals.fatptr
-    -> int
-    -> string option array
-    = "fast_col_read"
+  (* The order here has to match the C side. *)
+  type t =
+    | String of string array
+    | String_option of string option array
+  [@@deriving sexp]
+
+  external fast_read : _ Cstubs_internals.fatptr -> int -> t = "fast_col_read"
 
   let experimental_fast_read (Cstubs_internals.CPointer ptr) col_index =
     fast_read ptr col_index
