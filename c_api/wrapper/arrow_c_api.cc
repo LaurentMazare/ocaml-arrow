@@ -526,11 +526,11 @@ value fast_col_read(value tbl, value col_idx) {
   std::shared_ptr<arrow::ChunkedArray> array = (*table)->column(index);
   bool has_null = array->null_count();
   int64_t total_len = array->length();
-  ocaml_array = caml_alloc_tuple(total_len);
   arrow::Type::type dt = array->type()->id();
 
   int tag = -1;
   if (arrow::Type::STRING == dt) {
+    ocaml_array = caml_alloc_tuple(total_len);
     tag = has_null ? 1 : 0;
     long int res_index = 0;
     for (int chunk_idx = 0; chunk_idx < array->num_chunks(); ++chunk_idx) {
@@ -560,6 +560,7 @@ value fast_col_read(value tbl, value col_idx) {
     }
   }
   else if (arrow::Type::INT64 == dt) {
+    ocaml_array = caml_alloc_tuple(total_len);
     tag = has_null ? 3 : 2;
     long int res_index = 0;
     for (int chunk_idx = 0; chunk_idx < array->num_chunks(); ++chunk_idx) {
@@ -584,6 +585,37 @@ value fast_col_read(value tbl, value col_idx) {
         for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
           int64_t v = int64_array->Value(row_index);
           Store_field(ocaml_array, res_index++, Val_long(v));
+        }
+      }
+    }
+  }
+  else if (arrow::Type::DOUBLE == dt) {
+    if (has_null) ocaml_array = caml_alloc_tuple(total_len);
+    else ocaml_array = caml_alloc_float_array(total_len);
+    tag = has_null ? 5 : 4;
+    long int res_index = 0;
+    for (int chunk_idx = 0; chunk_idx < array->num_chunks(); ++chunk_idx) {
+      std::shared_ptr<arrow::Array> chunk = array->chunk(chunk_idx);
+      auto double_array = std::dynamic_pointer_cast<arrow::DoubleArray>(chunk);
+      if (double_array == nullptr) caml_failwith("not a double array");
+      int64_t chunk_len = double_array->length();
+      if (has_null) {
+        for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
+          if (double_array->IsValid(row_index)) {
+            some = caml_alloc_tuple(1);
+            double v = double_array->Value(row_index);
+            Store_field(some, 0, caml_copy_double(v));
+            Store_field(ocaml_array, res_index++, some);
+          }
+          else {
+            Store_field(ocaml_array, res_index++, Val_int(0));
+          }
+        }
+      }
+      else {
+        for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
+          double v = double_array->Value(row_index);
+          Store_double_field(ocaml_array, res_index++, v);
         }
       }
     }
