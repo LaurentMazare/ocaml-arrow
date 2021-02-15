@@ -222,6 +222,10 @@ module Column = struct
   type t =
     | String of string array
     | String_option of string option array
+    | Int64 of int array
+    | Int64_option of int option array
+    | Double of float array
+    | Double_option of float option array
   [@@deriving sexp]
 
   external fast_read : _ Cstubs_internals.fatptr -> int -> t = "fast_col_read"

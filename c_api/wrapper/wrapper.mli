@@ -101,6 +101,10 @@ module Column : sig
   type t =
     | String of string array
     | String_option of string option array
+    | Int64 of int array
+    | Int64_option of int option array
+    | Double of float array
+    | Double_option of float option array
   [@@deriving sexp]
 
   val experimental_fast_read : Table.t -> int -> t

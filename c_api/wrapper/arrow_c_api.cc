@@ -527,35 +527,74 @@ value fast_col_read(value tbl, value col_idx) {
   bool has_null = array->null_count();
   int64_t total_len = array->length();
   ocaml_array = caml_alloc_tuple(total_len);
+  arrow::Type::type dt = array->type()->id();
 
-  long int res_index = 0;
-  for (int chunk_idx = 0; chunk_idx < array->num_chunks(); ++chunk_idx) {
-    std::shared_ptr<arrow::Array> chunk = array->chunk(chunk_idx);
-    auto str_array = std::dynamic_pointer_cast<arrow::StringArray>(chunk);
-    if (str_array == nullptr) caml_failwith("not a string array");
-    int64_t chunk_len = str_array->length();
-
-    if (has_null) {
-      for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
-        if (str_array->IsValid(row_index)) {
-          some = caml_alloc_tuple(1);
-          auto view = str_array->GetView(row_index);
-          Store_field(some, 0, caml_alloc_initialized_string(view.length(), view.data()));
-          Store_field(ocaml_array, res_index++, some);
-        }
-        else {
-          Store_field(ocaml_array, res_index++, Val_int(0));
+  int tag = -1;
+  if (arrow::Type::STRING == dt) {
+    tag = has_null ? 1 : 0;
+    long int res_index = 0;
+    for (int chunk_idx = 0; chunk_idx < array->num_chunks(); ++chunk_idx) {
+      std::shared_ptr<arrow::Array> chunk = array->chunk(chunk_idx);
+      auto str_array = std::dynamic_pointer_cast<arrow::StringArray>(chunk);
+      if (str_array == nullptr) caml_failwith("not a string array");
+      int64_t chunk_len = str_array->length();
+      if (has_null) {
+        for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
+          if (str_array->IsValid(row_index)) {
+            some = caml_alloc_tuple(1);
+            auto view = str_array->GetView(row_index);
+            Store_field(some, 0, caml_alloc_initialized_string(view.length(), view.data()));
+            Store_field(ocaml_array, res_index++, some);
+          }
+          else {
+            Store_field(ocaml_array, res_index++, Val_int(0));
+          }
         }
       }
-    }
-    else {
-      for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
-        auto view = str_array->GetView(row_index);
-        Store_field(ocaml_array, res_index++, caml_alloc_initialized_string(view.length(), view.data()));
+      else {
+        for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
+          auto v = str_array->GetView(row_index);
+          Store_field(ocaml_array, res_index++, caml_alloc_initialized_string(v.length(), v.data()));
+        }
       }
     }
   }
-  result = caml_alloc_small(1, has_null ? 1 : 0);
+  else if (arrow::Type::INT64 == dt) {
+    tag = has_null ? 3 : 2;
+    long int res_index = 0;
+    for (int chunk_idx = 0; chunk_idx < array->num_chunks(); ++chunk_idx) {
+      std::shared_ptr<arrow::Array> chunk = array->chunk(chunk_idx);
+      auto int64_array = std::dynamic_pointer_cast<arrow::Int64Array>(chunk);
+      if (int64_array == nullptr) caml_failwith("not a int64 array");
+      int64_t chunk_len = int64_array->length();
+      if (has_null) {
+        for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
+          if (int64_array->IsValid(row_index)) {
+            some = caml_alloc_tuple(1);
+            int64_t v = int64_array->Value(row_index);
+            Store_field(some, 0, Val_long(v));
+            Store_field(ocaml_array, res_index++, some);
+          }
+          else {
+            Store_field(ocaml_array, res_index++, Val_int(0));
+          }
+        }
+      }
+      else {
+        for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
+          int64_t v = int64_array->Value(row_index);
+          Store_field(ocaml_array, res_index++, Val_long(v));
+        }
+      }
+    }
+  }
+  else {
+    char err[128];
+    snprintf(err, 127, "unsupported data type %d", dt);
+    caml_failwith(err);
+  }
+
+  result = caml_alloc_small(1, tag);
   Store_field(result, 0, ocaml_array);
   CAMLreturn(result);
 }
