@@ -107,6 +107,7 @@ module Column : sig
   val read_time_ns_opt : Table.t -> column:column -> Core_kernel.Time_ns.t option array
 
   type t =
+    | Unsupported_type
     | String of string array
     | String_option of string option array
     | Int64 of int array

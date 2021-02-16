@@ -62,7 +62,7 @@ let () =
     | _ -> Printf.failwithf "usage: %s file.parquet" Caml.Sys.argv.(0) ()
   in
   let prev_time = ref (Time_ns.now ()) in
-  A.Parquet_reader.iter_batches filename ~f:(fun table ->
+  A.Parquet_reader.iter_batches filename ~batch_size:8192 ~f:(fun table ->
       let num_rows = A.Table.num_rows table in
       let col_readers = col_readers table in
       for row_idx = 0 to num_rows - 1 do

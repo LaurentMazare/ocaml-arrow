@@ -229,6 +229,7 @@ end
 module Column = struct
   (* The order here has to match the C side. *)
   type t =
+    | Unsupported_type
     | String of string array
     | String_option of string option array
     | Int64 of int array

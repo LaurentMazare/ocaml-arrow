@@ -16,6 +16,7 @@ let%expect_test _ =
           ; Wrapper.Writer.float_opt
               [| None; None; Some (Float.sqrt f) |]
               ~name:"fbaz_opt"
+          ; Wrapper.Writer.bitset (Valid.create_all_valid 3) ~name:"bset"
           ]
         in
         Wrapper.Writer.create_table ~cols)
@@ -27,6 +28,7 @@ let%expect_test _ =
   print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 3));
   print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 4));
   print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 5));
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 6));
   [%expect
     {|
     (String(v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3))
@@ -34,8 +36,9 @@ let%expect_test _ =
     (Int64(0 1 0 1 2 2 2 3 4 3 4 6 4 5 8 5 6 10 6 7 12 7 8 14 8 9 16 9 10 18 10 11 20 11 12 22))
     (Int64_option((0)()()(0)()()(1)()()(1)()()(2)()()(2)()()(3)()()(3)()()(4)()()(4)()()(5)()()(5)()()))
     (Double(0 0.5 0 1 1.5 0.5 2 2.5 1 3 3.5 1.5 4 4.5 2 5 5.5 2.5 6 6.5 3 7 7.5 3.5 8 8.5 4 9 9.5 4.5 10 10.5 5 11 11.5 5.5))
-    (Double_option(()()(0)()()(1)()()(1.4142135623730951)()()(1.7320508075688772)()()(2)()()(2.23606797749979)()()(2.4494897427831779)()()(2.6457513110645907)()()(2.8284271247461903)()()(3)()()(3.1622776601683795)()()(3.3166247903554))) |}];
-  let t = Table.slice t ~offset:8 ~length:5 in
+    (Double_option(()()(0)()()(1)()()(1.4142135623730951)()()(1.7320508075688772)()()(2)()()(2.23606797749979)()()(2.4494897427831779)()()(2.6457513110645907)()()(2.8284271247461903)()()(3)()()(3.1622776601683795)()()(3.3166247903554)))
+    Unsupported_type |}];
+  let t = Table.slice t ~offset:10 ~length:9 in
   print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 0));
   print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 1));
   print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 2));
@@ -44,9 +47,9 @@ let%expect_test _ =
   print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 5));
   [%expect
     {|
-    (String(v3 v1 v2 v3 v1))
-    (String_option((world)()("hello 3")(world)()))
-    (Int64(4 3 4 6 4))
-    (Int64_option(()(1)()()(2)))
-    (Double(1 3 3.5 1.5 4))
-    (Double_option((1.4142135623730951)()()(1.7320508075688772)())) |}]
+    (String(v2 v3 v1 v2 v3 v1 v2 v3 v1))
+    (String_option(("hello 3")(world)()("hello 4")(world)()("hello 5")(world)()))
+    (Int64(4 6 4 5 8 5 6 10 6))
+    (Int64_option(()()(2)()()(2)()()(3)))
+    (Double(3.5 1.5 4 4.5 2 5 5.5 2.5 6))
+    (Double_option(()(1.7320508075688772)()()(2)()()(2.23606797749979)())) |}]

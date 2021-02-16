@@ -627,13 +627,13 @@ value fast_col_read(value tbl, value col_idx) {
       }
     }
   }
-  else {
-    char err[128];
-    snprintf(err, 127, "unsupported data type %d", dt);
-    caml_failwith(err);
-  }
 
-  result = caml_alloc_small(1, tag);
-  Store_field(result, 0, ocaml_array);
+  if (tag == -1) {
+    result = Val_int(0);
+  }
+  else {
+    result = caml_alloc_small(1, tag);
+    Store_field(result, 0, ocaml_array);
+  }
   CAMLreturn(result);
 }
