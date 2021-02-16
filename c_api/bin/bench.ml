@@ -33,16 +33,23 @@ let col_readers table =
           fun i -> Float ba.{i})
       | Utf8_string ->
         if A.Schema.Flags.nullable flags
-        then (
-          let arr =
-            if fast
-            then A.Column.experimental_fast_read table col_idx
-            else A.Column.read_utf8_opt table ~column:(`Index col_idx)
-          in
-          fun i ->
-            match arr.(i) with
-            | None -> Null
-            | Some str -> String str)
+        then
+          if fast
+          then (
+            match A.Column.experimental_fast_read table col_idx with
+            | String arr -> fun i -> String arr.(i)
+            | String_option arr ->
+              fun i ->
+                (match arr.(i) with
+                | None -> Null
+                | Some str -> String str)
+            | _ -> assert false)
+          else (
+            let arr = A.Column.read_utf8_opt table ~column:(`Index col_idx) in
+            fun i ->
+              match arr.(i) with
+              | None -> Null
+              | Some str -> String str)
         else (
           let arr = A.Column.read_utf8 table ~column:(`Index col_idx) in
           fun i -> String arr.(i))
