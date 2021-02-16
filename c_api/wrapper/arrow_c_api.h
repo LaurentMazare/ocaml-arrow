@@ -55,7 +55,7 @@ void feather_write_file(char *filename, struct ArrowArray *, struct ArrowSchema 
 void parquet_write_table(char *filename, TablePtr *table, int chunk_size, int compression);
 void feather_write_table(char *filename, TablePtr *table, int chunk_size, int compression);
 
-ParquetReader *parquet_reader_open(char *filename, int *col_idxs, int ncols, int use_threads, int mmap);
+ParquetReader *parquet_reader_open(char *filename, int *col_idxs, int ncols, int use_threads, int mmap, int buffer_size, int batch_size);
 TablePtr *parquet_reader_next(ParquetReader *pr);
 void parquet_reader_close(ParquetReader *pr);
 void parquet_reader_free(ParquetReader *pr);

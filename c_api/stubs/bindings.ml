@@ -84,7 +84,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let open_ =
       foreign
         "parquet_reader_open"
-        (string @-> ptr int @-> int @-> int @-> int @-> returning t)
+        (string @-> ptr int @-> int @-> int @-> int @-> int @-> int @-> returning t)
 
     let next = foreign "parquet_reader_next" (t @-> returning Table.t)
     let close = foreign "parquet_reader_close" (t @-> returning void)

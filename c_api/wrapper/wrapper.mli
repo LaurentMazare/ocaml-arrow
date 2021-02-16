@@ -39,7 +39,15 @@ end
 module Parquet_reader : sig
   type t
 
-  val create : ?use_threads:bool -> ?column_idxs:int list -> ?mmap:bool -> string -> t
+  val create
+    :  ?use_threads:bool
+    -> ?column_idxs:int list
+    -> ?mmap:bool
+    -> ?buffer_size:int
+    -> ?batch_size:int
+    -> string
+    -> t
+
   val next : t -> Table.t option
   val close : t -> unit
   val schema : string -> Schema.t

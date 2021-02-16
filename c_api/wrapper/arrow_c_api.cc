@@ -304,13 +304,20 @@ void feather_write_table(char *filename, TablePtr *table, int chunk_size, int co
   OCAML_END_PROTECT_EXN
 }
 
-ParquetReader *parquet_reader_open(char *filename, int *col_idxs, int ncols, int use_threads, int mmap) {
+ParquetReader *parquet_reader_open(char *filename, int *col_idxs, int ncols, int use_threads, int mmap, int buffer_size, int batch_size) {
   OCAML_BEGIN_PROTECT_EXN
 
   arrow::Status st;
-  std::unique_ptr<parquet::ParquetFileReader> preader = parquet::ParquetFileReader::OpenFile(filename, mmap);
+  parquet::ReaderProperties prop = parquet::default_reader_properties();
+  parquet::ArrowReaderProperties arrow_prop = parquet::default_arrow_reader_properties();
+  if (buffer_size > 0) {
+    prop.enable_buffered_stream();
+    prop.set_buffer_size(buffer_size);
+  }
+  if (batch_size > 0) arrow_prop.set_batch_size(batch_size);
+  std::unique_ptr<parquet::ParquetFileReader> preader = parquet::ParquetFileReader::OpenFile(filename, mmap, prop);
   std::unique_ptr<parquet::arrow::FileReader> reader;
-  st = parquet::arrow::FileReader::Make(arrow::default_memory_pool(), std::move(preader), &reader);
+  st = parquet::arrow::FileReader::Make(arrow::default_memory_pool(), std::move(preader), arrow_prop, &reader);
   status_exn(st);
   if (use_threads >= 0) reader->set_use_threads(use_threads);
   std::unique_ptr<arrow::RecordBatchReader> batch_reader;
