@@ -116,7 +116,7 @@ module Column : sig
     | Double_option of float option array
   [@@deriving sexp]
 
-  val experimental_fast_read : Table.t -> int -> t
+  val fast_read : Table.t -> int -> t
 end
 
 module Writer : sig

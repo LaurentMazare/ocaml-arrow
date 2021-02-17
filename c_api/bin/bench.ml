@@ -36,7 +36,7 @@ let col_readers table =
         then
           if fast
           then (
-            match A.Column.experimental_fast_read table col_idx with
+            match A.Column.fast_read table col_idx with
             | String arr -> fun i -> String arr.(i)
             | String_option arr ->
               fun i ->

@@ -22,13 +22,13 @@ let%expect_test _ =
         Wrapper.Writer.create_table ~cols)
     |> Wrapper.Table.concatenate
   in
-  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 0));
-  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 1));
-  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 2));
-  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 3));
-  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 4));
-  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 5));
-  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 6));
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.fast_read t 0));
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.fast_read t 1));
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.fast_read t 2));
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.fast_read t 3));
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.fast_read t 4));
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.fast_read t 5));
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.fast_read t 6));
   [%expect
     {|
     (String(v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3 v1 v2 v3))
@@ -39,12 +39,12 @@ let%expect_test _ =
     (Double_option(()()(0)()()(1)()()(1.4142135623730951)()()(1.7320508075688772)()()(2)()()(2.23606797749979)()()(2.4494897427831779)()()(2.6457513110645907)()()(2.8284271247461903)()()(3)()()(3.1622776601683795)()()(3.3166247903554)))
     Unsupported_type |}];
   let t = Table.slice t ~offset:10 ~length:9 in
-  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 0));
-  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 1));
-  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 2));
-  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 3));
-  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 4));
-  print_s ~mach:() ([%sexp_of: Column.t] (Column.experimental_fast_read t 5));
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.fast_read t 0));
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.fast_read t 1));
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.fast_read t 2));
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.fast_read t 3));
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.fast_read t 4));
+  print_s ~mach:() ([%sexp_of: Column.t] (Column.fast_read t 5));
   [%expect
     {|
     (String(v2 v3 v1 v2 v3 v1 v2 v3 v1))
