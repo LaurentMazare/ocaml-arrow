@@ -1,7 +1,6 @@
 open Core_kernel
 module A = Arrow_c_api
 
-let fast = true
 let debug = false
 
 type t =
@@ -13,46 +12,31 @@ type t =
 
 let col_readers table =
   let schema = A.Table.schema table in
-  List.mapi schema.children ~f:(fun col_idx { name; format; flags; _ } ->
+  List.mapi schema.children ~f:(fun col_idx { name; format; _ } ->
       match format with
       | Int64 ->
-        if A.Schema.Flags.nullable flags
-        then (
-          let ba, valid = A.Column.read_i64_ba_opt table ~column:(`Index col_idx) in
-          fun i -> if A.Valid.get valid i then Int (Int64.to_int_exn ba.{i}) else Null)
-        else (
-          let ba = A.Column.read_i64_ba table ~column:(`Index col_idx) in
-          fun i -> Int (Int64.to_int_exn ba.{i}))
+        (match A.Column.fast_read table col_idx with
+        | Int64 arr -> fun i -> Int (Int64.to_int_exn arr.{i})
+        | Int64_option (ba, valid) ->
+          let valid = A.Valid.of_bigarray valid ~length:(Bigarray.Array1.dim ba) in
+          fun i -> if A.Valid.get valid i then Int (Int64.to_int_exn ba.{i}) else Null
+        | _ -> assert false)
       | Float64 ->
-        if A.Schema.Flags.nullable flags
-        then (
-          let ba, valid = A.Column.read_f64_ba_opt table ~column:(`Index col_idx) in
-          fun i -> if A.Valid.get valid i then Float ba.{i} else Null)
-        else (
-          let ba = A.Column.read_f64_ba table ~column:(`Index col_idx) in
-          fun i -> Float ba.{i})
+        (match A.Column.fast_read table col_idx with
+        | Double arr -> fun i -> Float arr.{i}
+        | Double_option (ba, valid) ->
+          let valid = A.Valid.of_bigarray valid ~length:(Bigarray.Array1.dim ba) in
+          fun i -> if A.Valid.get valid i then Float ba.{i} else Null
+        | _ -> assert false)
       | Utf8_string ->
-        if A.Schema.Flags.nullable flags
-        then
-          if fast
-          then (
-            match A.Column.fast_read table col_idx with
-            | String arr -> fun i -> String arr.(i)
-            | String_option arr ->
-              fun i ->
-                (match arr.(i) with
-                | None -> Null
-                | Some str -> String str)
-            | _ -> assert false)
-          else (
-            let arr = A.Column.read_utf8_opt table ~column:(`Index col_idx) in
-            fun i ->
-              match arr.(i) with
-              | None -> Null
-              | Some str -> String str)
-        else (
-          let arr = A.Column.read_utf8 table ~column:(`Index col_idx) in
-          fun i -> String arr.(i))
+        (match A.Column.fast_read table col_idx with
+        | String arr -> fun i -> String arr.(i)
+        | String_option arr ->
+          fun i ->
+            (match arr.(i) with
+            | None -> Null
+            | Some str -> String str)
+        | _ -> assert false)
       | dt -> raise_s [%message "unsupported column type" name (dt : A.Datatype.t)])
 
 let () =
