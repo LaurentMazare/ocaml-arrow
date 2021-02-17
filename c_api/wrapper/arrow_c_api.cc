@@ -595,10 +595,9 @@ value fast_col_read(value tbl, value col_idx) {
         }
       }
       else {
-        for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
-          int64_t v = int64_array->Value(row_index);
-          data_ptr[res_index++] = v;
-        }
+        // raw_values has the offset applied
+        memcpy(data_ptr + res_index, int64_array->raw_values(), chunk_len * sizeof(int64_t));
+        res_index += chunk_len;
       }
     }
   }
@@ -630,10 +629,9 @@ value fast_col_read(value tbl, value col_idx) {
         }
       }
       else {
-        for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
-          double v = double_array->Value(row_index);
-          data_ptr[res_index++] = v;
-        }
+        // raw_values has the offset applied
+        memcpy(data_ptr + res_index, double_array->raw_values(), chunk_len * sizeof(double));
+        res_index += chunk_len;
       }
     }
   }
