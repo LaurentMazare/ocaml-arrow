@@ -110,9 +110,9 @@ module Column : sig
     | Unsupported_type
     | String of string array
     | String_option of string option array
-    | Int64 of int array
+    | Int64 of (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t
     | Int64_option of int option array
-    | Double of float array
+    | Double of (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t
     | Double_option of float option array
   [@@deriving sexp]
 

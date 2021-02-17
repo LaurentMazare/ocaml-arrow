@@ -17,6 +17,7 @@
 
 #include<iostream>
 
+#include<caml/bigarray.h>
 #include<caml/mlvalues.h>
 #include<caml/threads.h>
 #include<caml/fail.h>
@@ -567,7 +568,12 @@ value fast_col_read(value tbl, value col_idx) {
     }
   }
   else if (arrow::Type::INT64 == dt) {
-    ocaml_array = caml_alloc_tuple(total_len);
+    int64_t *data_ptr = nullptr;
+    if (has_null) ocaml_array = caml_alloc_tuple(total_len);
+    else {
+      ocaml_array = caml_ba_alloc_dims(CAML_BA_INT64 | CAML_BA_C_LAYOUT, 1, nullptr, total_len);
+      data_ptr = (int64_t*)Caml_ba_data_val(ocaml_array);
+    }
     tag = has_null ? 3 : 2;
     long int res_index = 0;
     for (int chunk_idx = 0; chunk_idx < array->num_chunks(); ++chunk_idx) {
@@ -591,14 +597,18 @@ value fast_col_read(value tbl, value col_idx) {
       else {
         for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
           int64_t v = int64_array->Value(row_index);
-          Store_field(ocaml_array, res_index++, Val_long(v));
+          data_ptr[res_index++] = v;
         }
       }
     }
   }
   else if (arrow::Type::DOUBLE == dt) {
+    double *data_ptr = nullptr;
     if (has_null) ocaml_array = caml_alloc_tuple(total_len);
-    else ocaml_array = caml_alloc_float_array(total_len);
+    else {
+      ocaml_array = caml_ba_alloc_dims(CAML_BA_FLOAT64 | CAML_BA_C_LAYOUT, 1, nullptr, total_len);
+      data_ptr = (double*)Caml_ba_data_val(ocaml_array);
+    }
     tag = has_null ? 5 : 4;
     long int res_index = 0;
     for (int chunk_idx = 0; chunk_idx < array->num_chunks(); ++chunk_idx) {
@@ -622,7 +632,7 @@ value fast_col_read(value tbl, value col_idx) {
       else {
         for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
           double v = double_array->Value(row_index);
-          Store_double_field(ocaml_array, res_index++, v);
+          data_ptr[res_index++] = v;
         }
       }
     }

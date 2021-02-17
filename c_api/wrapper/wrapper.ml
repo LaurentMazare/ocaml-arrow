@@ -227,14 +227,33 @@ end
 
 (* https://arrow.apache.org/docs/format/Columnar.html *)
 module Column = struct
+  type int64_bigarray = (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t
+
+  let sexp_of_int64_bigarray ba =
+    Array.init (Bigarray.Array1.dim ba) ~f:(Bigarray.Array1.get ba)
+    |> [%sexp_of: int64 array]
+
+  let int64_bigarray_of_sexp sexp =
+    [%of_sexp: int64 array] sexp |> Bigarray.Array1.of_array Int64 C_layout
+
+  type double_bigarray =
+    (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t
+
+  let sexp_of_double_bigarray ba =
+    Array.init (Bigarray.Array1.dim ba) ~f:(Bigarray.Array1.get ba)
+    |> [%sexp_of: float array]
+
+  let double_bigarray_of_sexp sexp =
+    [%of_sexp: float array] sexp |> Bigarray.Array1.of_array Float64 C_layout
+
   (* The order here has to match the C side. *)
   type t =
     | Unsupported_type
     | String of string array
     | String_option of string option array
-    | Int64 of int array
+    | Int64 of int64_bigarray
     | Int64_option of int option array
-    | Double of float array
+    | Double of double_bigarray
     | Double_option of float option array
   [@@deriving sexp]
 
