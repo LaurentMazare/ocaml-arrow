@@ -227,35 +227,61 @@ end
 
 (* https://arrow.apache.org/docs/format/Columnar.html *)
 module Column = struct
-  type int64_bigarray = (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t
-
   let sexp_of_int64_bigarray ba =
     Array.init (Bigarray.Array1.dim ba) ~f:(Bigarray.Array1.get ba)
     |> [%sexp_of: int64 array]
-
-  let int64_bigarray_of_sexp sexp =
-    [%of_sexp: int64 array] sexp |> Bigarray.Array1.of_array Int64 C_layout
-
-  type double_bigarray =
-    (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t
 
   let sexp_of_double_bigarray ba =
     Array.init (Bigarray.Array1.dim ba) ~f:(Bigarray.Array1.get ba)
     |> [%sexp_of: float array]
 
-  let double_bigarray_of_sexp sexp =
-    [%of_sexp: float array] sexp |> Bigarray.Array1.of_array Float64 C_layout
+  let sexp_of_int64_bigarray_opt (ba, valid) =
+    let length = Bigarray.Array1.dim ba in
+    let valid = Valid.of_bigarray valid ~length in
+    Array.init length ~f:(fun i ->
+        if Valid.get valid i then ba.{i} |> Option.some else None)
+    |> [%sexp_of: int64 option array]
+
+  let sexp_of_double_bigarray_opt (ba, valid) =
+    let length = Bigarray.Array1.dim ba in
+    let valid = Valid.of_bigarray valid ~length in
+    Array.init length ~f:(fun i ->
+        if Valid.get valid i then ba.{i} |> Option.some else None)
+    |> [%sexp_of: float option array]
 
   (* The order here has to match the C side. *)
   type t =
     | Unsupported_type
     | String of string array
     | String_option of string option array
-    | Int64 of int64_bigarray
-    | Int64_option of int option array
-    | Double of double_bigarray
-    | Double_option of float option array
-  [@@deriving sexp]
+    | Int64 of (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t
+    | Int64_option of
+        (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t * Valid.ba
+    | Double of (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t
+    | Double_option of
+        (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t * Valid.ba
+
+  let sexp_of_t t =
+    let poly =
+      match t with
+      | Unsupported_type -> `Unsupported_type
+      | String s -> `String s
+      | String_option s -> `String_option s
+      | Int64 s -> `Int64 s
+      | Int64_option (s1, s2) -> `Int64_option (s1, s2)
+      | Double s -> `Double s
+      | Double_option (s1, s2) -> `Double_option (s1, s2)
+    in
+    [%sexp_of:
+      [ `Unsupported_type
+      | `String of string array
+      | `String_option of string option array
+      | `Int64 of int64_bigarray
+      | `Int64_option of int64_bigarray_opt
+      | `Double of double_bigarray
+      | `Double_option of double_bigarray_opt
+      ]]
+      poly
 
   external fast_read : _ Cstubs_internals.fatptr -> int -> t = "fast_col_read"
 

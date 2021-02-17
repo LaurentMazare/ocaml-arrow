@@ -1,9 +1,13 @@
 open! Base
 
+type ba = (int, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
+
 type t =
   { length : int
-  ; data : (int, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
+  ; data : ba
   }
+
+let of_bigarray data ~length = { data; length }
 
 let create_all_valid length =
   let data = Bigarray.Array1.create Int8_unsigned C_layout ((length + 7) / 8) in

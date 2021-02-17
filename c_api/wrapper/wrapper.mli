@@ -111,10 +111,12 @@ module Column : sig
     | String of string array
     | String_option of string option array
     | Int64 of (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t
-    | Int64_option of int option array
+    | Int64_option of
+        (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t * Valid.ba
     | Double of (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t
-    | Double_option of float option array
-  [@@deriving sexp]
+    | Double_option of
+        (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t * Valid.ba
+  [@@deriving sexp_of]
 
   val fast_read : Table.t -> int -> t
 end

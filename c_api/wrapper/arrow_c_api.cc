@@ -527,9 +527,10 @@ extern "C" {
 
 value fast_col_read(value tbl, value col_idx) {
   CAMLparam2(tbl, col_idx);
-  CAMLlocal3(ocaml_array, some, result);
+  CAMLlocal4(ocaml_array, ocaml_valid, some, result);
   TablePtr* table = (TablePtr*)CTYPES_ADDR_OF_FATPTR(tbl);
   long int index = Long_val(col_idx);
+  bool has_valid = false;
 
   std::shared_ptr<arrow::ChunkedArray> array = (*table)->column(index);
   bool has_null = array->null_count();
@@ -568,12 +569,14 @@ value fast_col_read(value tbl, value col_idx) {
     }
   }
   else if (arrow::Type::INT64 == dt) {
-    int64_t *data_ptr = nullptr;
-    if (has_null) ocaml_array = caml_alloc_tuple(total_len);
-    else {
-      ocaml_array = caml_ba_alloc_dims(CAML_BA_INT64 | CAML_BA_C_LAYOUT, 1, nullptr, total_len);
-      data_ptr = (int64_t*)Caml_ba_data_val(ocaml_array);
+    uint8_t *valid_ptr = nullptr;
+    if (has_null) {
+      has_valid = true;
+      ocaml_valid = caml_ba_alloc_dims(CAML_BA_UINT8 | CAML_BA_C_LAYOUT, 1, nullptr, total_len);
+      valid_ptr = (uint8_t*)Caml_ba_data_val(ocaml_valid);
     }
+    ocaml_array = caml_ba_alloc_dims(CAML_BA_INT64 | CAML_BA_C_LAYOUT, 1, nullptr, total_len);
+    int64_t *data_ptr = (int64_t*)Caml_ba_data_val(ocaml_array);
     tag = has_null ? 3 : 2;
     long int res_index = 0;
     for (int chunk_idx = 0; chunk_idx < array->num_chunks(); ++chunk_idx) {
@@ -582,32 +585,27 @@ value fast_col_read(value tbl, value col_idx) {
       if (int64_array == nullptr) caml_failwith("not a int64 array");
       int64_t chunk_len = int64_array->length();
       if (has_null) {
-        for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
-          if (int64_array->IsValid(row_index)) {
-            some = caml_alloc_tuple(1);
-            int64_t v = int64_array->Value(row_index);
-            Store_field(some, 0, Val_long(v));
-            Store_field(ocaml_array, res_index++, some);
-          }
-          else {
-            Store_field(ocaml_array, res_index++, Val_int(0));
-          }
-        }
+        arrow::internal::CopyBitmap(
+          int64_array->null_bitmap_data(),
+          int64_array->offset(),
+          chunk_len,
+          valid_ptr,
+          res_index);
       }
-      else {
-        // raw_values has the offset applied
-        memcpy(data_ptr + res_index, int64_array->raw_values(), chunk_len * sizeof(int64_t));
-        res_index += chunk_len;
-      }
+      // raw_values has the offset applied
+      memcpy(data_ptr + res_index, int64_array->raw_values(), chunk_len * sizeof(int64_t));
+      res_index += chunk_len;
     }
   }
   else if (arrow::Type::DOUBLE == dt) {
-    double *data_ptr = nullptr;
-    if (has_null) ocaml_array = caml_alloc_tuple(total_len);
-    else {
-      ocaml_array = caml_ba_alloc_dims(CAML_BA_FLOAT64 | CAML_BA_C_LAYOUT, 1, nullptr, total_len);
-      data_ptr = (double*)Caml_ba_data_val(ocaml_array);
+    uint8_t *valid_ptr = nullptr;
+    if (has_null) {
+      has_valid = true;
+      ocaml_valid = caml_ba_alloc_dims(CAML_BA_UINT8 | CAML_BA_C_LAYOUT, 1, nullptr, total_len);
+      valid_ptr = (uint8_t*)Caml_ba_data_val(ocaml_valid);
     }
+    ocaml_array = caml_ba_alloc_dims(CAML_BA_FLOAT64 | CAML_BA_C_LAYOUT, 1, nullptr, total_len);
+    double *data_ptr = (double*)Caml_ba_data_val(ocaml_array);
     tag = has_null ? 5 : 4;
     long int res_index = 0;
     for (int chunk_idx = 0; chunk_idx < array->num_chunks(); ++chunk_idx) {
@@ -616,28 +614,26 @@ value fast_col_read(value tbl, value col_idx) {
       if (double_array == nullptr) caml_failwith("not a double array");
       int64_t chunk_len = double_array->length();
       if (has_null) {
-        for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
-          if (double_array->IsValid(row_index)) {
-            some = caml_alloc_tuple(1);
-            double v = double_array->Value(row_index);
-            Store_field(some, 0, caml_copy_double(v));
-            Store_field(ocaml_array, res_index++, some);
-          }
-          else {
-            Store_field(ocaml_array, res_index++, Val_int(0));
-          }
-        }
+        arrow::internal::CopyBitmap(
+          double_array->null_bitmap_data(),
+          double_array->offset(),
+          chunk_len,
+          valid_ptr,
+          res_index);
       }
-      else {
-        // raw_values has the offset applied
-        memcpy(data_ptr + res_index, double_array->raw_values(), chunk_len * sizeof(double));
-        res_index += chunk_len;
-      }
+      // raw_values has the offset applied
+      memcpy(data_ptr + res_index, double_array->raw_values(), chunk_len * sizeof(double));
+      res_index += chunk_len;
     }
   }
 
   if (tag == -1) {
     result = Val_int(0);
+  }
+  else if (has_valid) {
+    result = caml_alloc_small(2, tag);
+    Store_field(result, 0, ocaml_array);
+    Store_field(result, 1, ocaml_valid);
   }
   else {
     result = caml_alloc_small(1, tag);
