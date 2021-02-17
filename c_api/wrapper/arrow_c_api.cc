@@ -572,7 +572,7 @@ value fast_col_read(value tbl, value col_idx) {
     uint8_t *valid_ptr = nullptr;
     if (has_null) {
       has_valid = true;
-      ocaml_valid = caml_ba_alloc_dims(CAML_BA_UINT8 | CAML_BA_C_LAYOUT, 1, nullptr, total_len);
+      ocaml_valid = caml_ba_alloc_dims(CAML_BA_UINT8 | CAML_BA_C_LAYOUT, 1, nullptr, (total_len+7)/8);
       valid_ptr = (uint8_t*)Caml_ba_data_val(ocaml_valid);
     }
     ocaml_array = caml_ba_alloc_dims(CAML_BA_INT64 | CAML_BA_C_LAYOUT, 1, nullptr, total_len);
@@ -601,7 +601,7 @@ value fast_col_read(value tbl, value col_idx) {
     uint8_t *valid_ptr = nullptr;
     if (has_null) {
       has_valid = true;
-      ocaml_valid = caml_ba_alloc_dims(CAML_BA_UINT8 | CAML_BA_C_LAYOUT, 1, nullptr, total_len);
+      ocaml_valid = caml_ba_alloc_dims(CAML_BA_UINT8 | CAML_BA_C_LAYOUT, 1, nullptr, (total_len+7)/8);
       valid_ptr = (uint8_t*)Caml_ba_data_val(ocaml_valid);
     }
     ocaml_array = caml_ba_alloc_dims(CAML_BA_FLOAT64 | CAML_BA_C_LAYOUT, 1, nullptr, total_len);
