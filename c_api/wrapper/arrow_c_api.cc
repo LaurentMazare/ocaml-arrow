@@ -528,6 +528,9 @@ extern "C" {
 value fast_col_read(value tbl, value col_idx) {
   CAMLparam2(tbl, col_idx);
   CAMLlocal4(ocaml_array, ocaml_valid, some, result);
+
+  OCAML_BEGIN_PROTECT_EXN
+
   TablePtr* table = (TablePtr*)CTYPES_ADDR_OF_FATPTR(tbl);
   long int index = Long_val(col_idx);
   bool has_valid = false;
@@ -545,7 +548,7 @@ value fast_col_read(value tbl, value col_idx) {
     for (int chunk_idx = 0; chunk_idx < array->num_chunks(); ++chunk_idx) {
       std::shared_ptr<arrow::Array> chunk = array->chunk(chunk_idx);
       auto str_array = std::dynamic_pointer_cast<arrow::StringArray>(chunk);
-      if (str_array == nullptr) caml_failwith("not a string array");
+      if (str_array == nullptr) throw std::invalid_argument("not a string array");
       int64_t chunk_len = str_array->length();
       if (has_null) {
         for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
@@ -584,7 +587,7 @@ value fast_col_read(value tbl, value col_idx) {
     for (int chunk_idx = 0; chunk_idx < array->num_chunks(); ++chunk_idx) {
       std::shared_ptr<arrow::Array> chunk = array->chunk(chunk_idx);
       auto int64_array = std::dynamic_pointer_cast<arrow::Int64Array>(chunk);
-      if (int64_array == nullptr) caml_failwith("not a int64 array");
+      if (int64_array == nullptr) throw std::invalid_argument("not a int64 array");
       int64_t chunk_len = int64_array->length();
       if (has_null) {
         arrow::internal::CopyBitmap(
@@ -613,7 +616,7 @@ value fast_col_read(value tbl, value col_idx) {
     for (int chunk_idx = 0; chunk_idx < array->num_chunks(); ++chunk_idx) {
       std::shared_ptr<arrow::Array> chunk = array->chunk(chunk_idx);
       auto double_array = std::dynamic_pointer_cast<arrow::DoubleArray>(chunk);
-      if (double_array == nullptr) caml_failwith("not a double array");
+      if (double_array == nullptr) throw std::invalid_argument("not a double array");
       int64_t chunk_len = double_array->length();
       if (has_null) {
         arrow::internal::CopyBitmap(
@@ -641,5 +644,8 @@ value fast_col_read(value tbl, value col_idx) {
     result = caml_alloc_small(1, tag);
     Store_field(result, 0, ocaml_array);
   }
+
+  OCAML_END_PROTECT_EXN
+
   CAMLreturn(result);
 }
