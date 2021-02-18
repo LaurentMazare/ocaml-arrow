@@ -249,7 +249,7 @@ void arrow_write_file(char *filename, struct ArrowArray *array, struct ArrowSche
   auto record_batch = arrow::ImportRecordBatch(array, schema);
   auto table = arrow::Table::FromRecordBatches({ok_exn(record_batch)});
   auto table_ = ok_exn(table);
-  auto batch_writer = arrow::ipc::NewFileWriter(&(*outfile), table_->schema());
+  auto batch_writer = arrow::ipc::MakeFileWriter(&(*outfile), table_->schema());
   arrow::Status st = ok_exn(batch_writer)->WriteTable(*table_);
   status_exn(st);
 
@@ -461,20 +461,17 @@ TablePtr *csv_read_table(char *filename) {
 TablePtr *json_read_table(char *filename) {
   OCAML_BEGIN_PROTECT_EXN
 
-  arrow::Status st;
   auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());
   std::shared_ptr<arrow::io::RandomAccessFile> infile = ok_exn(file);
 
-  std::shared_ptr<arrow::json::TableReader> reader;
-  st = arrow::json::TableReader::Make(arrow::default_memory_pool(),
-                                      infile,
-                                      arrow::json::ReadOptions::Defaults(),
-                                      arrow::json::ParseOptions::Defaults(),
-                                      &reader);
-  status_exn(st);
-  std::shared_ptr<arrow::Table> table;
-  st = reader->Read(&table);
-  status_exn(st);
+  auto reader_ = arrow::json::TableReader::Make(
+    arrow::default_memory_pool(),
+    infile,
+    arrow::json::ReadOptions::Defaults(),
+    arrow::json::ParseOptions::Defaults());
+  std::shared_ptr<arrow::json::TableReader> reader = ok_exn(reader_);
+  auto table_ = reader->Read();
+  std::shared_ptr<arrow::Table> table = ok_exn(table_);
   return new std::shared_ptr<arrow::Table>(std::move(table));
 
   OCAML_END_PROTECT_EXN

@@ -11,6 +11,7 @@
 #include<arrow/json/api.h>
 #include<arrow/ipc/api.h>
 #include<arrow/ipc/feather.h>
+#include<arrow/util/bitmap_ops.h>
 #include<parquet/arrow/reader.h>
 #include<parquet/arrow/writer.h>
 #include<parquet/exception.h>
