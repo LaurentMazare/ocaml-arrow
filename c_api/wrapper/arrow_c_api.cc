@@ -551,8 +551,9 @@ value fast_col_read(value tbl, value col_idx) {
         for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
           if (str_array->IsValid(row_index)) {
             some = caml_alloc_tuple(1);
-            auto view = str_array->GetView(row_index);
-            Store_field(some, 0, caml_alloc_initialized_string(view.length(), view.data()));
+            int len = 0;
+            char *ptr = (char*)str_array->GetValue(row_index, &len);
+            Store_field(some, 0, caml_alloc_initialized_string(len, ptr));
             Store_field(ocaml_array, res_index++, some);
           }
           else {
@@ -562,8 +563,9 @@ value fast_col_read(value tbl, value col_idx) {
       }
       else {
         for (int64_t row_index = 0; row_index < chunk_len; ++row_index) {
-          auto v = str_array->GetView(row_index);
-          Store_field(ocaml_array, res_index++, caml_alloc_initialized_string(v.length(), v.data()));
+          int len = 0;
+          char *ptr = (char*)str_array->GetValue(row_index, &len);
+          Store_field(ocaml_array, res_index++, caml_alloc_initialized_string(len, ptr));
         }
       }
     }
