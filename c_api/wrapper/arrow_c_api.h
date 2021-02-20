@@ -17,6 +17,9 @@
 #include<parquet/exception.h>
 
 typedef std::shared_ptr<arrow::Table> TablePtr;
+typedef std::shared_ptr<arrow::StringBuilder> StringBuilderPtr;
+typedef std::shared_ptr<arrow::Int64Builder> Int64BuilderPtr;
+typedef std::shared_ptr<arrow::DoubleBuilder> DoubleBuilderPtr;
 
 struct ParquetReader {
   std::unique_ptr<parquet::arrow::FileReader> reader;
@@ -27,6 +30,9 @@ extern "C" {
 #else
 typedef void TablePtr;
 typedef void ParquetReader;
+typedef void StringBuilderPtr;
+typedef void Int64BuilderPtr;
+typedef void DoubleBuilderPtr;
 #endif
 
 struct ArrowSchema *arrow_schema(char*);
@@ -60,6 +66,19 @@ ParquetReader *parquet_reader_open(char *filename, int *col_idxs, int ncols, int
 TablePtr *parquet_reader_next(ParquetReader *pr);
 void parquet_reader_close(ParquetReader *pr);
 void parquet_reader_free(ParquetReader *pr);
+
+Int64BuilderPtr *create_int64_builder();
+DoubleBuilderPtr *create_double_builder();
+StringBuilderPtr *create_string_builder();
+void append_int64_builder(Int64BuilderPtr*, int64_t);
+void append_double_builder(DoubleBuilderPtr*, double);
+void append_string_builder(StringBuilderPtr*, char*);
+void append_null_int64_builder(Int64BuilderPtr*, int);
+void append_null_double_builder(DoubleBuilderPtr*, int);
+void append_null_string_builder(StringBuilderPtr*, int);
+void free_int64_builder(Int64BuilderPtr*);
+void free_double_builder(DoubleBuilderPtr*);
+void free_string_builder(StringBuilderPtr*);
 #ifdef __cplusplus
 }
 #endif

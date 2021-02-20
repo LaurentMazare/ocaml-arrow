@@ -514,6 +514,54 @@ void free_table(TablePtr *table) {
     delete table;
 }
 
+/* Builder bindings. */
+Int64BuilderPtr *create_int64_builder() {
+  return new Int64BuilderPtr();
+}
+DoubleBuilderPtr *create_double_builder() {
+  return new DoubleBuilderPtr();
+}
+StringBuilderPtr *create_string_builder() {
+  return new StringBuilderPtr();
+}
+
+void append_int64_builder(Int64BuilderPtr* ptr, int64_t v) {
+  (*ptr)->Append(v);
+}
+
+void append_double_builder(DoubleBuilderPtr* ptr, double v) {
+  (*ptr)->Append(v);
+}
+
+void append_string_builder(StringBuilderPtr* ptr, char* v) {
+  (*ptr)->Append(v);
+}
+
+void append_null_int64_builder(Int64BuilderPtr* ptr, int n) {
+  (*ptr)->AppendNulls(n);
+}
+
+void append_null_double_builder(DoubleBuilderPtr* ptr, int n) {
+  (*ptr)->AppendNulls(n);
+}
+
+void append_null_string_builder(StringBuilderPtr* ptr, int n) {
+  (*ptr)->AppendNulls(n);
+}
+
+void free_int64_builder(Int64BuilderPtr* ptr) {
+  if (ptr != nullptr) delete ptr;
+}
+
+void free_double_builder(DoubleBuilderPtr* ptr) {
+  if (ptr != nullptr) delete ptr;
+}
+
+void free_string_builder(StringBuilderPtr* ptr) {
+  if (ptr != nullptr) delete ptr;
+}
+
+
 /* Below are the non ctypes bindings. */
 
 #include "ctypes_cstubs_internals.h"
