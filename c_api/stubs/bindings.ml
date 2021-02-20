@@ -141,6 +141,8 @@ module C (F : Cstubs.FOREIGN) = struct
     let append = foreign "append_double_builder" (t @-> float @-> returning void)
     let append_null = foreign "append_null_double_builder" (t @-> int @-> returning void)
     let free = foreign "free_double_builder" (t @-> returning void)
+    let length = foreign "length_double_builder" (t @-> returning int64_t)
+    let null_count = foreign "null_count_double_builder" (t @-> returning int64_t)
   end
 
   module Int64Builder = struct
@@ -151,6 +153,8 @@ module C (F : Cstubs.FOREIGN) = struct
     let append = foreign "append_int64_builder" (t @-> int64_t @-> returning void)
     let append_null = foreign "append_null_int64_builder" (t @-> int @-> returning void)
     let free = foreign "free_int64_builder" (t @-> returning void)
+    let length = foreign "length_int64_builder" (t @-> returning int64_t)
+    let null_count = foreign "null_count_int64_builder" (t @-> returning int64_t)
   end
 
   module StringBuilder = struct
@@ -161,5 +165,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let append = foreign "append_string_builder" (t @-> string @-> returning void)
     let append_null = foreign "append_null_string_builder" (t @-> int @-> returning void)
     let free = foreign "free_string_builder" (t @-> returning void)
+    let length = foreign "length_string_builder" (t @-> returning int64_t)
+    let null_count = foreign "null_count_string_builder" (t @-> returning int64_t)
   end
 end

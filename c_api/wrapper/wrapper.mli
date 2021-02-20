@@ -176,6 +176,8 @@ module DoubleBuilder : sig
   val create : unit -> t
   val append : t -> float -> unit
   val append_null : ?n:int -> t -> unit
+  val length : t -> Int64.t
+  val null_count : t -> Int64.t
 end
 
 module Int64Builder : sig
@@ -184,6 +186,8 @@ module Int64Builder : sig
   val create : unit -> t
   val append : t -> Int64.t -> unit
   val append_null : ?n:int -> t -> unit
+  val length : t -> Int64.t
+  val null_count : t -> Int64.t
 end
 
 module StringBuilder : sig
@@ -192,4 +196,6 @@ module StringBuilder : sig
   val create : unit -> t
   val append : t -> string -> unit
   val append_null : ?n:int -> t -> unit
+  val length : t -> Int64.t
+  val null_count : t -> Int64.t
 end

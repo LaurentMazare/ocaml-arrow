@@ -561,6 +561,25 @@ void free_string_builder(StringBuilderPtr* ptr) {
   if (ptr != nullptr) delete ptr;
 }
 
+int64_t length_int64_builder(Int64BuilderPtr* ptr) {
+  return (*ptr)->length();
+}
+int64_t length_double_builder(DoubleBuilderPtr* ptr) {
+  return (*ptr)->length();
+}
+int64_t length_string_builder(StringBuilderPtr* ptr) {
+  return (*ptr)->length();
+}
+
+int64_t null_count_int64_builder(Int64BuilderPtr* ptr) {
+  return (*ptr)->null_count();
+}
+int64_t null_count_double_builder(DoubleBuilderPtr* ptr) {
+  return (*ptr)->null_count();
+}
+int64_t null_count_string_builder(StringBuilderPtr* ptr) {
+  return (*ptr)->null_count();
+}
 
 /* Below are the non ctypes bindings. */
 

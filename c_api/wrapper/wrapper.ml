@@ -1227,6 +1227,8 @@ module DoubleBuilder = struct
 
   let append_null ?(n = 1) t = C.DoubleBuilder.append_null t n
   let append t v = C.DoubleBuilder.append t v
+  let length t = C.DoubleBuilder.length t
+  let null_count t = C.DoubleBuilder.null_count t
 end
 
 module Int64Builder = struct
@@ -1239,6 +1241,8 @@ module Int64Builder = struct
 
   let append_null ?(n = 1) t = C.Int64Builder.append_null t n
   let append t v = C.Int64Builder.append t v
+  let length t = C.Int64Builder.length t
+  let null_count t = C.Int64Builder.null_count t
 end
 
 module StringBuilder = struct
@@ -1251,4 +1255,6 @@ module StringBuilder = struct
 
   let append_null ?(n = 1) t = C.StringBuilder.append_null t n
   let append t v = C.StringBuilder.append t v
+  let length t = C.StringBuilder.length t
+  let null_count t = C.StringBuilder.null_count t
 end

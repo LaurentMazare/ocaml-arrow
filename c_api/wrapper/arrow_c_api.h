@@ -79,6 +79,12 @@ void append_null_string_builder(StringBuilderPtr*, int);
 void free_int64_builder(Int64BuilderPtr*);
 void free_double_builder(DoubleBuilderPtr*);
 void free_string_builder(StringBuilderPtr*);
+int64_t length_int64_builder(Int64BuilderPtr*);
+int64_t length_double_builder(DoubleBuilderPtr*);
+int64_t length_string_builder(StringBuilderPtr*);
+int64_t null_count_int64_builder(Int64BuilderPtr*);
+int64_t null_count_double_builder(DoubleBuilderPtr*);
+int64_t null_count_string_builder(StringBuilderPtr*);
 #ifdef __cplusplus
 }
 #endif
