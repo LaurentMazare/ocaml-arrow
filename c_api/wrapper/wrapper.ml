@@ -1216,3 +1216,39 @@ module Writer = struct
         | None -> Valid.set valid i false);
     float64_ba_opt ba valid ~name
 end
+
+module DoubleBuilder = struct
+  type t = C.DoubleBuilder.t
+
+  let create () =
+    let t = C.DoubleBuilder.create () in
+    Caml.Gc.finalise C.DoubleBuilder.free t;
+    t
+
+  let append_null ?(n = 1) t = C.DoubleBuilder.append_null t n
+  let append t v = C.DoubleBuilder.append t v
+end
+
+module Int64Builder = struct
+  type t = C.Int64Builder.t
+
+  let create () =
+    let t = C.Int64Builder.create () in
+    Caml.Gc.finalise C.Int64Builder.free t;
+    t
+
+  let append_null ?(n = 1) t = C.Int64Builder.append_null t n
+  let append t v = C.Int64Builder.append t v
+end
+
+module StringBuilder = struct
+  type t = C.StringBuilder.t
+
+  let create () =
+    let t = C.StringBuilder.create () in
+    Caml.Gc.finalise C.StringBuilder.free t;
+    t
+
+  let append_null ?(n = 1) t = C.StringBuilder.append_null t n
+  let append t v = C.StringBuilder.append t v
+end

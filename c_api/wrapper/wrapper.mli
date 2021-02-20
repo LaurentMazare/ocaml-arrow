@@ -169,3 +169,27 @@ module Writer : sig
 
   val create_table : cols:col list -> Table.t
 end
+
+module DoubleBuilder : sig
+  type t
+
+  val create : unit -> t
+  val append : t -> float -> unit
+  val append_null : ?n:int -> t -> unit
+end
+
+module Int64Builder : sig
+  type t
+
+  val create : unit -> t
+  val append : t -> Int64.t -> unit
+  val append_null : ?n:int -> t -> unit
+end
+
+module StringBuilder : sig
+  type t
+
+  val create : unit -> t
+  val append : t -> string -> unit
+  val append_null : ?n:int -> t -> unit
+end

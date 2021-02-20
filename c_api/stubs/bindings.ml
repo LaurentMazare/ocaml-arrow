@@ -137,7 +137,7 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = unit ptr
 
     let t : t typ = ptr void
-    let concatenate = foreign "create_double_builder" (void @-> returning t)
+    let create = foreign "create_double_builder" (void @-> returning t)
     let append = foreign "append_double_builder" (t @-> float @-> returning void)
     let append_null = foreign "append_null_double_builder" (t @-> int @-> returning void)
     let free = foreign "free_double_builder" (t @-> returning void)
@@ -147,7 +147,7 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = unit ptr
 
     let t : t typ = ptr void
-    let concatenate = foreign "create_int64_builder" (void @-> returning t)
+    let create = foreign "create_int64_builder" (void @-> returning t)
     let append = foreign "append_int64_builder" (t @-> int64_t @-> returning void)
     let append_null = foreign "append_null_int64_builder" (t @-> int @-> returning void)
     let free = foreign "free_int64_builder" (t @-> returning void)
@@ -157,7 +157,7 @@ module C (F : Cstubs.FOREIGN) = struct
     type t = unit ptr
 
     let t : t typ = ptr void
-    let concatenate = foreign "create_string_builder" (void @-> returning t)
+    let create = foreign "create_string_builder" (void @-> returning t)
     let append = foreign "append_string_builder" (t @-> string @-> returning void)
     let append_null = foreign "append_null_string_builder" (t @-> int @-> returning void)
     let free = foreign "free_string_builder" (t @-> returning void)
