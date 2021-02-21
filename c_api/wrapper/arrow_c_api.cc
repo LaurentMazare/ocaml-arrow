@@ -516,13 +516,16 @@ void free_table(TablePtr *table) {
 
 /* Builder bindings. */
 Int64BuilderPtr *create_int64_builder() {
-  return new Int64BuilderPtr();
+  auto builder = std::make_shared<arrow::Int64Builder>();
+  return new Int64BuilderPtr(builder);
 }
 DoubleBuilderPtr *create_double_builder() {
-  return new DoubleBuilderPtr();
+  auto builder = std::make_shared<arrow::DoubleBuilder>();
+  return new DoubleBuilderPtr(builder);
 }
 StringBuilderPtr *create_string_builder() {
-  return new StringBuilderPtr();
+  auto builder = std::make_shared<arrow::StringBuilder>();
+  return new StringBuilderPtr(builder);
 }
 
 void append_int64_builder(Int64BuilderPtr* ptr, int64_t v) {

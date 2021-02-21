@@ -20,11 +20,12 @@ let%expect_test _ =
     Builder.make_table [ "foo", String col1; "bar", Double col2; "baz", Int64 col3 ]
   in
   let foo = Wrapper.Column.read_utf8 table ~column:(`Name "foo") in
-  let bar = Wrapper.Column.read_int table ~column:(`Name "bar") in
+  let bar = Wrapper.Column.read_float_opt table ~column:(`Name "bar") in
   let baz = Wrapper.Column.read_int_opt table ~column:(`Name "baz") in
   Array.iter foo ~f:(Stdio.printf "%s ");
   Stdio.printf "\n";
-  Array.iter bar ~f:(Stdio.printf "%d ");
+  Array.iter bar ~f:(fun v ->
+      Option.value_map v ~f:Float.to_string ~default:"none" |> Stdio.printf "%s ");
   Stdio.printf "\n";
   Array.iter baz ~f:(fun v ->
       Option.value_map v ~f:Int.to_string ~default:"none" |> Stdio.printf "%s ");
@@ -32,5 +33,5 @@ let%expect_test _ =
   [%expect
     {|
     v1 v2 v3 v1 v2 v3 v1 v2 v3
-    0 0 0 1 5 10 2 10 20
-    1 none none 3 none none 5 none none |}]
+    1.5 2.5 none 2.5 3.5 none 3.5 4.5 none
+    2 none none 4 none none 6 none none |}]
