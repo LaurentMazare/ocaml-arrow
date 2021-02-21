@@ -1,4 +1,5 @@
 module F = F
+module Builder = Builder
 module Column = Wrapper.Column
 module Compression = Compression
 module Datatype = Datatype

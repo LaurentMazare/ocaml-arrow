@@ -526,28 +526,63 @@ StringBuilderPtr *create_string_builder() {
 }
 
 void append_int64_builder(Int64BuilderPtr* ptr, int64_t v) {
-  (*ptr)->Append(v);
+  OCAML_BEGIN_PROTECT_EXN
+
+  arrow::Status st = (*ptr)->Append(v);
+  status_exn(st);
+
+  OCAML_END_PROTECT_EXN
 }
 
 void append_double_builder(DoubleBuilderPtr* ptr, double v) {
-  (*ptr)->Append(v);
+  OCAML_BEGIN_PROTECT_EXN
+
+  arrow::Status st = (*ptr)->Append(v);
+  status_exn(st);
+
+  OCAML_END_PROTECT_EXN
 }
+
 
 void append_string_builder(StringBuilderPtr* ptr, char* v) {
-  (*ptr)->Append(v);
+  OCAML_BEGIN_PROTECT_EXN
+
+  arrow::Status st = (*ptr)->Append(v);
+  status_exn(st);
+
+  OCAML_END_PROTECT_EXN
 }
+
 
 void append_null_int64_builder(Int64BuilderPtr* ptr, int n) {
-  (*ptr)->AppendNulls(n);
+  OCAML_BEGIN_PROTECT_EXN
+
+  arrow::Status st = (*ptr)->AppendNulls(n);
+  status_exn(st);
+
+  OCAML_END_PROTECT_EXN
 }
+
 
 void append_null_double_builder(DoubleBuilderPtr* ptr, int n) {
-  (*ptr)->AppendNulls(n);
+  OCAML_BEGIN_PROTECT_EXN
+
+  arrow::Status st = (*ptr)->AppendNulls(n);
+  status_exn(st);
+
+  OCAML_END_PROTECT_EXN
 }
 
+
 void append_null_string_builder(StringBuilderPtr* ptr, int n) {
-  (*ptr)->AppendNulls(n);
+  OCAML_BEGIN_PROTECT_EXN
+
+  arrow::Status st = (*ptr)->AppendNulls(n);
+  status_exn(st);
+
+  OCAML_END_PROTECT_EXN
 }
+
 
 void free_int64_builder(Int64BuilderPtr* ptr) {
   if (ptr != nullptr) delete ptr;
