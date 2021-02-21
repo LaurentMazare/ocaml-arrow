@@ -35,3 +35,18 @@ let%expect_test _ =
     v1 v2 v3 v1 v2 v3 v1 v2 v3
     1.5 2.5 none 2.5 3.5 none 3.5 4.5 none
     2 none none 4 none none 6 none none |}]
+
+type t =
+  { foo : int
+  ; bar : string
+  ; foobar : float option
+  }
+[@@deriving fields]
+
+module RowBuilder = Builder.Row (struct
+  type row = t
+
+  let array_to_table =
+    Fields.to_list ~foo:Builder.F.i64 ~bar:Builder.F.str ~foobar:Builder.F.f64_opt
+    |> Builder.F.array_to_table
+end)

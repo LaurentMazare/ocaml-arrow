@@ -63,3 +63,59 @@ module Int64 = struct
 end
 
 let make_table = Wrapper.Builder.make_table
+
+module F = struct
+  type ('a, 'row, 'elem) col =
+    ?name:string -> ('a, 'row, 'elem) Field.t_with_perm -> 'row array -> Writer.col list
+
+  let col_multi ?name field ~f =
+    let name = Option.value name ~default:(Field.name field) in
+    fun rows -> f (Array.map rows ~f:(Field.get field)) ~name
+
+  let col ?name field ~f =
+    let name = Option.value name ~default:(Field.name field) in
+    fun rows -> [ f (Array.map rows ~f:(Field.get field)) ~name ]
+
+  let i64 = col ~f:Writer.int
+  let i64_opt = col ~f:Writer.int_opt
+  let f64 = col ~f:Writer.float
+  let f64_opt = col ~f:Writer.float_opt
+  let str = col ~f:Writer.utf8
+  let str_opt = col ~f:Writer.utf8_opt
+  let date = col ~f:Writer.date
+  let date_opt = col ~f:Writer.date_opt
+  let time_ns = col ~f:Writer.time_ns
+  let time_ns_opt = col ~f:Writer.time_ns_opt
+
+  let array_to_table cols rows =
+    let cols = List.concat_map cols ~f:(fun col_fn -> col_fn rows) in
+    Writer.create_table ~cols
+end
+
+module type Row_intf = sig
+  type row
+
+  val array_to_table : row array -> Table.t
+end
+
+module Row (R : Row_intf) = struct
+  type row = R.row
+
+  type t =
+    { mutable data : row list
+    ; mutable length : int
+    }
+
+  let create () = { data = []; length = 0 }
+
+  let append t row =
+    t.data <- row :: t.data;
+    t.length <- t.length + 1
+
+  let to_table t = Array.of_list_rev t.data |> R.array_to_table
+  let length t = t.length
+
+  let reset t =
+    t.data <- [];
+    t.length <- 0
+end
