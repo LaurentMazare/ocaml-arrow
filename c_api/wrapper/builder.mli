@@ -13,17 +13,19 @@ module type Intf = sig
 end
 
 module Double : sig
-  include Intf with type elem := float
+  include Intf with type elem := float and type t = Wrapper.DoubleBuilder.t
 end
 
 module Int64 : sig
-  include Intf with type elem := Int64.t
+  include Intf with type elem := Int64.t and type t = Wrapper.Int64Builder.t
 end
 
 module NativeInt : sig
-  include Intf with type elem := int
+  include Intf with type elem := int and type t = Wrapper.Int64Builder.t
 end
 
 module String : sig
-  include Intf with type elem := string
+  include Intf with type elem := string and type t = Wrapper.StringBuilder.t
 end
+
+val make_table : (string * Wrapper.Builder.t) list -> Table.t

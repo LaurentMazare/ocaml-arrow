@@ -5,6 +5,23 @@ let add_compact = false
 
 external use_value : 'a -> unit = "ctypes_use" [@@noalloc]
 
+let ptr_of_string str =
+  let open Ctypes in
+  let len = String.length str in
+  let carray = CArray.make Ctypes.char (1 + len) in
+  for i = 0 to String.length str - 1 do
+    CArray.set carray i str.[i]
+  done;
+  CArray.set carray len '\x00';
+  CArray.start carray
+
+let ptr_of_strings strings =
+  let open Ctypes in
+  let strings = List.map ~f:ptr_of_string strings in
+  let start = CArray.(of_list (ptr char) strings |> start) in
+  Caml.Gc.finalise (fun _ -> use_value strings) start;
+  start
+
 let get_string ptr_char =
   let rec loop acc p =
     let c = Ctypes.(!@p) in
@@ -1257,4 +1274,32 @@ module StringBuilder = struct
   let append t v = C.StringBuilder.append t v
   let length t = C.StringBuilder.length t
   let null_count t = C.StringBuilder.null_count t
+end
+
+module Builder = struct
+  type t =
+    | Double of DoubleBuilder.t
+    | Int64 of Int64Builder.t
+    | String of StringBuilder.t
+
+  let make_table named_builders =
+    let names, builders = List.unzip named_builders in
+    let builders =
+      let a = Ctypes.CArray.make C.Int64Builder.t (List.length builders) in
+      List.iteri builders ~f:(fun i t ->
+          match t with
+          | String d -> Ctypes.CArray.set a i d
+          | Int64 d -> Ctypes.CArray.set a i d
+          | Double d -> Ctypes.CArray.set a i d);
+      a
+    in
+    let table =
+      C.make_table
+        (Ctypes.CArray.start builders)
+        (ptr_of_strings names)
+        (List.length names)
+      |> Table.with_free
+    in
+    use_value named_builders;
+    table
 end

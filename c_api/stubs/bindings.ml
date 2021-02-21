@@ -168,4 +168,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let length = foreign "length_string_builder" (t @-> returning int64_t)
     let null_count = foreign "null_count_string_builder" (t @-> returning int64_t)
   end
+
+  let make_table =
+    foreign "make_table" (ptr (ptr void) @-> ptr (ptr char) @-> int @-> returning Table.t)
 end

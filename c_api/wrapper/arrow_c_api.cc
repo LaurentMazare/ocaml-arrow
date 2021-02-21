@@ -616,6 +616,26 @@ int64_t null_count_string_builder(StringBuilderPtr* ptr) {
   return (*ptr)->null_count();
 }
 
+TablePtr *make_table(BuilderPtr **builders, char **col_names, int n) {
+  OCAML_BEGIN_PROTECT_EXN
+
+  std::vector<std::shared_ptr<arrow::Field>> schema_vector;
+  std::vector<std::shared_ptr<arrow::Array>> arrays;
+  for (int i = 0; i < n; ++i) {
+    std::shared_ptr<arrow::Array> array;
+    arrow::Status st = (*builders[i])->Finish(&array);
+    status_exn(st);
+    schema_vector.push_back(arrow::field(col_names[i], array->type()));
+    arrays.push_back(std::move(array));
+  }
+  auto schema = std::make_shared<arrow::Schema>(schema_vector);
+  auto table = arrow::Table::Make(schema, arrays);
+  return new std::shared_ptr<arrow::Table>(std::move(table));
+
+  OCAML_END_PROTECT_EXN
+  return nullptr;
+}
+
 /* Below are the non ctypes bindings. */
 
 #include "ctypes_cstubs_internals.h"

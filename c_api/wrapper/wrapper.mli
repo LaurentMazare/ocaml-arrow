@@ -199,3 +199,12 @@ module StringBuilder : sig
   val length : t -> Int64.t
   val null_count : t -> Int64.t
 end
+
+module Builder : sig
+  type t =
+    | Double of DoubleBuilder.t
+    | Int64 of Int64Builder.t
+    | String of StringBuilder.t
+
+  val make_table : (string * t) list -> Table.t
+end

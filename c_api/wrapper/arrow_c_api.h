@@ -17,6 +17,7 @@
 #include<parquet/exception.h>
 
 typedef std::shared_ptr<arrow::Table> TablePtr;
+typedef std::shared_ptr<arrow::ArrayBuilder> BuilderPtr;
 typedef std::shared_ptr<arrow::StringBuilder> StringBuilderPtr;
 typedef std::shared_ptr<arrow::Int64Builder> Int64BuilderPtr;
 typedef std::shared_ptr<arrow::DoubleBuilder> DoubleBuilderPtr;
@@ -30,6 +31,7 @@ extern "C" {
 #else
 typedef void TablePtr;
 typedef void ParquetReader;
+typedef void BuilderPtr;
 typedef void StringBuilderPtr;
 typedef void Int64BuilderPtr;
 typedef void DoubleBuilderPtr;
@@ -85,6 +87,7 @@ int64_t length_string_builder(StringBuilderPtr*);
 int64_t null_count_int64_builder(Int64BuilderPtr*);
 int64_t null_count_double_builder(DoubleBuilderPtr*);
 int64_t null_count_string_builder(StringBuilderPtr*);
+TablePtr *make_table(BuilderPtr**, char**, int);
 #ifdef __cplusplus
 }
 #endif

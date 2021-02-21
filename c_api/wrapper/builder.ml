@@ -61,3 +61,5 @@ module Int64 = struct
   let length t = length t |> Int64.to_int_exn
   let null_count t = null_count t |> Int64.to_int_exn
 end
+
+let make_table = Wrapper.Builder.make_table
