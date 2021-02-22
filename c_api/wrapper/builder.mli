@@ -67,9 +67,9 @@ module type Row_intf = sig
   val array_to_table : row array -> Table.t
 end
 
-module Row (R : Row_intf) : sig
+module type Row_builder_intf = sig
   type t
-  type row = R.row
+  type row
 
   val create : unit -> t
   val append : t -> row -> unit
@@ -77,3 +77,5 @@ module Row (R : Row_intf) : sig
   val reset : t -> unit
   val to_table : t -> Table.t
 end
+
+module Row (R : Row_intf) : Row_builder_intf with type row = R.row

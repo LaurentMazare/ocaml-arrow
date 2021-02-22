@@ -98,6 +98,17 @@ module type Row_intf = sig
   val array_to_table : row array -> Table.t
 end
 
+module type Row_builder_intf = sig
+  type t
+  type row
+
+  val create : unit -> t
+  val append : t -> row -> unit
+  val length : t -> int
+  val reset : t -> unit
+  val to_table : t -> Table.t
+end
+
 module Row (R : Row_intf) = struct
   type row = R.row
 
