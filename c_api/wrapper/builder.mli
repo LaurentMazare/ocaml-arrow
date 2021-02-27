@@ -48,6 +48,7 @@ module F : sig
     -> 'b array
     -> Writer.col list
 
+  val ignore : ('a, 'row, 'e) col
   val i64 : ('a, 'row, int) col
   val i64_opt : ('a, 'row, int option) col
   val f64 : ('a, 'row, float) col

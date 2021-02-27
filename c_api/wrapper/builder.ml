@@ -90,6 +90,8 @@ module F = struct
   let array_to_table cols rows =
     let cols = List.concat_map cols ~f:(fun col_fn -> col_fn rows) in
     Writer.create_table ~cols
+
+  let ignore = col_multi ~f:(fun _ ~name:_ -> [])
 end
 
 module type Row_intf = sig
