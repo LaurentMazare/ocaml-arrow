@@ -47,6 +47,9 @@ module RowBuilder = Builder.Row (struct
   type row = t
 
   let array_to_table =
-    Fields.to_list ~foo:Builder.F.i64 ~bar:Builder.F.str ~foobar:Builder.F.f64_opt
+    Fields.to_list
+      ~foo:(Builder.F.c Int)
+      ~bar:(Builder.F.c Utf8)
+      ~foobar:(Builder.F.c_opt Float)
     |> Builder.F.array_to_table
 end)

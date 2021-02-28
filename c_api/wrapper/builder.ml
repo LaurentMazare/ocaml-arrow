@@ -76,16 +76,11 @@ module F = struct
     let name = Option.value name ~default:(Field.name field) in
     fun rows -> [ f (Array.map rows ~f:(Field.get field)) ~name ]
 
-  let i64 = col ~f:Writer.int
-  let i64_opt = col ~f:Writer.int_opt
-  let f64 = col ~f:Writer.float
-  let f64_opt = col ~f:Writer.float_opt
-  let str = col ~f:Writer.utf8
-  let str_opt = col ~f:Writer.utf8_opt
-  let date = col ~f:Writer.date
-  let date_opt = col ~f:Writer.date_opt
-  let time_ns = col ~f:Writer.time_ns
-  let time_ns_opt = col ~f:Writer.time_ns_opt
+  let c (type a) (col_type : a Table.col_type) =
+    col ~f:(fun array -> Table.col array col_type)
+
+  let c_opt (type a) (col_type : a Table.col_type) =
+    col ~f:(fun array -> Table.col_opt array col_type)
 
   let array_to_table cols rows =
     let cols = List.concat_map cols ~f:(fun col_fn -> col_fn rows) in

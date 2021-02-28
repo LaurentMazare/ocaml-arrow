@@ -49,16 +49,8 @@ module F : sig
     -> Writer.col list
 
   val ignore : ('a, 'row, 'e) col
-  val i64 : ('a, 'row, int) col
-  val i64_opt : ('a, 'row, int option) col
-  val f64 : ('a, 'row, float) col
-  val f64_opt : ('a, 'row, float option) col
-  val str : ('a, 'row, string) col
-  val str_opt : ('a, 'row, string option) col
-  val date : ('a, 'row, Date.t) col
-  val date_opt : ('a, 'row, Date.t option) col
-  val time_ns : ('a, 'row, Time_ns.t) col
-  val time_ns_opt : ('a, 'row, Time_ns.t option) col
+  val c : 'elem Table.col_type -> ('a, 'row, 'elem) col
+  val c_opt : 'elem Table.col_type -> ('a, 'row, 'elem option) col
   val array_to_table : ('row array -> Writer.col list) list -> 'row array -> Table.t
 end
 
