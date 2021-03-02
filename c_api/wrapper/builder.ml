@@ -68,6 +68,13 @@ module F = struct
   type ('a, 'row, 'elem) col =
     ?name:string -> ('a, 'row, 'elem) Field.t_with_perm -> 'row array -> Writer.col list
 
+  type ('a, 'row, 'elem) col_array =
+    ?name:string
+    -> suffixes:string array
+    -> ('a, 'row, 'elem array) Field.t_with_perm
+    -> 'row array
+    -> Writer.col list
+
   let col_multi ?name field ~f =
     let name = Option.value name ~default:(Field.name field) in
     fun rows -> f (Array.map rows ~f:(Field.get field)) ~name
@@ -81,6 +88,26 @@ module F = struct
 
   let c_opt (type a) (col_type : a Table.col_type) =
     col ~f:(fun array -> Table.col_opt array col_type)
+
+  let col_array ~f ?name ~suffixes field =
+    let name = Option.value name ~default:(Field.name field) in
+    fun rows ->
+      Array.mapi suffixes ~f:(fun col_index suffix ->
+          let col =
+            Array.map rows ~f:(fun row ->
+                let field = Field.get field row in
+                if Array.length field <> Array.length suffixes
+                then failwith "unexpected size for %s, got %d, expected %d";
+                field.(col_index))
+          in
+          f col ~name:(name ^ suffix))
+      |> Array.to_list
+
+  let c_array (type a) (col_type : a Table.col_type) =
+    col_array ~f:(fun array -> Table.col array col_type)
+
+  let c_opt_array (type a) (col_type : a Table.col_type) =
+    col_array ~f:(fun array -> Table.col_opt array col_type)
 
   let array_to_table cols rows =
     let cols = List.concat_map cols ~f:(fun col_fn -> col_fn rows) in
