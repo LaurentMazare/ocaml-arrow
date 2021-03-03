@@ -113,7 +113,11 @@ module F = struct
     let cols = List.concat_map cols ~f:(fun col_fn -> col_fn rows) in
     Writer.create_table ~cols
 
-  let ignore = col_multi ~f:(fun _ ~name:_ -> [])
+  let c_ignore = col_multi ~f:(fun _ ~name:_ -> [])
+
+  let c_flatten array_to_table ?name:_ field array =
+    let field_array = Array.map array ~f:(Field.get field) in
+    List.concat_map array_to_table ~f:(fun fn -> fn field_array)
 end
 
 module type Row_intf = sig

@@ -55,7 +55,8 @@ module F : sig
     -> 'b array
     -> Writer.col list
 
-  val ignore : ('a, 'row, 'e) col
+  val c_ignore : ('a, 'row, 'e) col
+  val c_flatten : ('elem array -> Writer.col list) list -> ('a, 'row, 'elem) col
   val c : 'elem Table.col_type -> ('a, 'row, 'elem) col
   val c_opt : 'elem Table.col_type -> ('a, 'row, 'elem option) col
   val c_array : 'elem Table.col_type -> ('a, 'row, 'elem) col_array

@@ -43,15 +43,16 @@ type t =
   }
 [@@deriving fields, arrow, sexp]
 
+let array_to_col_list =
+  Fields.to_list
+    ~foo:(Builder.F.c Int)
+    ~bar:(Builder.F.c Utf8)
+    ~foobar:(Builder.F.c_opt Float)
+
 module RowBuilder = Builder.Row (struct
   type row = t
 
-  let array_to_table =
-    Fields.to_list
-      ~foo:(Builder.F.c Int)
-      ~bar:(Builder.F.c Utf8)
-      ~foobar:(Builder.F.c_opt Float)
-    |> Builder.F.array_to_table
+  let array_to_table = Builder.F.array_to_table array_to_col_list
 end)
 
 let%expect_test _ =
@@ -95,3 +96,94 @@ let%expect_test _ =
         ]
       ]
   |}]
+
+type t2 =
+  { left : t
+  ; right : t
+  ; other : int
+  }
+[@@deriving sexp, fields]
+
+let t2_array_to_table =
+  Fields_of_t2.to_list
+    ~left:(Builder.F.c_flatten array_to_col_list)
+    ~right:(Builder.F.c_flatten array_to_col_list)
+    ~other:(Builder.F.c Int)
+  |> Builder.F.array_to_table
+
+let%expect_test _ =
+  let left = { foo = 123456; bar = "onetwothree"; foobar = None } in
+  let right = { foo = -2992792458; bar = "ccc"; foobar = Some 2.71828182846 } in
+  t2_array_to_table
+    [| { left; right; other = 42 }
+     ; { left = right; right = left; other = -42 }
+     ; { left; right = left; other = 1337 }
+    |]
+  |> Table.to_string_debug
+  |> Stdio.print_endline;
+  [%expect
+    {|
+    foo: int64 not null
+    bar: string not null
+    foobar: double
+    foo: int64 not null
+    bar: string not null
+    foobar: double
+    other: int64 not null
+    ----
+    foo:
+      [
+        [
+          123456,
+          -2992792458,
+          123456
+        ]
+      ]
+    bar:
+      [
+        [
+          "onetwothree",
+          "ccc",
+          "onetwothree"
+        ]
+      ]
+    foobar:
+      [
+        [
+          null,
+          2.71828,
+          null
+        ]
+      ]
+    foo:
+      [
+        [
+          -2992792458,
+          123456,
+          123456
+        ]
+      ]
+    bar:
+      [
+        [
+          "ccc",
+          "onetwothree",
+          "onetwothree"
+        ]
+      ]
+    foobar:
+      [
+        [
+          2.71828,
+          null,
+          null
+        ]
+      ]
+    other:
+      [
+        [
+          42,
+          -42,
+          1337
+        ]
+      ] |}]
