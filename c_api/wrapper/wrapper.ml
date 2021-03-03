@@ -129,6 +129,7 @@ module Table = struct
 
   let schema t = C.Table.schema t |> Schema.of_c
   let num_rows t = C.Table.num_rows t |> Int64.to_int_exn
+  let to_string_debug = C.Table.to_string
 
   let with_free t =
     Caml.Gc.finalise C.Table.free t;

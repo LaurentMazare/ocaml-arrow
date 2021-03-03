@@ -639,6 +639,16 @@ TablePtr *make_table(BuilderPtr **builders, char **col_names, int n) {
   return nullptr;
 }
 
+char *table_to_string(TablePtr *table) {
+  OCAML_BEGIN_PROTECT_EXN
+
+  std::string str = (*table)->ToString();
+  return strdup(str.c_str());
+
+  OCAML_END_PROTECT_EXN
+  return nullptr;
+}
+
 /* Below are the non ctypes bindings. */
 
 #include "ctypes_cstubs_internals.h"

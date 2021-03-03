@@ -88,6 +88,8 @@ int64_t null_count_int64_builder(Int64BuilderPtr*);
 int64_t null_count_double_builder(DoubleBuilderPtr*);
 int64_t null_count_string_builder(StringBuilderPtr*);
 TablePtr *make_table(BuilderPtr**, char**, int);
+
+char *table_to_string(TablePtr*);
 #ifdef __cplusplus
 }
 #endif

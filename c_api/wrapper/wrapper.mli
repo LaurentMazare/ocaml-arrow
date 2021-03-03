@@ -34,6 +34,7 @@ module Table : sig
   val read_json : string -> t
   val write_parquet : ?chunk_size:int -> ?compression:Compression.t -> t -> string -> unit
   val write_feather : ?chunk_size:int -> ?compression:Compression.t -> t -> string -> unit
+  val to_string_debug : t -> string
 end
 
 module Parquet_reader : sig

@@ -47,6 +47,7 @@ module C (F : Cstubs.FOREIGN) = struct
     let num_rows = foreign "table_num_rows" (t @-> returning int64_t)
     let schema = foreign "table_schema" (t @-> returning (ptr ArrowSchema.t))
     let free = foreign "free_table" (t @-> returning void)
+    let to_string = foreign "table_to_string" (t @-> returning string)
 
     let chunked_column =
       foreign

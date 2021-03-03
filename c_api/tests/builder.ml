@@ -60,8 +60,38 @@ let%expect_test _ =
   RowBuilder.append builder { foo = 1337; bar = "pi"; foobar = Some 3.14169265358979 };
   let table = RowBuilder.to_table builder in
   arrow_t_of_table table
-  |> Array.iter ~f:(fun t -> sexp_of_t t |> Sexp.to_string_mach |> Stdio.printf "%s\n");
-  [%expect {|
+  |> Array.iter ~f:(fun t -> sexp_of_t t |> Sexp.to_string_mach |> Stdio.print_endline);
+  [%expect
+    {|
     ((foo 1)(bar barbar)(foobar()))
     ((foo 1337)(bar pi)(foobar(3.14169265358979)))
-    |}]
+  |}];
+  Table.to_string_debug table |> Stdio.print_endline;
+  [%expect
+    {|
+    foo: int64 not null
+    bar: string not null
+    foobar: double
+    ----
+    foo:
+      [
+        [
+          1,
+          1337
+        ]
+      ]
+    bar:
+      [
+        [
+          "barbar",
+          "pi"
+        ]
+      ]
+    foobar:
+      [
+        [
+          null,
+          3.14169
+        ]
+      ]
+  |}]
