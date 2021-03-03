@@ -41,7 +41,7 @@ type t =
   ; bar : string
   ; foobar : float option
   }
-[@@deriving fields]
+[@@deriving fields, arrow, sexp]
 
 module RowBuilder = Builder.Row (struct
   type row = t
@@ -53,3 +53,15 @@ module RowBuilder = Builder.Row (struct
       ~foobar:(Builder.F.c_opt Float)
     |> Builder.F.array_to_table
 end)
+
+let%expect_test _ =
+  let builder = RowBuilder.create () in
+  RowBuilder.append builder { foo = 1; bar = "barbar"; foobar = None };
+  RowBuilder.append builder { foo = 1337; bar = "pi"; foobar = Some 3.14169265358979 };
+  let table = RowBuilder.to_table builder in
+  arrow_t_of_table table
+  |> Array.iter ~f:(fun t -> sexp_of_t t |> Sexp.to_string_mach |> Stdio.printf "%s\n");
+  [%expect {|
+    ((foo 1)(bar barbar)(foobar()))
+    ((foo 1337)(bar pi)(foobar(3.14169265358979)))
+    |}]
