@@ -65,6 +65,11 @@ end
 let make_table = Wrapper.Builder.make_table
 
 module F = struct
+  type ('row, 'col_type) data_col =
+    { fn : 'row -> 'col_type
+    ; name : string
+    }
+
   type ('a, 'row, 'elem) col =
     ?name:string -> ('a, 'row, 'elem) Field.t_with_perm -> 'row array -> Writer.col list
 

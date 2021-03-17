@@ -31,6 +31,8 @@ end
 val make_table : (string * Wrapper.Builder.t) list -> Table.t
 
 module F : sig
+  type ('row, 'col_type) data_col
+
   type ('a, 'row, 'elem) col =
     ?name:string -> ('a, 'row, 'elem) Field.t_with_perm -> 'row array -> Writer.col list
 
