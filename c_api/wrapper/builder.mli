@@ -65,19 +65,31 @@ module F : sig
 end
 
 module C : sig
-  type 'row packed_col
+  type ('row, 'elem, 'col_type) col =
+    { name : string
+    ; get : 'row -> 'elem
+    ; col_type : 'col_type Table.col_type
+    }
+
+  type 'row packed_col =
+    | P : ('row, 'elem, 'elem) col -> 'row packed_col
+    | O : ('row, 'elem option, 'elem) col -> 'row packed_col
+
   type 'row packed_cols = 'row packed_col list
 
-  val c
-    :  ?name:string
-    -> 'a Table.col_type
-    -> ('b, 'c, 'a) Field.t_with_perm
+  val c : 'a Table.col_type -> ('b, 'c, 'a) Field.t_with_perm -> 'c packed_cols
+  val c_opt : 'a Table.col_type -> ('b, 'c, 'a option) Field.t_with_perm -> 'c packed_cols
+
+  val c_map
+    :  'a Table.col_type
+    -> ('b, 'c, 'd) Field.t_with_perm
+    -> f:('d -> 'a)
     -> 'c packed_cols
 
-  val c_opt
-    :  ?name:string
-    -> 'a Table.col_type
-    -> ('b, 'c, 'a option) Field.t_with_perm
+  val c_map_opt
+    :  'a Table.col_type
+    -> ('b, 'c, 'd) Field.t_with_perm
+    -> f:('d -> 'a option)
     -> 'c packed_cols
 
   val c_ignore : ('b, 'c, 'a) Field.t_with_perm -> 'c packed_cols
