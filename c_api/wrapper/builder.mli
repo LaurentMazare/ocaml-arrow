@@ -31,8 +31,6 @@ end
 val make_table : (string * Wrapper.Builder.t) list -> Table.t
 
 module F : sig
-  type ('row, 'col_type) data_col
-
   type ('a, 'row, 'elem) col =
     ?name:string -> ('a, 'row, 'elem) Field.t_with_perm -> 'row array -> Writer.col list
 
@@ -64,6 +62,33 @@ module F : sig
   val c_array : 'elem Table.col_type -> ('a, 'row, 'elem) col_array
   val c_opt_array : 'elem Table.col_type -> ('a, 'row, 'elem option) col_array
   val array_to_table : ('row array -> Writer.col list) list -> 'row array -> Table.t
+end
+
+module C : sig
+  type 'row packed_col
+  type 'row packed_cols = 'row packed_col list
+
+  val c
+    :  ?name:string
+    -> 'a Table.col_type
+    -> ('b, 'c, 'a) Field.t_with_perm
+    -> 'c packed_cols
+
+  val c_opt
+    :  ?name:string
+    -> 'a Table.col_type
+    -> ('b, 'c, 'a option) Field.t_with_perm
+    -> 'c packed_cols
+
+  val c_ignore : ('b, 'c, 'a) Field.t_with_perm -> 'c packed_cols
+
+  val c_flatten
+    :  ?rename:[ `fn of string -> string | `keep | `prefix ]
+    -> ('b, 'c, 'a) Field.t_with_perm
+    -> 'a packed_cols
+    -> 'c packed_cols
+
+  val array_to_table : 'a packed_cols -> 'a array -> Table.t
 end
 
 module type Row_intf = sig

@@ -65,11 +65,6 @@ end
 let make_table = Wrapper.Builder.make_table
 
 module F = struct
-  type ('row, 'col_type) data_col =
-    { fn : 'row -> 'col_type
-    ; name : string
-    }
-
   type ('a, 'row, 'elem) col =
     ?name:string -> ('a, 'row, 'elem) Field.t_with_perm -> 'row array -> Writer.col list
 
@@ -123,6 +118,56 @@ module F = struct
   let c_flatten array_to_table ?name:_ field array =
     let field_array = Array.map array ~f:(Field.get field) in
     List.concat_map array_to_table ~f:(fun fn -> fn field_array)
+end
+
+module C = struct
+  type ('row, 'elem, 'col_type) col =
+    { name : string
+    ; get : 'row -> 'elem
+    ; col_type : 'col_type Table.col_type
+    }
+
+  type 'row packed_col =
+    | P : ('row, 'elem, 'elem) col -> 'row packed_col
+    | O : ('row, 'elem option, 'elem) col -> 'row packed_col
+
+  type 'row packed_cols = 'row packed_col list
+
+  let c ?name (type a) (col_type : a Table.col_type) field =
+    let name = Option.value name ~default:(Field.name field) in
+    [ P { name; get = Field.get field; col_type } ]
+
+  let c_opt ?name (type a) (col_type : a Table.col_type) field =
+    let name = Option.value name ~default:(Field.name field) in
+    [ O { name; get = Field.get field; col_type } ]
+
+  let c_ignore _field = []
+
+  let c_flatten ?(rename = `prefix) field packed_cols =
+    let rename =
+      match rename with
+      | `keep -> Fn.id
+      | `prefix -> fun name -> Field.name field ^ "_" ^ name
+      | `fn fn -> fn
+    in
+    List.map packed_cols ~f:(function
+        | P { name; get; col_type } ->
+          let name = rename name in
+          let get row = Field.get field row |> get in
+          P { name; get; col_type }
+        | O { name; get; col_type } ->
+          let name = rename name in
+          let get row = Field.get field row |> get in
+          O { name; get; col_type })
+
+  let array_to_table packed_cols rows =
+    let cols =
+      List.map packed_cols ~f:(function
+          | P { name; get; col_type } -> Table.col (Array.map rows ~f:get) col_type ~name
+          | O { name; get; col_type } ->
+            Table.col_opt (Array.map rows ~f:get) col_type ~name)
+    in
+    Writer.create_table ~cols
 end
 
 module type Row_intf = sig
