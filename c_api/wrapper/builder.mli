@@ -108,8 +108,8 @@ module C : sig
 
   val c_flatten
     :  ?rename:[ `fn of string -> string | `keep | `prefix ]
-    -> ('b, 'c, 'a) Field.t_with_perm
     -> 'a packed_cols
+    -> ('b, 'c, 'a) Field.t_with_perm
     -> 'c packed_cols
 
   val array_to_table : 'a packed_cols -> 'a array -> Table.t

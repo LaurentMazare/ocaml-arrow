@@ -180,7 +180,7 @@ module C = struct
 
   let c_ignore _field = []
 
-  let c_flatten ?(rename = `prefix) field packed_cols =
+  let c_flatten ?(rename = `prefix) packed_cols field =
     let rename =
       match rename with
       | `keep -> Fn.id

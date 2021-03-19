@@ -45,14 +45,15 @@ type t =
 
 let array_to_col_list =
   Fields.to_list
-    ~foo:(Builder.F.c Int)
-    ~bar:(Builder.F.c Utf8)
-    ~foobar:(Builder.F.c_opt Float)
+    ~foo:(Builder.C.c Int)
+    ~bar:(Builder.C.c Utf8)
+    ~foobar:(Builder.C.c_opt Float)
+  |> List.concat
 
 module RowBuilder = Builder.Row (struct
   type row = t
 
-  let array_to_table = Builder.F.array_to_table array_to_col_list
+  let array_to_table = Builder.C.array_to_table array_to_col_list
 end)
 
 let%expect_test _ =
@@ -106,10 +107,11 @@ type t2 =
 
 let t2_array_to_table =
   Fields_of_t2.to_list
-    ~left:(Builder.F.c_flatten array_to_col_list)
-    ~right:(Builder.F.c_flatten array_to_col_list)
-    ~other:(Builder.F.c Int)
-  |> Builder.F.array_to_table
+    ~left:(Builder.C.c_flatten array_to_col_list)
+    ~right:(Builder.C.c_flatten array_to_col_list)
+    ~other:(Builder.C.c Int)
+  |> List.concat
+  |> Builder.C.array_to_table
 
 let%expect_test _ =
   let left = { foo = 123456; bar = "onetwothree"; foobar = None } in
@@ -123,15 +125,15 @@ let%expect_test _ =
   |> Stdio.print_endline;
   [%expect
     {|
-    foo: int64 not null
-    bar: string not null
-    foobar: double
-    foo: int64 not null
-    bar: string not null
-    foobar: double
+    left_foo: int64 not null
+    left_bar: string not null
+    left_foobar: double
+    right_foo: int64 not null
+    right_bar: string not null
+    right_foobar: double
     other: int64 not null
     ----
-    foo:
+    left_foo:
       [
         [
           123456,
@@ -139,7 +141,7 @@ let%expect_test _ =
           123456
         ]
       ]
-    bar:
+    left_bar:
       [
         [
           "onetwothree",
@@ -147,7 +149,7 @@ let%expect_test _ =
           "onetwothree"
         ]
       ]
-    foobar:
+    left_foobar:
       [
         [
           null,
@@ -155,7 +157,7 @@ let%expect_test _ =
           null
         ]
       ]
-    foo:
+    right_foo:
       [
         [
           -2992792458,
@@ -163,7 +165,7 @@ let%expect_test _ =
           123456
         ]
       ]
-    bar:
+    right_bar:
       [
         [
           "ccc",
@@ -171,7 +173,7 @@ let%expect_test _ =
           "onetwothree"
         ]
       ]
-    foobar:
+    right_foobar:
       [
         [
           2.71828,
