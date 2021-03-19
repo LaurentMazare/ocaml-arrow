@@ -151,6 +151,33 @@ module C = struct
     let get row = Field.get field row |> f in
     [ O { name; get; col_type } ]
 
+  let get ~suffixes field idx row =
+    let n_elems = List.length suffixes in
+    let row = Field.get field row in
+    if Array.length row <> n_elems
+    then
+      Printf.failwithf
+        "unexpected number of elements for %s: %d <> %d"
+        (Field.name field)
+        (Array.length row)
+        n_elems
+        ();
+    row.(idx)
+
+  let c_array (type a) (col_type : a Table.col_type) field ~suffixes =
+    let name = Field.name field in
+    List.mapi suffixes ~f:(fun idx suffix ->
+        let get = get ~suffixes field idx in
+        let name = name ^ suffix in
+        P { name; get; col_type })
+
+  let c_array_opt (type a) (col_type : a Table.col_type) field ~suffixes =
+    let name = Field.name field in
+    List.mapi suffixes ~f:(fun idx suffix ->
+        let get = get ~suffixes field idx in
+        let name = name ^ suffix in
+        O { name; get; col_type })
+
   let c_ignore _field = []
 
   let c_flatten ?(rename = `prefix) field packed_cols =

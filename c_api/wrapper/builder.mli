@@ -80,6 +80,18 @@ module C : sig
   val c : 'a Table.col_type -> ('b, 'c, 'a) Field.t_with_perm -> 'c packed_cols
   val c_opt : 'a Table.col_type -> ('b, 'c, 'a option) Field.t_with_perm -> 'c packed_cols
 
+  val c_array
+    :  'a Table.col_type
+    -> ('b, 'c, 'a array) Field.t_with_perm
+    -> suffixes:string list
+    -> 'c packed_cols
+
+  val c_array_opt
+    :  'a Table.col_type
+    -> ('b, 'c, 'a option array) Field.t_with_perm
+    -> suffixes:string list
+    -> 'c packed_cols
+
   val c_map
     :  'a Table.col_type
     -> ('b, 'c, 'd) Field.t_with_perm
