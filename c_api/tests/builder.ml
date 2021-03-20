@@ -189,3 +189,127 @@ let%expect_test _ =
           1337
         ]
       ] |}]
+
+type t3 =
+  { t : t
+  ; time : Time_ns.t
+  ; target : float option
+  ; features : float array
+  }
+[@@deriving fields]
+
+let t3_array_to_table =
+  Fields_of_t3.to_list
+    ~t:(Builder.C.c_flatten array_to_col_list)
+    ~time:(Builder.C.c Time_ns)
+    ~target:(Builder.C.c_opt Float)
+    ~features:(Builder.C.c_array Float ~suffixes:[ "1s"; "5s"; "30s" ])
+  |> List.concat
+  |> Builder.C.array_to_table
+
+let%expect_test _ =
+  let t1 = { foo = 1337; bar = "fortytwo"; foobar = Some 0.57721566490153286 } in
+  let t2 = { foo = 42; bar = "leet"; foobar = None } in
+  let time = Time_ns.of_string "2020-01-16 15:15:00.000Z" in
+  t3_array_to_table
+    [| { t = t1; time; target = None; features = [| 1.; 2.; 3. |] }
+     ; { t = t2; time; target = Some 3.14; features = [| 1.23; 2.34; 3.45 |] }
+     ; { t = t1; time; target = Some 3.141; features = [| Float.nan; -1.11; 2.22 |] }
+     ; { t = t2; time; target = Some 3.1415; features = [| 1.2345; -1.11; 2.22 |] }
+     ; { t = t1; time; target = Some 3.14159; features = [| 2.71828; -1.11; 2.22 |] }
+    |]
+  |> Table.to_string_debug
+  |> Stdio.print_endline;
+  [%expect
+    {|
+    t_foo: int64 not null
+    t_bar: string not null
+    t_foobar: double
+    time: timestamp[ns, tz=UTC] not null
+    target: double
+    features1s: double not null
+    features5s: double not null
+    features30s: double not null
+    ----
+    t_foo:
+      [
+        [
+          1337,
+          42,
+          1337,
+          42,
+          1337
+        ]
+      ]
+    t_bar:
+      [
+        [
+          "fortytwo",
+          "leet",
+          "fortytwo",
+          "leet",
+          "fortytwo"
+        ]
+      ]
+    t_foobar:
+      [
+        [
+          0.577216,
+          null,
+          0.577216,
+          null,
+          0.577216
+        ]
+      ]
+    time:
+      [
+        [
+          2020-01-16 15:15:00.000000000,
+          2020-01-16 15:15:00.000000000,
+          2020-01-16 15:15:00.000000000,
+          2020-01-16 15:15:00.000000000,
+          2020-01-16 15:15:00.000000000
+        ]
+      ]
+    target:
+      [
+        [
+          null,
+          3.14,
+          3.141,
+          3.1415,
+          3.14159
+        ]
+      ]
+    features1s:
+      [
+        [
+          1,
+          1.23,
+          nan,
+          1.2345,
+          2.71828
+        ]
+      ]
+    features5s:
+      [
+        [
+          2,
+          2.34,
+          -1.11,
+          -1.11,
+          -1.11
+        ]
+      ]
+    features30s:
+      [
+        [
+          3,
+          3.45,
+          2.22,
+          2.22,
+          2.22
+        ]
+      ]
+
+  |}]

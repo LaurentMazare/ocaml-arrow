@@ -30,40 +30,6 @@ end
 
 val make_table : (string * Wrapper.Builder.t) list -> Table.t
 
-module F : sig
-  type ('a, 'row, 'elem) col =
-    ?name:string -> ('a, 'row, 'elem) Field.t_with_perm -> 'row array -> Writer.col list
-
-  type ('a, 'row, 'elem) col_array =
-    ?name:string
-    -> suffixes:string array
-    -> ('a, 'row, 'elem array) Field.t_with_perm
-    -> 'row array
-    -> Writer.col list
-
-  val col_multi
-    :  ?name:string
-    -> ('a, 'b, 'c) Fieldslib.Field.t_with_perm
-    -> f:('c array -> name:string -> Writer.col list)
-    -> 'b array
-    -> Writer.col list
-
-  val col
-    :  ?name:string
-    -> ('a, 'b, 'c) Fieldslib.Field.t_with_perm
-    -> f:('c array -> name:string -> Writer.col)
-    -> 'b array
-    -> Writer.col list
-
-  val c_ignore : ('a, 'row, 'e) col
-  val c_flatten : ('elem array -> Writer.col list) list -> ('a, 'row, 'elem) col
-  val c : 'elem Table.col_type -> ('a, 'row, 'elem) col
-  val c_opt : 'elem Table.col_type -> ('a, 'row, 'elem option) col
-  val c_array : 'elem Table.col_type -> ('a, 'row, 'elem) col_array
-  val c_opt_array : 'elem Table.col_type -> ('a, 'row, 'elem option) col_array
-  val array_to_table : ('row array -> Writer.col list) list -> 'row array -> Table.t
-end
-
 module C : sig
   type ('row, 'elem, 'col_type) col =
     { name : string
