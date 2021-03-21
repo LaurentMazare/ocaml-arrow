@@ -27,10 +27,6 @@ jobs:
         with:
           ocaml-version: ${{ matrix.ocaml-version }}
 
-      - run: opam pin add torch.dev . --no-action
-
-      - run: opam depext torch --yes --with-doc --with-test
-
       - run: opam install . --deps-only --with-doc --with-test
 
       - run: opam exec -- dune build
