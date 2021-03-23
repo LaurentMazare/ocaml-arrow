@@ -156,6 +156,9 @@ module Writer : sig
   val utf8_opt : string option array -> name:string -> col
   val date : Core_kernel.Date.t array -> name:string -> col
   val date_opt : Core_kernel.Date.t option array -> name:string -> col
+
+  (* Timestamps are encoded in a "timezone naive" way, and implicitely using
+     GMT. *)
   val time_ns : Core_kernel.Time_ns.t array -> name:string -> col
   val time_ns_opt : Core_kernel.Time_ns.t option array -> name:string -> col
   val bitset : Valid.t -> name:string -> col
