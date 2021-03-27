@@ -32,7 +32,8 @@ let%expect_test _ =
       in
       loop_read ())
     ~finally:(fun () -> Caml.Sys.remove filename);
-  [%expect {|
+  [%expect
+    {|
     file has 100000 rows
     created reader
     65536
