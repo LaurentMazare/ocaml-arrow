@@ -1,5 +1,5 @@
 (library
  (name c_arrow_tests)
  (inline_tests)
- (libraries sexplib core_kernel core_kernel.caml_unix arrow.c_api stdio)
+ (libraries sexplib core_kernel core_kernel.caml_unix arrow.c_api pyml stdio)
  (preprocess (pps ppx_arrow ppx_expect ppx_let ppx_compare ppx_fields_conv ppx_sexp_conv)))
