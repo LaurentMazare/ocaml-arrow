@@ -445,7 +445,7 @@ TablePtr *csv_read_table(char *filename) {
   std::shared_ptr<arrow::io::RandomAccessFile> infile = ok_exn(file);
 
   auto reader =
-    arrow::csv::TableReader::Make(arrow::default_memory_pool(),
+    arrow::csv::TableReader::Make(arrow::io::default_io_context(),
                                   infile,
                                   arrow::csv::ReadOptions::Defaults(),
                                   arrow::csv::ParseOptions::Defaults(),
