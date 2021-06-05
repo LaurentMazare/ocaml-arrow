@@ -166,6 +166,9 @@ let%expect_test _ =
     >> foo405645133115846
     >> 56118816 6280585.336360538 12082220.700732507 |}]
 
+let sexp_of_time_ns time_ns =
+  Time_ns.to_string_iso8601_basic time_ns ~zone:Time.Zone.utc |> sexp_of_string
+
 let%expect_test _ =
   let filename = Caml.Filename.temp_file "test" ".parquet" in
   Exn.protect
@@ -190,11 +193,23 @@ let%expect_test _ =
       let lines = python_read_and_rewrite ~filename ~print_details:false in
       List.iter lines ~f:(Stdio.printf ">> %s\n%!");
       let table = Parquet_reader.table filename in
-      let rows = Wrapper.Table.num_rows table in
-      Stdio.printf "%d\n%!" rows)
+      let rows = Table.num_rows table in
+      Stdio.printf "%d\n%!" rows;
+      let col_v2 = Column.read_float_opt table ~column:(`Name "col_v2") in
+      let col_date = Column.read_date table ~column:(`Name "col_date") in
+      let col_time = Column.read_time_ns table ~column:(`Name "col_time") in
+      Stdio.printf
+        "%s\n%s\n%s\n%!"
+        ([%sexp_of: float option array] col_v2 |> Sexp.to_string_mach)
+        ([%sexp_of: Date.t array] col_date |> Sexp.to_string_mach)
+        ([%sexp_of: time_ns array] col_time |> Sexp.to_string_mach);
+      ())
     ~finally:(fun () -> Caml.Sys.remove filename);
   [%expect
     {|
     5
+    ((2.718281828)()()(13.37)())
+    (2020-01-01 2020-01-01 2020-01-13 2019-11-20 2020-01-01)
+    (1970-01-01T00:27:02.882160123Z 1970-01-01T00:27:02.882160123Z 1970-01-01T00:27:02.882160123Z 1970-01-01T00:27:02.882160123Z 1970-01-01T00:27:02.882160123Z)
 
 |}]
