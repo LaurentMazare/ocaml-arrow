@@ -22,20 +22,28 @@ let gen =
   and z_opt = Option.quickcheck_generator float_gen in
   { x; y; z = Printf.sprintf "foo%d" z; z_opt }
 
-let python_read_and_rewrite ~filename =
+let python_read_and_rewrite ~filename ~print_details =
   let in_channel, out_channel = Caml_unix.open_process "python" in
+  let print_details =
+    if print_details
+    then
+      [ "print(df.shape)"
+      ; "print(df['z'].iloc[0])"
+      ; "print(sum(df['x']), sum(df['y']), np.nansum(df['z_opt']))"
+      ]
+    else []
+  in
   Out_channel.output_lines
     out_channel
-    [ "import os"
-    ; "import pandas as pd"
-    ; "import numpy as np"
-    ; Printf.sprintf "df = pd.read_parquet('%s')" filename
-    ; "print(df.shape)"
-    ; "print(df['z'].iloc[0])"
-    ; "print(sum(df['x']), sum(df['y']), np.nansum(df['z_opt']))"
-    ; Printf.sprintf "os.remove('%s')" filename
-    ; Printf.sprintf "df.to_parquet('%s')" filename
-    ];
+    ([ "import os"
+     ; "import pandas as pd"
+     ; "import numpy as np"
+     ; Printf.sprintf "df = pd.read_parquet('%s')" filename
+     ]
+    @ print_details
+    @ [ Printf.sprintf "os.remove('%s')" filename
+      ; Printf.sprintf "df.to_parquet('%s')" filename
+      ]);
   Out_channel.close out_channel;
   let lines = In_channel.input_lines in_channel in
   In_channel.close in_channel;
@@ -62,7 +70,7 @@ let%expect_test _ =
           in
           Stdio.printf "sum_z_opt: %f\n" sum_z_opt;
           write ~chunk_size:128 filename ts;
-          let lines = python_read_and_rewrite ~filename in
+          let lines = python_read_and_rewrite ~filename ~print_details:true in
           List.iter lines ~f:(Stdio.printf ">> %s\n%!");
           let ts' = read filename in
           let no_diff = ref true in
@@ -157,3 +165,36 @@ let%expect_test _ =
     >> (3286, 4)
     >> foo405645133115846
     >> 56118816 6280585.336360538 12082220.700732507 |}]
+
+let%expect_test _ =
+  let filename = Caml.Filename.temp_file "test" ".parquet" in
+  Exn.protect
+    ~f:(fun () ->
+      let col_v1 = Writer.float [| 1.; 2.; 3.; 3.14159265358979; 5. |] ~name:"x" in
+      let col_v2 =
+        Writer.float_opt
+          [| Some 2.718281828; None; None; Some 13.37; None |]
+          ~name:"col_v2"
+      in
+      let col_date =
+        let d = Date.of_string "2020-01-01" in
+        Writer.date
+          [| d; d; Date.add_days d 12; Date.add_days d (-42); d |]
+          ~name:"col_date"
+      in
+      let col_time =
+        let t = Time_ns.of_string "2021-06-05 09:36:00.123+01:00" in
+        Writer.time_ns [| t; t; t; t; t |] ~name:"col_time"
+      in
+      Writer.write filename ~cols:[ col_v1; col_v2; col_date; col_time ];
+      let lines = python_read_and_rewrite ~filename ~print_details:false in
+      List.iter lines ~f:(Stdio.printf ">> %s\n%!");
+      let table = Parquet_reader.table filename in
+      let rows = Wrapper.Table.num_rows table in
+      Stdio.printf "%d\n%!" rows)
+    ~finally:(fun () -> Caml.Sys.remove filename);
+  [%expect
+    {|
+    5
+
+|}]
