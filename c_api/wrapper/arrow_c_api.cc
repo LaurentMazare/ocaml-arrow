@@ -118,6 +118,40 @@ void check_column_idx(int column_idx, int n_cols) {
   }
 }
 
+int timestamp_unit_in_ns(TablePtr *table, char *column_name, int column_idx) {
+  int n_cols = (*table)->num_columns();
+  if (column_idx >= n_cols) check_column_idx(column_idx, n_cols);
+
+  OCAML_BEGIN_PROTECT_EXN
+
+  std::shared_ptr<arrow::ChunkedArray> array;
+
+  if (column_idx >= 0) {
+    array = (*table)->column(column_idx);
+  }
+  else if (column_name) {
+    array = (*table)->GetColumnByName(std::string(column_name));
+    if (!array) {
+      throw std::invalid_argument(std::string("cannot find column ") + column_name);
+    }
+  }
+  if (!array) {
+    throw std::invalid_argument("error finding column");
+  }
+  auto ts_type = std::dynamic_pointer_cast<arrow::TimestampType>(array->type());
+  if (ts_type == nullptr) {
+    throw std::invalid_argument("not a timestamp column");
+  }
+  if (ts_type->unit() == arrow::TimeUnit::SECOND) return 1000000000;
+  if (ts_type->unit() == arrow::TimeUnit::MILLI) return 1000000;
+  if (ts_type->unit() == arrow::TimeUnit::MICRO) return 1000;
+  if (ts_type->unit() == arrow::TimeUnit::NANO) return 1;
+  return 1;
+
+  OCAML_END_PROTECT_EXN
+  return -1;
+}
+
 struct ArrowArray *table_chunked_column_(TablePtr *table, char *column_name, int column_idx, int *nchunks, int dt) {
   OCAML_BEGIN_PROTECT_EXN
 

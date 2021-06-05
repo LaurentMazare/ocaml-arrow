@@ -53,6 +53,8 @@ int64_t table_num_rows(TablePtr*);
 struct ArrowSchema *table_schema(TablePtr*);
 void free_table(TablePtr*);
 
+int timestamp_unit_in_ns(TablePtr*, char*, int);
+
 struct ArrowArray *table_chunked_column(TablePtr *reader, int column_idx, int *nchunks, int dt);
 struct ArrowArray *table_chunked_column_by_name(TablePtr *reader, char *column_name, int *nchunks, int dt);
 void free_chunked_column(struct ArrowArray *, int nchunks);

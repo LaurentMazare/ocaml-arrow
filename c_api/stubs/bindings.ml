@@ -49,6 +49,9 @@ module C (F : Cstubs.FOREIGN) = struct
     let free = foreign "free_table" (t @-> returning void)
     let to_string = foreign "table_to_string" (t @-> returning string)
 
+    let timestamp_unit_in_ns =
+      foreign "timestamp_unit_in_ns" (t @-> string @-> int @-> returning int)
+
     let chunked_column =
       foreign
         "table_chunked_column"

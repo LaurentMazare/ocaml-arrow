@@ -540,23 +540,33 @@ module Column = struct
           |> Option.some
         else None)
 
+  let timestamp_unit_in_ns table ~column =
+    let column_name, column_idx =
+      match column with
+      | `Name name -> name, -1
+      | `Index index -> "", index
+    in
+    C.Table.timestamp_unit_in_ns table column_name column_idx
+
   let read_time_ns table ~column =
     let dst =
       read_ba table ~datatype:Timestamp ~kind:Int64 ~ctype:Ctypes.int64_t ~column
     in
+    let mult = timestamp_unit_in_ns table ~column in
     let num_rows = Bigarray.Array1.dim dst in
     Array.init num_rows ~f:(fun idx ->
-        Core_kernel.Time_ns.of_int_ns_since_epoch (Int64.to_int_exn dst.{idx}))
+        Core_kernel.Time_ns.of_int_ns_since_epoch (mult * Int64.to_int_exn dst.{idx}))
 
   let read_time_ns_opt table ~column =
     let dst, valid =
       read_ba_opt table ~datatype:Timestamp ~kind:Int64 ~ctype:Ctypes.int64_t ~column
     in
+    let mult = timestamp_unit_in_ns table ~column in
     let num_rows = Bigarray.Array1.dim dst in
     Array.init num_rows ~f:(fun idx ->
         if Valid.get valid idx
         then
-          Core_kernel.Time_ns.of_int_ns_since_epoch (Int64.to_int_exn dst.{idx})
+          Core_kernel.Time_ns.of_int_ns_since_epoch (mult * Int64.to_int_exn dst.{idx})
           |> Option.some
         else None)
 
