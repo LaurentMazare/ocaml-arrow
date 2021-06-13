@@ -182,6 +182,10 @@ struct ArrowArray *table_chunked_column_(TablePtr *table, char *column_name, int
     expected_type = arrow::Type::BOOL;
     expected_type_str = "bool";
   }
+  else if (dt == 6) {
+    expected_type = arrow::Type::FLOAT;
+    expected_type_str = "float";
+  }
   else {
     throw std::invalid_argument(std::string("unknown datatype ") + std::to_string(dt));
   }

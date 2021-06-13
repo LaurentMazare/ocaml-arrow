@@ -83,6 +83,11 @@ module Column : sig
     -> column:column
     -> (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t
 
+  val read_f32_ba
+    :  Table.t
+    -> column:column
+    -> (float, Bigarray.float32_elt, Bigarray.c_layout) Bigarray.Array1.t
+
   val read_int : Table.t -> column:column -> int array
   val read_float : Table.t -> column:column -> float array
   val read_utf8 : Table.t -> column:column -> string array
@@ -100,6 +105,11 @@ module Column : sig
     :  Table.t
     -> column:column
     -> (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t * Valid.t
+
+  val read_f32_ba_opt
+    :  Table.t
+    -> column:column
+    -> (float, Bigarray.float32_elt, Bigarray.c_layout) Bigarray.Array1.t * Valid.t
 
   val read_int_opt : Table.t -> column:column -> int option array
   val read_float_opt : Table.t -> column:column -> float option array

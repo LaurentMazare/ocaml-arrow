@@ -351,6 +351,7 @@ module Column = struct
       | Date32
       | Timestamp
       | Bool
+      | Float32
 
     let to_int = function
       | Int64 -> 0
@@ -359,6 +360,7 @@ module Column = struct
       | Date32 -> 3
       | Timestamp -> 4
       | Bool -> 5
+      | Float32 -> 6
   end
 
   let with_column table dt ~column ~f =
@@ -572,6 +574,8 @@ module Column = struct
 
   let read_f64_ba = read_ba ~datatype:Float64 ~kind:Float64 ~ctype:Ctypes.double
   let read_f64_ba_opt = read_ba_opt ~datatype:Float64 ~kind:Float64 ~ctype:Ctypes.double
+  let read_f32_ba = read_ba ~datatype:Float32 ~kind:Float32 ~ctype:Ctypes.float
+  let read_f32_ba_opt = read_ba_opt ~datatype:Float32 ~kind:Float32 ~ctype:Ctypes.float
 
   let read_utf8 table ~column =
     with_column table Utf8 ~column ~f:(fun chunks ->
