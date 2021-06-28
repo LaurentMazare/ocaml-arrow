@@ -29,6 +29,7 @@ depends: [
   "sexplib"
   "stb_image"
   "stdio"
+  "core_kernel"
 ]
 
 depopts: [
