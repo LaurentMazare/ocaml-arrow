@@ -1,3 +1,0 @@
-(executables
-  (names basics)
-  (libraries base arrow_core arrow stdio))

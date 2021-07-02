@@ -1,3 +1,3 @@
 (executables
-  (names arrow_gen)
-  (libraries ctypes.stubs))
+  (names gen)
+  (libraries ctypes ctypes.stubs ctypes.foreign))

@@ -1,3 +1,0 @@
-(executables
-  (names gen)
-  (libraries ctypes ctypes.stubs ctypes.foreign))

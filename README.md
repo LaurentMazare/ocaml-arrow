@@ -1,3 +1,3 @@
 # ocaml-arrow
 
-OCaml bindings for [Apache Arrow](https://arrow.apache.org/) using the C-glib api.
+OCaml bindings for [Apache Arrow](https://arrow.apache.org/) using the C++ api.
