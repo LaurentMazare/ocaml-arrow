@@ -56,4 +56,31 @@ let%expect_test _ =
     {|
     v1 v2 v3 v1 v2 v3 v1 v2 v3
     0.000000 0.000000 0.000000 1.000000 5.000000 0.500000 2.000000 10.000000 1.000000
-    0.1 none none 2.1 none none 4.1 none none |}]
+    0.1 none none 2.1 none none 4.1 none none |}];
+  let col_foo = Wrapper.Table.get_column table "foo" in
+  let col_bar = Wrapper.Table.get_column table "bar" in
+  let table2 =
+    let cols = [ Table.col (Array.init 9 ~f:(Printf.sprintf "w%d")) Utf8 ~name:"woo" ] in
+    Wrapper.Writer.create_table ~cols
+  in
+  let table3 = Table.add_column table2 "foo2" col_foo in
+  let table3 = Table.add_column table3 "foo3" col_foo in
+  let table3 = Table.add_column table3 "barbar" col_bar in
+  let foo3 = Table.read table3 Utf8 ~column:(`Name "foo3") in
+  let woo = Table.read table3 Utf8 ~column:(`Name "woo") in
+  Array.iter woo ~f:(Stdio.printf "%s ");
+  Stdio.printf "\n";
+  Array.iter foo3 ~f:(Stdio.printf "%s ");
+  Stdio.printf "\n";
+  let table = Table.add_all_columns table table3 in
+  let foo3 = Table.read table Utf8 ~column:(`Name "foo3") in
+  let woo = Table.read table Utf8 ~column:(`Name "woo") in
+  Array.iter woo ~f:(Stdio.printf "%s ");
+  Stdio.printf "\n";
+  Array.iter foo3 ~f:(Stdio.printf "%s ");
+  Stdio.printf "\n";
+  [%expect {|
+    w0 w1 w2 w3 w4 w5 w6 w7 w8
+    v1 v2 v3 v1 v2 v3 v1 v2 v3
+    w0 w1 w2 w3 w4 w5 w6 w7 w8
+    v1 v2 v3 v1 v2 v3 v1 v2 v3 |}]
