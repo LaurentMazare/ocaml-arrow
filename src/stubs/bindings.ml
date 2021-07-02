@@ -38,6 +38,13 @@ module C (F : Cstubs.FOREIGN) = struct
     let () = seal t
   end
 
+  module ChunkedArray = struct
+    type t = unit ptr
+
+    let t : t typ = ptr void
+    let free = foreign "free_chunked_array" (t @-> returning void)
+  end
+
   module Table = struct
     type t = unit ptr
 
@@ -70,6 +77,12 @@ module C (F : Cstubs.FOREIGN) = struct
 
     let create =
       foreign "create_table" (ptr ArrowArray.t @-> ptr ArrowSchema.t @-> returning t)
+
+    let add_column =
+      foreign "table_add_column" (t @-> string @-> ChunkedArray.t @-> returning t)
+
+    let get_column = foreign "table_get_column" (t @-> string @-> returning ChunkedArray.t)
+    let add_all_columns = foreign "table_add_all_columns" (t @-> t @-> returning t)
   end
 
   module Parquet_reader = struct

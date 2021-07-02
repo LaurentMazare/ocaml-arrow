@@ -236,6 +236,51 @@ void free_chunked_column(struct ArrowArray *arrays, int nchunks) {
   free(arrays);
 }
 
+TablePtr *table_add_all_columns(TablePtr* t1, TablePtr* t2) {
+  OCAML_BEGIN_PROTECT_EXN
+
+  TablePtr result = *t1;
+  for (int i = 0; i < (*t2)->num_columns(); ++i) {
+    auto field = (*t2)->field(i);
+    auto array = (*t2)->column(i);
+    auto result_ = result->AddColumn(result->num_columns(), field, array);
+    result = ok_exn(result_);
+  }
+
+  return new std::shared_ptr<arrow::Table>(result);
+
+  OCAML_END_PROTECT_EXN
+  return nullptr;
+}
+
+TablePtr *table_add_column(TablePtr* t, char* col_name, ChunkedArrayPtr* array) {
+  OCAML_BEGIN_PROTECT_EXN
+
+  auto field = arrow::field(col_name, (*array)->type());
+  auto result = (*t)->AddColumn((*t)->num_columns(), field, *array);
+  return new std::shared_ptr<arrow::Table>(ok_exn(result));
+
+  OCAML_END_PROTECT_EXN
+  return nullptr;
+}
+
+ChunkedArrayPtr *table_get_column(TablePtr* t, char* col_name) {
+  OCAML_BEGIN_PROTECT_EXN
+
+  auto array = (*t)->GetColumnByName(std::string(col_name));
+  if (!array) {
+    throw std::invalid_argument(std::string("cannot find column ") + col_name);
+  }
+  return new std::shared_ptr<arrow::ChunkedArray>(array);
+
+  OCAML_END_PROTECT_EXN
+  return nullptr;
+}
+
+void free_chunked_array(ChunkedArrayPtr* ptr) {
+  delete ptr;
+}
+
 arrow::Compression::type compression_of_int(int compression) {
   arrow::Compression::type compression_ = arrow::Compression::UNCOMPRESSED;
   if (compression == 1) compression_ = arrow::Compression::SNAPPY;

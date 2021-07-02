@@ -21,6 +21,7 @@ typedef std::shared_ptr<arrow::ArrayBuilder> BuilderPtr;
 typedef std::shared_ptr<arrow::StringBuilder> StringBuilderPtr;
 typedef std::shared_ptr<arrow::Int64Builder> Int64BuilderPtr;
 typedef std::shared_ptr<arrow::DoubleBuilder> DoubleBuilderPtr;
+typedef std::shared_ptr<arrow::ChunkedArray> ChunkedArrayPtr;
 
 struct ParquetReader {
   std::unique_ptr<parquet::arrow::FileReader> reader;
@@ -35,6 +36,7 @@ typedef void BuilderPtr;
 typedef void StringBuilderPtr;
 typedef void Int64BuilderPtr;
 typedef void DoubleBuilderPtr;
+typedef void ChunkedArrayPtr;
 #endif
 
 struct ArrowSchema *arrow_schema(char*);
@@ -58,6 +60,11 @@ int timestamp_unit_in_ns(TablePtr*, char*, int);
 struct ArrowArray *table_chunked_column(TablePtr *reader, int column_idx, int *nchunks, int dt);
 struct ArrowArray *table_chunked_column_by_name(TablePtr *reader, char *column_name, int *nchunks, int dt);
 void free_chunked_column(struct ArrowArray *, int nchunks);
+
+TablePtr *table_add_all_columns(TablePtr*, TablePtr*);
+TablePtr *table_add_column(TablePtr*, char*, ChunkedArrayPtr*);
+ChunkedArrayPtr *table_get_column(TablePtr*, char*);
+void free_chunked_array(ChunkedArrayPtr*);
 
 TablePtr *create_table(struct ArrowArray *array, struct ArrowSchema *schema);
 void arrow_write_file(char *filename, struct ArrowArray *, struct ArrowSchema *, int chunk_size);

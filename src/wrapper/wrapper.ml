@@ -124,6 +124,14 @@ module Schema = struct
     loop c_schema
 end
 
+module ChunkedArray = struct
+  type t = C.ChunkedArray.t
+
+  let with_free t =
+    Caml.Gc.finalise C.ChunkedArray.free t;
+    t
+end
+
 module Table = struct
   type t = C.Table.t
 
@@ -165,6 +173,10 @@ module Table = struct
       filename
     =
     C.Table.feather_write filename t chunk_size (Compression.to_cint compression)
+
+  let get_column t col_name = C.Table.get_column t col_name |> ChunkedArray.with_free
+  let add_column t col_name array = C.Table.add_column t col_name array |> with_free
+  let add_all_columns t t' = C.Table.add_all_columns t t' |> with_free
 end
 
 module Parquet_reader = struct

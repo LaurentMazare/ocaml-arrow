@@ -23,6 +23,10 @@ module Schema : sig
   [@@deriving sexp_of]
 end
 
+module ChunkedArray : sig
+  type t
+end
+
 module Table : sig
   type t
 
@@ -35,6 +39,9 @@ module Table : sig
   val write_parquet : ?chunk_size:int -> ?compression:Compression.t -> t -> string -> unit
   val write_feather : ?chunk_size:int -> ?compression:Compression.t -> t -> string -> unit
   val to_string_debug : t -> string
+  val add_column : t -> string -> ChunkedArray.t -> t
+  val get_column : t -> string -> ChunkedArray.t
+  val add_all_columns : t -> t -> t
 end
 
 module Parquet_reader : sig
