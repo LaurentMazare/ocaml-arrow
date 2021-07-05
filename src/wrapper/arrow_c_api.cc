@@ -25,9 +25,22 @@
 // shadow the C++ std::invalid_argument
 #undef invalid_argument
 
+class caml_lock_guard {
+  caml_lock_guard() {
+    caml_enter_blocking_section();
+  }
+  ~caml_lock_guard() {
+    caml_leave_blocking_section();
+  }
+};
+
 #define OCAML_BEGIN_PROTECT_EXN                     \
   char *__ocaml_protect_err = nullptr;              \
   try {
+#define OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK        \
+  char *__ocaml_protect_err = nullptr;              \
+  try {                                             \
+    caml_lock_guard lock();
 #define OCAML_END_PROTECT_EXN                       \
   } catch (const std::exception& e) {               \
     __ocaml_protect_err = strdup(e.what());         \
@@ -306,7 +319,7 @@ TablePtr *create_table(struct ArrowArray *array, struct ArrowSchema *schema) {
 }
 
 void parquet_write_file(char *filename, struct ArrowArray *array, struct ArrowSchema *schema, int chunk_size, int compression) {
-  OCAML_BEGIN_PROTECT_EXN
+  OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK
 
   auto file = arrow::io::FileOutputStream::Open(filename);
   auto outfile = ok_exn(file);
@@ -325,7 +338,7 @@ void parquet_write_file(char *filename, struct ArrowArray *array, struct ArrowSc
 }
 
 void arrow_write_file(char *filename, struct ArrowArray *array, struct ArrowSchema *schema, int chunk_size) {
-  OCAML_BEGIN_PROTECT_EXN
+  OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK
 
   auto file = arrow::io::FileOutputStream::Open(filename);
   auto outfile = ok_exn(file);
@@ -340,7 +353,7 @@ void arrow_write_file(char *filename, struct ArrowArray *array, struct ArrowSche
 }
 
 void feather_write_file(char *filename, struct ArrowArray *array, struct ArrowSchema *schema, int chunk_size, int compression) {
-  OCAML_BEGIN_PROTECT_EXN
+  OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK
 
   auto file = arrow::io::FileOutputStream::Open(filename);
   auto outfile = ok_exn(file);
@@ -358,7 +371,7 @@ void feather_write_file(char *filename, struct ArrowArray *array, struct ArrowSc
 }
 
 void parquet_write_table(char *filename, TablePtr *table, int chunk_size, int compression) {
-  OCAML_BEGIN_PROTECT_EXN
+  OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK
 
   auto file = arrow::io::FileOutputStream::Open(filename);
   auto outfile = ok_exn(file);
@@ -375,7 +388,7 @@ void parquet_write_table(char *filename, TablePtr *table, int chunk_size, int co
 }
 
 void feather_write_table(char *filename, TablePtr *table, int chunk_size, int compression) {
-  OCAML_BEGIN_PROTECT_EXN
+  OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK
 
   auto file = arrow::io::FileOutputStream::Open(filename);
   auto outfile = ok_exn(file);
@@ -389,7 +402,7 @@ void feather_write_table(char *filename, TablePtr *table, int chunk_size, int co
 }
 
 ParquetReader *parquet_reader_open(char *filename, int *col_idxs, int ncols, int use_threads, int mmap, int buffer_size, int batch_size) {
-  OCAML_BEGIN_PROTECT_EXN
+  OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK
 
   arrow::Status st;
   parquet::ReaderProperties prop = parquet::default_reader_properties();
@@ -424,7 +437,7 @@ ParquetReader *parquet_reader_open(char *filename, int *col_idxs, int ncols, int
 TablePtr *parquet_reader_next(ParquetReader *pr) {
   if (!pr->batch_reader) caml_failwith("reader has already been closed");
 
-  OCAML_BEGIN_PROTECT_EXN
+  OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK
 
   arrow::Status st;
   std::shared_ptr<arrow::RecordBatch> batch;
@@ -451,7 +464,7 @@ void parquet_reader_free(ParquetReader *pr) {
 }
 
 TablePtr *parquet_read_table(char *filename, int *col_idxs, int ncols, int use_threads, int64_t only_first) {
-  OCAML_BEGIN_PROTECT_EXN
+  OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK
 
   arrow::Status st;
   auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());
@@ -504,7 +517,7 @@ TablePtr *parquet_read_table(char *filename, int *col_idxs, int ncols, int use_t
 }
 
 TablePtr *feather_read_table(char *filename, int *col_idxs, int ncols) {
-  OCAML_BEGIN_PROTECT_EXN
+  OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK
 
   arrow::Status st;
   auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());
@@ -522,7 +535,7 @@ TablePtr *feather_read_table(char *filename, int *col_idxs, int ncols) {
 }
 
 TablePtr *csv_read_table(char *filename) {
-  OCAML_BEGIN_PROTECT_EXN
+  OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK
 
   auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());
   std::shared_ptr<arrow::io::RandomAccessFile> infile = ok_exn(file);
@@ -542,7 +555,7 @@ TablePtr *csv_read_table(char *filename) {
 }
 
 TablePtr *json_read_table(char *filename) {
-  OCAML_BEGIN_PROTECT_EXN
+  OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK
 
   auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());
   std::shared_ptr<arrow::io::RandomAccessFile> infile = ok_exn(file);
