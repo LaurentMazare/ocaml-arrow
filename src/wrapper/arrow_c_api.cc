@@ -66,7 +66,7 @@ void status_exn(arrow::Status &st) {
 }
 
 struct ArrowSchema *arrow_schema(char *filename) {
-  OCAML_BEGIN_PROTECT_EXN
+  OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK
 
   auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());
   std::shared_ptr<arrow::io::RandomAccessFile> infile = ok_exn(file);
@@ -81,7 +81,7 @@ struct ArrowSchema *arrow_schema(char *filename) {
 }
 
 struct ArrowSchema *feather_schema(char *filename) {
-  OCAML_BEGIN_PROTECT_EXN
+  OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK
 
   auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());
   std::shared_ptr<arrow::io::RandomAccessFile> infile = ok_exn(file);
@@ -96,7 +96,7 @@ struct ArrowSchema *feather_schema(char *filename) {
 }
 
 struct ArrowSchema *parquet_schema(char *filename, int64_t *num_rows) {
-  OCAML_BEGIN_PROTECT_EXN
+  OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK
 
   arrow::Status st;
   auto file = arrow::io::ReadableFile::Open(filename, arrow::default_memory_pool());
