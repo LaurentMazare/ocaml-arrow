@@ -26,6 +26,7 @@
 #undef invalid_argument
 
 class caml_lock_guard {
+ public:
   caml_lock_guard() {
     caml_enter_blocking_section();
   }
@@ -40,7 +41,7 @@ class caml_lock_guard {
 #define OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK        \
   char *__ocaml_protect_err = nullptr;              \
   try {                                             \
-    caml_lock_guard lock();
+    caml_lock_guard lock;
 #define OCAML_END_PROTECT_EXN                       \
   } catch (const std::exception& e) {               \
     __ocaml_protect_err = strdup(e.what());         \
