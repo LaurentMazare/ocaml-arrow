@@ -199,6 +199,10 @@ struct ArrowArray *table_chunked_column_(TablePtr *table, char *column_name, int
     expected_type = arrow::Type::FLOAT;
     expected_type_str = "float";
   }
+  else if (dt == 7) {
+    expected_type = arrow::Type::INT32;
+    expected_type_str = "int32";
+  }
   else {
     throw std::invalid_argument(std::string("unknown datatype ") + std::to_string(dt));
   }
@@ -611,6 +615,10 @@ void free_table(TablePtr *table) {
 }
 
 /* Builder bindings. */
+Int32BuilderPtr *create_int32_builder() {
+  auto builder = std::make_shared<arrow::Int32Builder>();
+  return new Int32BuilderPtr(builder);
+}
 Int64BuilderPtr *create_int64_builder() {
   auto builder = std::make_shared<arrow::Int64Builder>();
   return new Int64BuilderPtr(builder);
@@ -622,6 +630,15 @@ DoubleBuilderPtr *create_double_builder() {
 StringBuilderPtr *create_string_builder() {
   auto builder = std::make_shared<arrow::StringBuilder>();
   return new StringBuilderPtr(builder);
+}
+
+void append_int32_builder(Int32BuilderPtr* ptr, int32_t v) {
+  OCAML_BEGIN_PROTECT_EXN
+
+  arrow::Status st = (*ptr)->Append(v);
+  status_exn(st);
+
+  OCAML_END_PROTECT_EXN
 }
 
 void append_int64_builder(Int64BuilderPtr* ptr, int64_t v) {
@@ -653,6 +670,15 @@ void append_string_builder(StringBuilderPtr* ptr, char* v) {
 }
 
 
+void append_null_int32_builder(Int32BuilderPtr* ptr, int n) {
+  OCAML_BEGIN_PROTECT_EXN
+
+  arrow::Status st = (*ptr)->AppendNulls(n);
+  status_exn(st);
+
+  OCAML_END_PROTECT_EXN
+}
+
 void append_null_int64_builder(Int64BuilderPtr* ptr, int n) {
   OCAML_BEGIN_PROTECT_EXN
 
@@ -683,6 +709,10 @@ void append_null_string_builder(StringBuilderPtr* ptr, int n) {
 }
 
 
+void free_int32_builder(Int32BuilderPtr* ptr) {
+  if (ptr != nullptr) delete ptr;
+}
+
 void free_int64_builder(Int64BuilderPtr* ptr) {
   if (ptr != nullptr) delete ptr;
 }
@@ -695,6 +725,9 @@ void free_string_builder(StringBuilderPtr* ptr) {
   if (ptr != nullptr) delete ptr;
 }
 
+int64_t length_int32_builder(Int32BuilderPtr* ptr) {
+  return (*ptr)->length();
+}
 int64_t length_int64_builder(Int64BuilderPtr* ptr) {
   return (*ptr)->length();
 }
@@ -705,6 +738,9 @@ int64_t length_string_builder(StringBuilderPtr* ptr) {
   return (*ptr)->length();
 }
 
+int64_t null_count_int32_builder(Int32BuilderPtr* ptr) {
+  return (*ptr)->null_count();
+}
 int64_t null_count_int64_builder(Int64BuilderPtr* ptr) {
   return (*ptr)->null_count();
 }

@@ -16,6 +16,10 @@ module Double : sig
   include Intf with type elem := float and type t = Wrapper.DoubleBuilder.t
 end
 
+module Int32 : sig
+  include Intf with type elem := Int32.t and type t = Wrapper.Int32Builder.t
+end
+
 module Int64 : sig
   include Intf with type elem := Int64.t and type t = Wrapper.Int64Builder.t
 end

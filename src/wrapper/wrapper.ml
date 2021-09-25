@@ -364,6 +364,7 @@ module Column = struct
       | Timestamp
       | Bool
       | Float32
+      | Int32
 
     let to_int = function
       | Int64 -> 0
@@ -373,6 +374,7 @@ module Column = struct
       | Timestamp -> 4
       | Bool -> 5
       | Float32 -> 6
+      | Int32 -> 7
   end
 
   let with_column table dt ~column ~f =
@@ -533,6 +535,8 @@ module Column = struct
         in
         bitset, valid)
 
+  let read_i32_ba = read_ba ~datatype:Int32 ~kind:Int32 ~ctype:Ctypes.int32_t
+  let read_i32_ba_opt = read_ba_opt ~datatype:Int32 ~kind:Int32 ~ctype:Ctypes.int32_t
   let read_i64_ba = read_ba ~datatype:Int64 ~kind:Int64 ~ctype:Ctypes.int64_t
   let read_i64_ba_opt = read_ba_opt ~datatype:Int64 ~kind:Int64 ~ctype:Ctypes.int64_t
 
@@ -678,6 +682,15 @@ module Column = struct
               dst_offset + chunk.length)
         in
         dst)
+
+  let read_int32 table ~column =
+    let ba = read_i32_ba table ~column in
+    Array.init (Bigarray.Array1.dim ba) ~f:(Bigarray.Array1.get ba)
+
+  let read_int32_opt table ~column =
+    let ba, valid = read_i32_ba_opt table ~column in
+    Array.init (Bigarray.Array1.dim ba) ~f:(fun i ->
+        if Valid.get valid i then Some ba.{i} else None)
 
   let read_int table ~column =
     let ba = read_i64_ba table ~column in
@@ -1275,6 +1288,20 @@ module DoubleBuilder = struct
   let null_count t = C.DoubleBuilder.null_count t
 end
 
+module Int32Builder = struct
+  type t = C.Int32Builder.t
+
+  let create () =
+    let t = C.Int32Builder.create () in
+    Caml.Gc.finalise C.Int32Builder.free t;
+    t
+
+  let append_null ?(n = 1) t = C.Int32Builder.append_null t n
+  let append t v = C.Int32Builder.append t v
+  let length t = C.Int32Builder.length t
+  let null_count t = C.Int32Builder.null_count t
+end
+
 module Int64Builder = struct
   type t = C.Int64Builder.t
 
@@ -1306,6 +1333,7 @@ end
 module Builder = struct
   type t =
     | Double of DoubleBuilder.t
+    | Int32 of Int32Builder.t
     | Int64 of Int64Builder.t
     | String of StringBuilder.t
 
@@ -1316,6 +1344,7 @@ module Builder = struct
       List.iteri builders ~f:(fun i t ->
           match t with
           | String d -> Ctypes.CArray.set a i d
+          | Int32 d -> Ctypes.CArray.set a i d
           | Int64 d -> Ctypes.CArray.set a i d
           | Double d -> Ctypes.CArray.set a i d);
       a

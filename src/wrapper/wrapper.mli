@@ -80,6 +80,11 @@ module Column : sig
     | `Name of string
     ]
 
+  val read_i32_ba
+    :  Table.t
+    -> column:column
+    -> (int32, Bigarray.int32_elt, Bigarray.c_layout) Bigarray.Array1.t
+
   val read_i64_ba
     :  Table.t
     -> column:column
@@ -96,12 +101,18 @@ module Column : sig
     -> (float, Bigarray.float32_elt, Bigarray.c_layout) Bigarray.Array1.t
 
   val read_int : Table.t -> column:column -> int array
+  val read_int32 : Table.t -> column:column -> Int32.t array
   val read_float : Table.t -> column:column -> float array
   val read_utf8 : Table.t -> column:column -> string array
   val read_date : Table.t -> column:column -> Core_kernel.Date.t array
   val read_time_ns : Table.t -> column:column -> Core_kernel.Time_ns.t array
   val read_bitset : Table.t -> column:column -> Valid.t
   val read_bitset_opt : Table.t -> column:column -> Valid.t * Valid.t
+
+  val read_i32_ba_opt
+    :  Table.t
+    -> column:column
+    -> (int32, Bigarray.int32_elt, Bigarray.c_layout) Bigarray.Array1.t * Valid.t
 
   val read_i64_ba_opt
     :  Table.t
@@ -119,6 +130,7 @@ module Column : sig
     -> (float, Bigarray.float32_elt, Bigarray.c_layout) Bigarray.Array1.t * Valid.t
 
   val read_int_opt : Table.t -> column:column -> int option array
+  val read_int32_opt : Table.t -> column:column -> Int32.t option array
   val read_float_opt : Table.t -> column:column -> float option array
   val read_utf8_opt : Table.t -> column:column -> string option array
   val read_date_opt : Table.t -> column:column -> Core_kernel.Date.t option array
@@ -201,6 +213,16 @@ module DoubleBuilder : sig
   val null_count : t -> Int64.t
 end
 
+module Int32Builder : sig
+  type t
+
+  val create : unit -> t
+  val append : t -> Int32.t -> unit
+  val append_null : ?n:int -> t -> unit
+  val length : t -> Int64.t
+  val null_count : t -> Int64.t
+end
+
 module Int64Builder : sig
   type t
 
@@ -224,6 +246,7 @@ end
 module Builder : sig
   type t =
     | Double of DoubleBuilder.t
+    | Int32 of Int32Builder.t
     | Int64 of Int64Builder.t
     | String of StringBuilder.t
 

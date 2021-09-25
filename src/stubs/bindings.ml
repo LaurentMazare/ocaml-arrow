@@ -162,6 +162,18 @@ module C (F : Cstubs.FOREIGN) = struct
     let null_count = foreign "null_count_double_builder" (t @-> returning int64_t)
   end
 
+  module Int32Builder = struct
+    type t = unit ptr
+
+    let t : t typ = ptr void
+    let create = foreign "create_int32_builder" (void @-> returning t)
+    let append = foreign "append_int32_builder" (t @-> int32_t @-> returning void)
+    let append_null = foreign "append_null_int32_builder" (t @-> int @-> returning void)
+    let free = foreign "free_int32_builder" (t @-> returning void)
+    let length = foreign "length_int32_builder" (t @-> returning int64_t)
+    let null_count = foreign "null_count_int32_builder" (t @-> returning int64_t)
+  end
+
   module Int64Builder = struct
     type t = unit ptr
 

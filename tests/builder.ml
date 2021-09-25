@@ -5,6 +5,7 @@ let%expect_test _ =
   let col1 = Builder.String.create () in
   let col2 = Builder.Double.create () in
   let col3 = Builder.NativeInt.create () in
+  let col4 = Builder.Int32.create () in
   for i = 1 to 3 do
     Builder.String.append col1 "v1";
     Builder.String.append col1 "v2";
@@ -14,14 +15,19 @@ let%expect_test _ =
     Builder.Double.append_opt col2 None;
     Builder.NativeInt.append_opt col3 (Some (2 * i));
     Builder.NativeInt.append_opt col3 None;
-    Builder.NativeInt.append_opt col3 None
+    Builder.NativeInt.append_opt col3 None;
+    Builder.Int32.append_opt col4 (Some (Int32.of_int_exn (2 * i)));
+    Builder.Int32.append_opt col4 (Some (Int32.of_int_exn (i * i)));
+    Builder.Int32.append_opt col4 None
   done;
   let table =
-    Builder.make_table [ "foo", String col1; "bar", Double col2; "baz", Int64 col3 ]
+    Builder.make_table
+      [ "foo", String col1; "bar", Double col2; "baz", Int64 col3; "baz32", Int32 col4 ]
   in
   let foo = Wrapper.Column.read_utf8 table ~column:(`Name "foo") in
   let bar = Wrapper.Column.read_float_opt table ~column:(`Name "bar") in
   let baz = Wrapper.Column.read_int_opt table ~column:(`Name "baz") in
+  let baz32 = Wrapper.Column.read_int32_opt table ~column:(`Name "baz32") in
   Array.iter foo ~f:(Stdio.printf "%s ");
   Stdio.printf "\n";
   Array.iter bar ~f:(fun v ->
@@ -30,11 +36,15 @@ let%expect_test _ =
   Array.iter baz ~f:(fun v ->
       Option.value_map v ~f:Int.to_string ~default:"none" |> Stdio.printf "%s ");
   Stdio.printf "\n";
+  Array.iter baz32 ~f:(fun v ->
+      Option.value_map v ~f:Int32.to_string ~default:"none" |> Stdio.printf "%s ");
+  Stdio.printf "\n";
   [%expect
     {|
     v1 v2 v3 v1 v2 v3 v1 v2 v3
     1.5 2.5 none 2.5 3.5 none 3.5 4.5 none
-    2 none none 4 none none 6 none none |}]
+    2 none none 4 none none 6 none none
+    2 1 none 4 4 none 6 9 none |}]
 
 type t =
   { foo : int

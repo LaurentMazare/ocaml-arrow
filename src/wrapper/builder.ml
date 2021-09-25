@@ -50,6 +50,18 @@ module NativeInt = struct
   let null_count t = null_count t |> Int64.to_int_exn
 end
 
+module Int32 = struct
+  include Wrapper.Int32Builder
+
+  let append_opt t v =
+    match v with
+    | None -> append_null t ~n:1
+    | Some v -> append t v
+
+  let length t = length t |> Int64.to_int_exn
+  let null_count t = null_count t |> Int64.to_int_exn
+end
+
 module Int64 = struct
   include Wrapper.Int64Builder
 
