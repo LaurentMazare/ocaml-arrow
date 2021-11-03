@@ -6,15 +6,8 @@ dev-repo:     "git+https://github.com/LaurentMazare/ocaml-arrow.git"
 maintainer:   "Laurent Mazare <lmazare@gmail.com>"
 authors:      [ "Laurent Mazare" ]
 
-version: "dev"
-
 build: [["dune" "build" "-p" name "-j" jobs]]
-install: []
-remove:  []
-
-run-test: [
-  ["dune" "runtest" "-p" name "-j" jobs]
-]
+run-test: [["dune" "runtest" "-p" name "-j" jobs]]
 
 depends: [
   "base" {>= "0.12.0"}
@@ -30,17 +23,13 @@ depends: [
   "stb_image"
   "stdio"
   "core_kernel"
-  "pyml"
+  "pyml" {with-test}
 ]
-
-depopts: [
+depexts: [
+  ["apache-arrow"] {os = "macos" & os-distribution = "homebrew"}
+  ["libarrow-dev"] {os-family = "debian"}
 ]
-
-conflicts: [
-]
-
-available: [ os = "linux" ]
-
+available: [ os = "linux" | "macos" ]
 synopsis: "Arrow bindings for OCaml"
 description: """
 Bindings for Apache Arrow.
