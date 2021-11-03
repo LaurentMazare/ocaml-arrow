@@ -30,6 +30,7 @@ depends: [
   "stb_image"
   "stdio"
   "core_kernel"
+  "pyml"
 ]
 
 depopts: [
