@@ -2,7 +2,7 @@
   (name arrow_c_api)
   (public_name arrow.c_api)
   (foreign_stubs (language c) (names arrow_c_api_stubs))
-  (foreign_stubs (language cxx) (names arrow_c_api) (flags -std=c++14))
+  (foreign_stubs (language cxx) (names arrow_c_api) (flags -fPIC -std=c++14))
   (c_library_flags :standard -larrow -lparquet -lstdc++)
   (libraries base bigarray core_kernel ctypes ctypes.foreign ctypes.stubs stdio)
   (inline_tests)
