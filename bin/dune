@@ -1,4 +1,10 @@
 (executables
+  (names test_main2)
+  (modules test_main2)
+  (libraries base core_kernel arrow.c_api stdio)
+  (preprocess (pps ppx_arrow ppx_jane)))
+
+(executables
   (names test_main)
   (modules test_main)
   (libraries base core_kernel arrow.c_api stdio)

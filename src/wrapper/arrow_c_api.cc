@@ -324,52 +324,66 @@ TablePtr *create_table(struct ArrowArray *array, struct ArrowSchema *schema) {
 }
 
 void parquet_write_file(char *filename, struct ArrowArray *array, struct ArrowSchema *schema, int chunk_size, int compression) {
-  OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK
-
+  // It is important for this shared pointer to only go out of scope after getting
+  // the ocaml lock back as the table release can use ocaml callbacks defined in
+  // [schema]/[array].
+  std::shared_ptr<arrow::Table> table;
+  OCAML_BEGIN_PROTECT_EXN
   auto file = arrow::io::FileOutputStream::Open(filename);
   auto outfile = ok_exn(file);
   auto record_batch = arrow::ImportRecordBatch(array, schema);
-  auto table = arrow::Table::FromRecordBatches({ok_exn(record_batch)});
-  arrow::Compression::type compression_ = compression_of_int(compression);
-  arrow::Status st = parquet::arrow::WriteTable(*(ok_exn(table)),
-                                                arrow::default_memory_pool(),
-                                                outfile,
-                                                chunk_size,
-                                                parquet::WriterProperties::Builder().version(parquet::ParquetVersion::PARQUET_2_0)->compression(compression_)->build());
-  status_exn(st);
+  auto table_ = arrow::Table::FromRecordBatches({ok_exn(record_batch)});
+  table = std::move(ok_exn(table_));
+  {
+    caml_lock_guard lock;
+    arrow::Compression::type compression_ = compression_of_int(compression);
+    arrow::Status st = parquet::arrow::WriteTable(*table,
+                                                  arrow::default_memory_pool(),
+                                                  outfile,
+                                                  chunk_size,
+                                                  parquet::WriterProperties::Builder().version(parquet::ParquetVersion::PARQUET_2_0)->compression(compression_)->build());
+    status_exn(st);
+  }
 
   OCAML_END_PROTECT_EXN
 }
 
 void arrow_write_file(char *filename, struct ArrowArray *array, struct ArrowSchema *schema, int chunk_size) {
-  OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK
+  std::shared_ptr<arrow::Table> table;
+  OCAML_BEGIN_PROTECT_EXN
 
   auto file = arrow::io::FileOutputStream::Open(filename);
   auto outfile = ok_exn(file);
   auto record_batch = arrow::ImportRecordBatch(array, schema);
-  auto table = arrow::Table::FromRecordBatches({ok_exn(record_batch)});
-  auto table_ = ok_exn(table);
-  auto batch_writer = arrow::ipc::MakeFileWriter(&(*outfile), table_->schema());
-  arrow::Status st = ok_exn(batch_writer)->WriteTable(*table_);
-  status_exn(st);
+  auto table_ = arrow::Table::FromRecordBatches({ok_exn(record_batch)});
+  table = std::move(ok_exn(table_));
+  auto batch_writer = arrow::ipc::MakeFileWriter(&(*outfile), table->schema());
+  {
+    caml_lock_guard lock;
+    arrow::Status st = ok_exn(batch_writer)->WriteTable(*table);
+    status_exn(st);
+  }
 
   OCAML_END_PROTECT_EXN
 }
 
 void feather_write_file(char *filename, struct ArrowArray *array, struct ArrowSchema *schema, int chunk_size, int compression) {
-  OCAML_BEGIN_PROTECT_EXN_RELEASE_LOCK
+  std::shared_ptr<arrow::Table> table;
+  OCAML_BEGIN_PROTECT_EXN
 
   auto file = arrow::io::FileOutputStream::Open(filename);
   auto outfile = ok_exn(file);
   auto record_batch = arrow::ImportRecordBatch(array, schema);
-  auto table = arrow::Table::FromRecordBatches({ok_exn(record_batch)});
+  auto table_ = arrow::Table::FromRecordBatches({ok_exn(record_batch)});
+  table = std::move(ok_exn(table_));
   struct arrow::ipc::feather::WriteProperties wp;
   wp.compression = compression_of_int(compression);
   wp.chunksize = chunk_size;
-  arrow::Status st = arrow::ipc::feather::WriteTable(*(ok_exn(table)),
-                                                &(*outfile),
-                                                wp);
-  status_exn(st);
+  {
+    caml_lock_guard lock;
+    arrow::Status st = arrow::ipc::feather::WriteTable(*table, &(*outfile), wp);
+    status_exn(st);
+  }
 
   OCAML_END_PROTECT_EXN
 }

@@ -10,6 +10,7 @@ __pycache__
 *.cmxa
 *.swp
 *.ipynb_checkpoints
+*.corrected
 
 # ocamlbuild working directory
 _build/
