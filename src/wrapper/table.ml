@@ -56,8 +56,16 @@ let read (type a) t ~column (col_type : a col_type) : a array =
   | Int -> Wrapper.Column.read_int t ~column
   | Float -> Wrapper.Column.read_float t ~column
   | Utf8 -> Wrapper.Column.read_utf8 t ~column
-  | Date -> Wrapper.Column.read_date t ~column
-  | Time_ns -> Wrapper.Column.read_time_ns t ~column
+  | Date ->
+    (try
+      Wrapper.Column.read_date t ~column
+    with
+    _ -> Wrapper.Column.read_utf8 t ~column |> Array.map ~f:Core_kernel.Date.of_string)
+  | Time_ns ->
+    (try
+      Wrapper.Column.read_time_ns t ~column
+    with
+    _ -> Wrapper.Column.read_utf8 t ~column |> Array.map ~f:Core_kernel.Time_ns.of_string)
   | Bool ->
     let bs = Wrapper.Column.read_bitset t ~column in
     Array.init (Valid.length bs) ~f:(Valid.get bs)
@@ -67,8 +75,16 @@ let read_opt (type a) t ~column (col_type : a col_type) : a option array =
   | Int -> Wrapper.Column.read_int_opt t ~column
   | Float -> Wrapper.Column.read_float_opt t ~column
   | Utf8 -> Wrapper.Column.read_utf8_opt t ~column
-  | Date -> Wrapper.Column.read_date_opt t ~column
-  | Time_ns -> Wrapper.Column.read_time_ns_opt t ~column
+  | Date ->
+    (try
+      Wrapper.Column.read_date_opt t ~column
+    with
+    _ -> Wrapper.Column.read_utf8_opt t ~column |> Array.map ~f:(Option.map ~f:Core_kernel.Date.of_string))
+  | Time_ns ->
+    (try
+      Wrapper.Column.read_time_ns_opt t ~column
+    with
+    _ -> Wrapper.Column.read_utf8_opt t ~column |> Array.map ~f:(Option.map ~f:Core_kernel.Time_ns.of_string))
   | Bool ->
     let bs, valid = Wrapper.Column.read_bitset_opt t ~column in
     Array.init (Valid.length bs) ~f:(fun i ->
