@@ -95,7 +95,7 @@ module C = struct
     let name =  get_name ?name field in
     [ P { name; get = Field.get field; col_type } ]
 
-  let c_opt (type a)?name  (col_type : a Table.col_type) field =
+  let c_opt (type a) ?name  (col_type : a Table.col_type) field =
     let name =  get_name ?name field in
     [ O { name; get = Field.get field; col_type } ]
 
