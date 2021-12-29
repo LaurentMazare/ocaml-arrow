@@ -47,29 +47,42 @@ module C : sig
 
   type 'row packed_cols = 'row packed_col list
 
-  val c : 'a Table.col_type -> ('b, 'c, 'a) Field.t_with_perm -> 'c packed_cols
-  val c_opt : 'a Table.col_type -> ('b, 'c, 'a option) Field.t_with_perm -> 'c packed_cols
+  val c
+    : ?name:string
+    -> 'a Table.col_type
+    -> ('b, 'c, 'a) Field.t_with_perm
+    -> 'c packed_cols
+
+  val c_opt
+    : ?name:string
+    -> 'a Table.col_type
+    -> ('b, 'c, 'a option) Field.t_with_perm
+    -> 'c packed_cols
 
   val c_array
-    :  'a Table.col_type
+    :  ?name:string
+    -> 'a Table.col_type
     -> ('b, 'c, 'a array) Field.t_with_perm
     -> suffixes:string list
     -> 'c packed_cols
 
   val c_array_opt
-    :  'a Table.col_type
+    :  ?name:string
+    -> 'a Table.col_type
     -> ('b, 'c, 'a option array) Field.t_with_perm
     -> suffixes:string list
     -> 'c packed_cols
 
   val c_map
-    :  'a Table.col_type
+    :  ?name:string
+    -> 'a Table.col_type
     -> ('b, 'c, 'd) Field.t_with_perm
     -> f:('d -> 'a)
     -> 'c packed_cols
 
   val c_map_opt
-    :  'a Table.col_type
+    :  ?name:string
+    -> 'a Table.col_type
     -> ('b, 'c, 'd) Field.t_with_perm
     -> f:('d -> 'a option)
     -> 'c packed_cols
