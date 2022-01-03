@@ -42,7 +42,7 @@ let col_opt (type a) (data : a option array) (type_ : a col_type) ~name =
         | None -> Valid.set valid i false
         | Some false -> Valid.set bs i false
         | Some true -> ());
-    bitset valid ~name
+    bitset_opt bs ~valid ~name
 
 let named_col packed_col ~name =
   match packed_col with
