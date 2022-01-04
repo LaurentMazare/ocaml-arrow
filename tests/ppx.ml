@@ -233,3 +233,44 @@ module Test5 = struct
     ((x 1337)(y 2.71828182846)(z foo)(foo((left l)(right 14)))(bar(3 4)))
     ((x 1295)(y 0.123456)(z bar)(foo((left ll)(right 42)))(bar(5 6.78))) |}]
 end
+
+module Test6 = struct
+  type t =
+    { p : int
+    ; is_prime : bool
+    ; is_prime_opt : bool option
+    ; largest_prime : int option
+    }
+  [@@deriving arrow, sexp_of]
+
+  let%expect_test _ =
+    let ts =
+      let max_n = 40 in
+      let prime_div = Array.init (max_n + 1) ~f:Fn.id in
+      for p = 2 to max_n do
+        if prime_div.(p) = p
+        then (
+          let q = ref p in
+          while !q <= max_n do
+            prime_div.(!q) <- p;
+            q := !q + p
+          done)
+      done;
+      Array.init 20 ~f:(fun p ->
+          let p = p + 1 in
+          let is_prime = prime_div.(p) = p in
+          let is_prime_opt = if p % 2 <> 0 then Some is_prime else None in
+          let largest_prime = if is_prime then None else Some prime_div.(p) in
+          { p; is_prime; is_prime_opt; largest_prime })
+    in
+    let filename = "/tmp/abc.parquet" in
+    arrow_write_t ts filename;
+    let ts = arrow_read_t filename in
+    Array.iter ts ~f:(fun t ->
+        sexp_of_t t |> Sexp.to_string_mach |> Stdio.printf "%s\n%!");
+    [%expect
+      {|
+    ((x 42)(y 3.14159265358979)(z foobar))
+    ((x 1337)(y 2.71828182846)(z foo))
+    ((x 1295)(y 0.123456)(z bar)) |}]
+end
