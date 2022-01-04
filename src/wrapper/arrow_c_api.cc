@@ -224,7 +224,7 @@ struct ArrowArray *table_chunked_column_(TablePtr *table, char *column_name, int
   struct ArrowArray *out = (struct ArrowArray*)malloc(array->num_chunks() * sizeof *out);
   for (int i = 0; i < array->num_chunks(); ++i) {
     auto chunk = array->chunk(i);
-    if (chunk->type()->id() != expected_type) {
+    if (chunk->type()->id() != expected_type && chunk->type()->id() != arrow::Type::NA) {
       throw std::invalid_argument(
         std::string("expected type with ") + expected_type_str + " (id "
         + std::to_string(expected_type) + ") got " + chunk->type()->ToString());

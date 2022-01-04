@@ -6,12 +6,15 @@ type t =
   ; y : float
   ; z : string
   ; z_opt : float option
+  ; b : bool
+  ; b_opt : bool option
   }
 [@@deriving sexp_of, fields, compare]
 
 let `read read, `write write =
   let open F in
-  read_write_fn (Fields.make_creator ~x:i64 ~y:f64 ~z:str ~z_opt:f64_opt)
+  Fields.make_creator ~x:i64 ~y:f64 ~z:str ~z_opt:f64_opt ~b:bool ~b_opt:bool_opt
+  |> read_write_fn
 
 let gen =
   let float_gen = Float.gen_uniform_excl (-1e6) 1e6 in
@@ -19,8 +22,10 @@ let gen =
   let%map x = Int.gen_incl (-1000000) 1000000
   and y = float_gen
   and z = Int.quickcheck_generator
-  and z_opt = Option.quickcheck_generator float_gen in
-  { x; y; z = Printf.sprintf "foo%d" z; z_opt }
+  and z_opt = Option.quickcheck_generator float_gen
+  and b = Bool.quickcheck_generator
+  and b_opt = Option.quickcheck_generator Bool.quickcheck_generator in
+  { x; y; z = Printf.sprintf "foo%d" z; z_opt; b; b_opt }
 
 let python_read_and_rewrite ~filename ~print_details =
   let in_channel, out_channel = Caml_unix.open_process "python" in
@@ -30,6 +35,7 @@ let python_read_and_rewrite ~filename ~print_details =
       [ "print(df.shape)"
       ; "print(df['z'].iloc[0])"
       ; "print(sum(df['x']), sum(df['y']), np.nansum(df['z_opt']))"
+      ; "print(sum(df['b']), sum(df['b_opt'].astype(float).fillna(10**6)))"
       ]
     else []
   in
@@ -69,6 +75,25 @@ let%expect_test _ =
                 acc +. Option.value t.z_opt ~default:0.)
           in
           Stdio.printf "sum_z_opt: %f\n" sum_z_opt;
+          let sum_b = List.fold ts ~init:0 ~f:(fun acc t -> acc + if t.b then 1 else 0) in
+          Stdio.printf "sum_b: %d\n" sum_b;
+          let sum_b1 =
+            List.fold ts ~init:0 ~f:(fun acc t ->
+                acc
+                +
+                match t.b_opt with
+                | None -> 1
+                | Some _ -> 0)
+          in
+          let sum_b2 =
+            List.fold ts ~init:0 ~f:(fun acc t ->
+                acc
+                +
+                match t.b_opt with
+                | Some true -> 1
+                | Some false | None -> 0)
+          in
+          Stdio.printf "sum_b_opt: %d %d\n" sum_b1 sum_b2;
           write ~chunk_size:128 filename ts;
           let lines = python_read_and_rewrite ~filename ~print_details:true in
           List.iter lines ~f:(Stdio.printf ">> %s\n%!");
@@ -87,84 +112,114 @@ let%expect_test _ =
   [%expect
     {|
     z: foo-55932
-    sum_x: -9634663
-    sum_y: -19118594.436744
-    sum_z_opt: -4445953.971299
-    >> (900, 4)
+    sum_x: -29583892
+    sum_y: -1606806.135343
+    sum_z_opt: -7181519.032317
+    sum_b: 447
+    sum_b_opt: 475 212
+    >> (900, 6)
     >> foo-55932
-    >> -9634663 -19118594.436743572 -4445953.971298594
+    >> -29583892 -1606806.1353425747 -7181519.032317471
+    >> 447 475000212.0
 
-    z: foo-28130
-    sum_x: -62348033
-    sum_y: -5284735.806094
-    sum_z_opt: 11311189.703559
-    >> (4541, 4)
-    >> foo-28130
-    >> -62348033 -5284735.806094399 11311189.703559455
+    z: foo-45
+    sum_x: -70833733
+    sum_y: 36206088.482584
+    sum_z_opt: 7091351.854805
+    sum_b: 2708
+    sum_b_opt: 2603 1361
+    >> (5223, 6)
+    >> foo-45
+    >> -70833733 36206088.48258363 7091351.854804993
+    >> 2708 2603001361.0
 
-    z: foo-14074670860506
-    sum_x: -2194031
-    sum_y: -49385183.103624
-    sum_z_opt: 46092060.535320
-    >> (6919, 4)
-    >> foo-14074670860506
-    >> -2194031 -49385183.10362447 46092060.53532025
+    z: foo2598252
+    sum_x: -757868
+    sum_y: -614689.470489
+    sum_z_opt: 361861.158869
+    sum_b: 1
+    sum_b_opt: 1 0
+    >> (1, 6)
+    >> foo2598252
+    >> -757868 -614689.4704887881 361861.1588694445
+    >> 1 1000000.0
 
-    z: foo69514787795017277
-    sum_x: 31951719
-    sum_y: 9443864.574338
-    sum_z_opt: 28098997.268899
-    >> (1248, 4)
-    >> foo69514787795017277
-    >> 31951719 9443864.574338121 28098997.26889878
+    z: foo1076282
+    sum_x: -669671
+    sum_y: -28063312.331175
+    sum_z_opt: 38821493.026763
+    sum_b: 3198
+    sum_b_opt: 3194 1607
+    >> (6446, 6)
+    >> foo1076282
+    >> -669671 -28063312.33117541 38821493.02676311
+    >> 3198 3194001607.0
 
-    z: foo-10481
-    sum_x: 109738668
-    sum_y: 41833442.778917
-    sum_z_opt: -6977142.876697
-    >> (7399, 4)
-    >> foo-10481
-    >> 109738668 41833442.77891723 -6977142.876696713
+    z: foo609249368422154
+    sum_x: 13370204
+    sum_y: 3993934.619034
+    sum_z_opt: 1517418.813875
+    sum_b: 1298
+    sum_b_opt: 1332 659
+    >> (2627, 6)
+    >> foo609249368422154
+    >> 13370204 3993934.6190337846 1517418.8138750556
+    >> 1298 1332000659.0
 
-    z: foo-47345
-    sum_x: -23060553
-    sum_y: 3703889.308918
-    sum_z_opt: 39339689.458739
-    >> (9706, 4)
-    >> foo-47345
-    >> -23060553 3703889.308917751 39339689.45873935
+    z: foo48647770842302457
+    sum_x: 63283851
+    sum_y: 34915730.561748
+    sum_z_opt: 6679416.315610
+    sum_b: 1054
+    sum_b_opt: 1044 549
+    >> (2100, 6)
+    >> foo48647770842302457
+    >> 63283851 34915730.561747685 6679416.3156096125
+    >> 1054 1044000549.0
 
-    z: foo23
-    sum_x: -18203287
-    sum_y: 48466840.772192
-    sum_z_opt: 18986853.850194
-    >> (2614, 4)
-    >> foo23
-    >> -18203287 48466840.77219244 18986853.850193717
+    z: foo46963576856337718
+    sum_x: 6385519
+    sum_y: -66105313.513491
+    sum_z_opt: -27291947.752573
+    sum_b: 1743
+    sum_b_opt: 1802 842
+    >> (3519, 6)
+    >> foo46963576856337718
+    >> 6385519 -66105313.51349127 -27291947.752572805
+    >> 1743 1802000842.0
 
-    z: foo461833321065013564
-    sum_x: -14960433
-    sum_y: -41488906.679583
-    sum_z_opt: -6266360.325795
-    >> (2239, 4)
-    >> foo461833321065013564
-    >> -14960433 -41488906.67958288 -6266360.325795282
+    z: foo-901387614447954
+    sum_x: -32942681
+    sum_y: -63259224.299234
+    sum_z_opt: 19546809.552908
+    sum_b: 1265
+    sum_b_opt: 1247 622
+    >> (2487, 6)
+    >> foo-901387614447954
+    >> -32942681 -63259224.2992335 19546809.552908298
+    >> 1265 1247000622.0
 
-    z: foo-1455838189380713883
-    sum_x: 62872605
-    sum_y: -26803037.585976
-    sum_z_opt: 915161.556732
-    >> (6619, 4)
-    >> foo-1455838189380713883
-    >> 62872605 -26803037.585975993 915161.556731455
+    z: foo-687404271018784
+    sum_x: -34775365
+    sum_y: -17426626.705024
+    sum_z_opt: -3929344.742169
+    sum_b: 623
+    sum_b_opt: 596 344
+    >> (1258, 6)
+    >> foo-687404271018784
+    >> -34775365 -17426626.705024164 -3929344.74216865
+    >> 623 596000344.0
 
-    z: foo405645133115846
-    sum_x: 56118816
-    sum_y: 6280585.336361
-    sum_z_opt: 12082220.700733
-    >> (3286, 4)
-    >> foo405645133115846
-    >> 56118816 6280585.336360538 12082220.700732507 |}]
+    z: foo-296
+    sum_x: -45829821
+    sum_y: -25790516.799683
+    sum_z_opt: 12365958.051864
+    sum_b: 3398
+    sum_b_opt: 3300 1757
+    >> (6760, 6)
+    >> foo-296
+    >> -45829821 -25790516.79968277 12365958.051864266
+    >> 3398 3300001757.0 |}]
 
 let sexp_of_time_ns time_ns =
   Time_ns.to_string_iso8601_basic time_ns ~zone:Time.Zone.utc |> sexp_of_string
