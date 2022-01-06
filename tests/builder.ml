@@ -323,3 +323,132 @@ let%expect_test _ =
       ]
 
   |}]
+
+type t4 =
+  { t : t
+  ; b1 : bool option
+  ; b2 : bool
+  ; b3 : bool
+  }
+[@@deriving fields]
+
+let t4_array_to_table =
+  Fields_of_t4.to_list
+    ~t:(Builder.C.c_flatten array_to_col_list)
+    ~b1:(Builder.C.c_opt Bool)
+    ~b2:(Builder.C.c Bool)
+    ~b3:(Builder.C.c Bool)
+  |> List.concat
+  |> Builder.C.array_to_table
+
+let%expect_test _ =
+  let t1 = { foo = 1337; bar = "fortytwo"; foobar = Some 0.57721566490153286 } in
+  let t2 = { foo = 42; bar = "leet"; foobar = None } in
+  t4_array_to_table
+    [| { t = t1; b1 = None; b2 = true; b3 = false }
+     ; { t = t2; b1 = None; b2 = true; b3 = false }
+     ; { t = t1; b1 = Some true; b2 = true; b3 = false }
+     ; { t = t2; b1 = Some false; b2 = true; b3 = false }
+     ; { t = t1; b1 = None; b2 = true; b3 = true }
+     ; { t = t1; b1 = Some true; b2 = true; b3 = true }
+     ; { t = t1; b1 = Some true; b2 = true; b3 = true }
+     ; { t = t1; b1 = None; b2 = true; b3 = true }
+     ; { t = t1; b1 = None; b2 = false; b3 = false }
+    |]
+  |> Table.to_string_debug
+  |> Stdio.print_endline;
+  [%expect
+    {|
+    t_foo: int64 not null
+    t_bar: string not null
+    t_foobar: double
+    b1: bool
+    b2: bool not null
+    b3: bool not null
+    ----
+    t_foo:
+      [
+        [
+          1337,
+          42,
+          1337,
+          42,
+          1337,
+          1337,
+          1337,
+          1337,
+          1337
+        ]
+      ]
+    t_bar:
+      [
+        [
+          "fortytwo",
+          "leet",
+          "fortytwo",
+          "leet",
+          "fortytwo",
+          "fortytwo",
+          "fortytwo",
+          "fortytwo",
+          "fortytwo"
+        ]
+      ]
+    t_foobar:
+      [
+        [
+          0.577216,
+          null,
+          0.577216,
+          null,
+          0.577216,
+          0.577216,
+          0.577216,
+          0.577216,
+          0.577216
+        ]
+      ]
+    b1:
+      [
+        [
+          null,
+          null,
+          true,
+          false,
+          null,
+          true,
+          true,
+          null,
+          null
+        ]
+      ]
+    b2:
+      [
+        [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          false
+        ]
+      ]
+    b3:
+      [
+        [
+          false,
+          false,
+          false,
+          false,
+          true,
+          true,
+          true,
+          true,
+          false
+        ]
+      ]
+
+  |}]

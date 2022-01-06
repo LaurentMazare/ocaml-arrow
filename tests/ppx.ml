@@ -270,7 +270,24 @@ module Test6 = struct
         sexp_of_t t |> Sexp.to_string_mach |> Stdio.printf "%s\n%!");
     [%expect
       {|
-    ((x 42)(y 3.14159265358979)(z foobar))
-    ((x 1337)(y 2.71828182846)(z foo))
-    ((x 1295)(y 0.123456)(z bar)) |}]
+    ((p 1)(is_prime true)(is_prime_opt(true))(largest_prime()))
+    ((p 2)(is_prime true)(is_prime_opt())(largest_prime()))
+    ((p 3)(is_prime true)(is_prime_opt(true))(largest_prime()))
+    ((p 4)(is_prime false)(is_prime_opt())(largest_prime(2)))
+    ((p 5)(is_prime true)(is_prime_opt(true))(largest_prime()))
+    ((p 6)(is_prime false)(is_prime_opt())(largest_prime(3)))
+    ((p 7)(is_prime true)(is_prime_opt(true))(largest_prime()))
+    ((p 8)(is_prime false)(is_prime_opt())(largest_prime(2)))
+    ((p 9)(is_prime false)(is_prime_opt(false))(largest_prime(3)))
+    ((p 10)(is_prime false)(is_prime_opt())(largest_prime(5)))
+    ((p 11)(is_prime true)(is_prime_opt(true))(largest_prime()))
+    ((p 12)(is_prime false)(is_prime_opt())(largest_prime(3)))
+    ((p 13)(is_prime true)(is_prime_opt(true))(largest_prime()))
+    ((p 14)(is_prime false)(is_prime_opt())(largest_prime(7)))
+    ((p 15)(is_prime false)(is_prime_opt(false))(largest_prime(5)))
+    ((p 16)(is_prime false)(is_prime_opt())(largest_prime(2)))
+    ((p 17)(is_prime true)(is_prime_opt(true))(largest_prime()))
+    ((p 18)(is_prime false)(is_prime_opt())(largest_prime(3)))
+    ((p 19)(is_prime true)(is_prime_opt(true))(largest_prime()))
+    ((p 20)(is_prime false)(is_prime_opt())(largest_prime(5))) |}]
 end
