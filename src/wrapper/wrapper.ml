@@ -726,7 +726,7 @@ module Writer = struct
      [Foreign.Funptr.free]. So we need to suppress that error by freeing the pointer
      first. *)
   let free_global_ptr_on_finalise ptr ~free =
-    Gc.finalise (fun ptr -> free ptr) ptr;
+    Caml.Gc.finalise (fun ptr -> free ptr) ptr;
     ptr
 
   (* For now [release_schema] and [release_array] don't do anything as the
