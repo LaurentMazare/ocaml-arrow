@@ -720,15 +720,26 @@ module Writer = struct
   module Release_schema_fn_ptr =
   (val Foreign.dynamic_funptr Ctypes.(C.ArrowSchema.t @-> returning void))
 
+  (* Since [release_schema] and [release_array] are morally globals, we don't ever intend
+     to free them. However, flambda2 optimizes them into locals, so they're liable to get
+     collected, at which point the finalizer in [Foreign] complains that we never called
+     [Foreign.Funptr.free]. So we need to suppress that error by freeing the pointer
+     first. *)
+  let free_global_ptr_on_finalise ptr ~free =
+    Gc.finalise (fun ptr -> free ptr) ptr;
+    ptr
+
   (* For now [release_schema] and [release_array] don't do anything as the
      memory is entirely managed on the ocaml side. *)
   let release_schema =
     let release_schema _ = if verbose then Stdio.printf "release schema\n%!" in
     Release_schema_fn_ptr.of_fun release_schema
+    |> free_global_ptr_on_finalise ~free:Release_schema_fn_ptr.free
 
   let release_array =
     let release_array _ = if verbose then Stdio.printf "release array\n%!" in
     Release_array_fn_ptr.of_fun release_array
+    |> free_global_ptr_on_finalise ~free:Release_array_fn_ptr.free
 
   let release_array_ptr = Ctypes.(coerce Release_array_fn_ptr.t (ptr void) release_array)
 
