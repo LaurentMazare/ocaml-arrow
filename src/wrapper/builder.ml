@@ -92,20 +92,20 @@ module C = struct
   let get_name ?name field = Option.value name ~default:(Field.name field)
 
   let c (type a) ?name (col_type : a Table.col_type) field =
-    let name =  get_name ?name field in
+    let name = get_name ?name field in
     [ P { name; get = Field.get field; col_type } ]
 
   let c_opt (type a) ?name (col_type : a Table.col_type) field =
-    let name =  get_name ?name field in
+    let name = get_name ?name field in
     [ O { name; get = Field.get field; col_type } ]
 
   let c_map (type a) ?name (col_type : a Table.col_type) field ~f =
-    let name =  get_name ?name field in
+    let name = get_name ?name field in
     let get row = Field.get field row |> f in
     [ P { name; get; col_type } ]
 
   let c_map_opt (type a) ?name (col_type : a Table.col_type) field ~f =
-    let name =  get_name ?name field in
+    let name = get_name ?name field in
     let get row = Field.get field row |> f in
     [ O { name; get; col_type } ]
 
@@ -123,14 +123,14 @@ module C = struct
     row.(idx)
 
   let c_array (type a) ?name (col_type : a Table.col_type) field ~suffixes =
-    let name =  get_name ?name field in
+    let name = get_name ?name field in
     List.mapi suffixes ~f:(fun idx suffix ->
         let get = get ~suffixes field idx in
         let name = name ^ suffix in
         P { name; get; col_type })
 
   let c_array_opt (type a) ?name (col_type : a Table.col_type) field ~suffixes =
-    let name =  get_name ?name field in
+    let name = get_name ?name field in
     List.mapi suffixes ~f:(fun idx suffix ->
         let get = get ~suffixes field idx in
         let name = name ^ suffix in

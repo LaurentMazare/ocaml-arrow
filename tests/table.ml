@@ -79,7 +79,8 @@ let%expect_test _ =
   Stdio.printf "\n";
   Array.iter foo3 ~f:(Stdio.printf "%s ");
   Stdio.printf "\n";
-  [%expect {|
+  [%expect
+    {|
     w0 w1 w2 w3 w4 w5 w6 w7 w8
     v1 v2 v3 v1 v2 v3 v1 v2 v3
     w0 w1 w2 w3 w4 w5 w6 w7 w8
