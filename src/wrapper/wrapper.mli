@@ -106,6 +106,8 @@ module Column : sig
   val read_utf8 : Table.t -> column:column -> string array
   val read_date : Table.t -> column:column -> Core_kernel.Date.t array
   val read_time_ns : Table.t -> column:column -> Core_kernel.Time_ns.t array
+  val read_ofday_ns : Table.t -> column:column -> Core_kernel.Time_ns.Ofday.t array
+  val read_span_ns : Table.t -> column:column -> Core_kernel.Time_ns.Span.t array
   val read_bitset : Table.t -> column:column -> Valid.t
   val read_bitset_opt : Table.t -> column:column -> Valid.t * Valid.t
 
@@ -135,6 +137,16 @@ module Column : sig
   val read_utf8_opt : Table.t -> column:column -> string option array
   val read_date_opt : Table.t -> column:column -> Core_kernel.Date.t option array
   val read_time_ns_opt : Table.t -> column:column -> Core_kernel.Time_ns.t option array
+
+  val read_ofday_ns_opt
+    :  Table.t
+    -> column:column
+    -> Core_kernel.Time_ns.Ofday.t option array
+
+  val read_span_ns_opt
+    :  Table.t
+    -> column:column
+    -> Core_kernel.Time_ns.Span.t option array
 
   type t =
     | Unsupported_type
@@ -190,6 +202,10 @@ module Writer : sig
      GMT. *)
   val time_ns : Core_kernel.Time_ns.t array -> name:string -> col
   val time_ns_opt : Core_kernel.Time_ns.t option array -> name:string -> col
+  val ofday_ns : Core_kernel.Time_ns.Ofday.t array -> name:string -> col
+  val ofday_ns_opt : Core_kernel.Time_ns.Ofday.t option array -> name:string -> col
+  val span_ns : Core_kernel.Time_ns.Span.t array -> name:string -> col
+  val span_ns_opt : Core_kernel.Time_ns.Span.t option array -> name:string -> col
   val bitset : Valid.t -> name:string -> col
   val bitset_opt : Valid.t -> valid:Valid.t -> name:string -> col
 

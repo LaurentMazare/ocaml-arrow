@@ -224,6 +224,8 @@ let%expect_test _ =
 let sexp_of_time_ns time_ns =
   Time_ns.to_string_iso8601_basic time_ns ~zone:Time.Zone.utc |> sexp_of_string
 
+let sexp_of_ofday_ns ofday = Time_ns.Ofday.to_string ofday |> sexp_of_string
+
 let%expect_test _ =
   let filename = Caml.Filename.temp_file "test" ".parquet" in
   Exn.protect
@@ -244,7 +246,13 @@ let%expect_test _ =
         let t = Time_ns.of_string "2021-06-05 09:36:00.123+01:00" in
         Writer.time_ns [| t; t; t; t; t |] ~name:"col_time"
       in
-      Writer.write filename ~cols:[ col_v1; col_v2; col_date; col_time ];
+      let col_ofday =
+        Array.map
+          [| "00:00"; "23:59"; "11:30:11.123456"; "12:00"; "00:00:01" |]
+          ~f:Time_ns.Ofday.of_string
+        |> Writer.ofday_ns ~name:"col_ofday"
+      in
+      Writer.write filename ~cols:[ col_v1; col_v2; col_date; col_time; col_ofday ];
       let lines = python_read_and_rewrite ~filename ~print_details:false in
       List.iter lines ~f:(Stdio.printf ">> %s\n%!");
       let table = Parquet_reader.table filename in
@@ -253,11 +261,13 @@ let%expect_test _ =
       let col_v2 = Column.read_float_opt table ~column:(`Name "col_v2") in
       let col_date = Column.read_date table ~column:(`Name "col_date") in
       let col_time = Column.read_time_ns table ~column:(`Name "col_time") in
+      let col_ofday = Column.read_ofday_ns table ~column:(`Name "col_ofday") in
       Stdio.printf
-        "%s\n%s\n%s\n%!"
+        "%s\n%s\n%s\n%s\n%!"
         ([%sexp_of: float option array] col_v2 |> Sexp.to_string_mach)
         ([%sexp_of: Date.t array] col_date |> Sexp.to_string_mach)
-        ([%sexp_of: time_ns array] col_time |> Sexp.to_string_mach);
+        ([%sexp_of: time_ns array] col_time |> Sexp.to_string_mach)
+        ([%sexp_of: ofday_ns array] col_ofday |> Sexp.to_string_mach);
       ())
     ~finally:(fun () -> Caml.Sys.remove filename);
   [%expect
@@ -266,5 +276,6 @@ let%expect_test _ =
     ((2.718281828)()()(13.37)())
     (2020-01-01 2020-01-01 2020-01-13 2019-11-20 2020-01-01)
     (2021-06-05T08:36:00.123000000Z 2021-06-05T08:36:00.123000000Z 2021-06-05T08:36:00.123000000Z 2021-06-05T08:36:00.123000000Z 2021-06-05T08:36:00.123000000Z)
+    (00:00:00.000000000 23:59:00.000000000 11:30:11.123456000 12:00:00.000000000 00:00:01.000000000)
 
 |}]

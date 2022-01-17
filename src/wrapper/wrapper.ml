@@ -365,6 +365,8 @@ module Column = struct
       | Bool
       | Float32
       | Int32
+      | Time64
+      | Duration
 
     let to_int = function
       | Int64 -> 0
@@ -375,6 +377,8 @@ module Column = struct
       | Bool -> 5
       | Float32 -> 6
       | Int32 -> 7
+      | Time64 -> 8
+      | Duration -> 9
   end
 
   let with_column table dt ~column ~f =
@@ -566,6 +570,22 @@ module Column = struct
     in
     C.Table.timestamp_unit_in_ns table column_name column_idx
 
+  let time64_unit_in_ns table ~column =
+    let column_name, column_idx =
+      match column with
+      | `Name name -> name, -1
+      | `Index index -> "", index
+    in
+    C.Table.time64_unit_in_ns table column_name column_idx
+
+  let duration_unit_in_ns table ~column =
+    let column_name, column_idx =
+      match column with
+      | `Name name -> name, -1
+      | `Index index -> "", index
+    in
+    C.Table.duration_unit_in_ns table column_name column_idx
+
   let read_time_ns table ~column =
     let dst =
       read_ba table ~datatype:Timestamp ~kind:Int64 ~ctype:Ctypes.int64_t ~column
@@ -585,6 +605,50 @@ module Column = struct
         if Valid.get valid idx
         then
           Core_kernel.Time_ns.of_int_ns_since_epoch (mult * Int64.to_int_exn dst.{idx})
+          |> Option.some
+        else None)
+
+  let read_ofday_ns table ~column =
+    let dst = read_ba table ~datatype:Time64 ~kind:Int64 ~ctype:Ctypes.int64_t ~column in
+    let mult = time64_unit_in_ns table ~column in
+    let num_rows = Bigarray.Array1.dim dst in
+    Array.init num_rows ~f:(fun idx ->
+        Core_kernel.Time_ns.Span.of_int_ns (mult * Int64.to_int_exn dst.{idx})
+        |> Core_kernel.Time_ns.Ofday.of_span_since_start_of_day_exn)
+
+  let read_ofday_ns_opt table ~column =
+    let dst, valid =
+      read_ba_opt table ~datatype:Time64 ~kind:Int64 ~ctype:Ctypes.int64_t ~column
+    in
+    let mult = time64_unit_in_ns table ~column in
+    let num_rows = Bigarray.Array1.dim dst in
+    Array.init num_rows ~f:(fun idx ->
+        if Valid.get valid idx
+        then
+          Core_kernel.Time_ns.Span.of_int_ns (mult * Int64.to_int_exn dst.{idx})
+          |> Core_kernel.Time_ns.Ofday.of_span_since_start_of_day_exn
+          |> Option.some
+        else None)
+
+  let read_span_ns table ~column =
+    let dst =
+      read_ba table ~datatype:Duration ~kind:Int64 ~ctype:Ctypes.int64_t ~column
+    in
+    let mult = duration_unit_in_ns table ~column in
+    let num_rows = Bigarray.Array1.dim dst in
+    Array.init num_rows ~f:(fun idx ->
+        Core_kernel.Time_ns.Span.of_int_ns (mult * Int64.to_int_exn dst.{idx}))
+
+  let read_span_ns_opt table ~column =
+    let dst, valid =
+      read_ba_opt table ~datatype:Duration ~kind:Int64 ~ctype:Ctypes.int64_t ~column
+    in
+    let mult = duration_unit_in_ns table ~column in
+    let num_rows = Bigarray.Array1.dim dst in
+    Array.init num_rows ~f:(fun idx ->
+        if Valid.get valid idx
+        then
+          Core_kernel.Time_ns.Span.of_int_ns (mult * Int64.to_int_exn dst.{idx})
           |> Option.some
         else None)
 
@@ -973,6 +1037,137 @@ module Writer = struct
     let schema_struct =
       schema_struct
         ~format:"tsn:UTC"
+        ~name
+        ~children:empty_schema_l
+        ~flag:Schema.Flags.nullable_
+    in
+    (array_struct, schema_struct : col)
+
+  let span_ns span_array ~name =
+    let array = Ctypes.CArray.make Ctypes.int64_t (Array.length span_array) in
+    Array.iteri span_array ~f:(fun idx span ->
+        Ctypes.CArray.set
+          array
+          idx
+          (Core_kernel.Time_ns.Span.to_int_ns span |> Int64.of_int_exn));
+    let buffers =
+      Ctypes.CArray.of_list
+        (Ctypes.ptr Ctypes.void)
+        [ Ctypes.null; Ctypes.CArray.start array |> Ctypes.to_voidp ]
+    in
+    let array_struct =
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~null_count:0
+        ~finalise:(fun _ -> use_value array)
+        ~length:(Ctypes.CArray.length array)
+    in
+    let schema_struct =
+      schema_struct ~format:"tDn" ~name ~children:empty_schema_l ~flag:Schema.Flags.none
+    in
+    (array_struct, schema_struct : col)
+
+  let span_ns_opt span_array ~name =
+    let array = Ctypes.CArray.make Ctypes.int64_t (Array.length span_array) in
+    let valid = Valid.create_all_valid (Array.length span_array) in
+    Array.iteri span_array ~f:(fun idx span ->
+        let span =
+          match span with
+          | Some span -> Core_kernel.Time_ns.Span.to_int_ns span |> Int64.of_int_exn
+          | None ->
+            Valid.set valid idx false;
+            Int64.zero
+        in
+        Ctypes.CArray.set array idx span);
+    let buffers =
+      Ctypes.CArray.of_list
+        (Ctypes.ptr Ctypes.void)
+        [ Ctypes.bigarray_start Array1 (Valid.bigarray valid) |> Ctypes.to_voidp
+        ; Ctypes.CArray.start array |> Ctypes.to_voidp
+        ]
+    in
+    let array_struct =
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~null_count:(Valid.num_false valid)
+        ~finalise:(fun _ ->
+          use_value array;
+          use_value valid)
+        ~length:(Ctypes.CArray.length array)
+    in
+    let schema_struct =
+      schema_struct
+        ~format:"tDn"
+        ~name
+        ~children:empty_schema_l
+        ~flag:Schema.Flags.nullable_
+    in
+    (array_struct, schema_struct : col)
+
+  let ofday_ns ofday_array ~name =
+    let array = Ctypes.CArray.make Ctypes.int64_t (Array.length ofday_array) in
+    Array.iteri ofday_array ~f:(fun idx ofday ->
+        Ctypes.CArray.set
+          array
+          idx
+          (Core_kernel.Time_ns.Ofday.to_span_since_start_of_day ofday
+          |> Core_kernel.Time_ns.Span.to_int_ns
+          |> Int64.of_int_exn));
+    let buffers =
+      Ctypes.CArray.of_list
+        (Ctypes.ptr Ctypes.void)
+        [ Ctypes.null; Ctypes.CArray.start array |> Ctypes.to_voidp ]
+    in
+    let array_struct =
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~null_count:0
+        ~finalise:(fun _ -> use_value array)
+        ~length:(Ctypes.CArray.length array)
+    in
+    let schema_struct =
+      schema_struct ~format:"ttn" ~name ~children:empty_schema_l ~flag:Schema.Flags.none
+    in
+    (array_struct, schema_struct : col)
+
+  let ofday_ns_opt ofday_array ~name =
+    let array = Ctypes.CArray.make Ctypes.int64_t (Array.length ofday_array) in
+    let valid = Valid.create_all_valid (Array.length ofday_array) in
+    Array.iteri ofday_array ~f:(fun idx ofday ->
+        let ofday =
+          match ofday with
+          | Some ofday ->
+            Core_kernel.Time_ns.Ofday.to_span_since_start_of_day ofday
+            |> Core_kernel.Time_ns.Span.to_int_ns
+            |> Int64.of_int_exn
+          | None ->
+            Valid.set valid idx false;
+            Int64.zero
+        in
+        Ctypes.CArray.set array idx ofday);
+    let buffers =
+      Ctypes.CArray.of_list
+        (Ctypes.ptr Ctypes.void)
+        [ Ctypes.bigarray_start Array1 (Valid.bigarray valid) |> Ctypes.to_voidp
+        ; Ctypes.CArray.start array |> Ctypes.to_voidp
+        ]
+    in
+    let array_struct =
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~null_count:(Valid.num_false valid)
+        ~finalise:(fun _ ->
+          use_value array;
+          use_value valid)
+        ~length:(Ctypes.CArray.length array)
+    in
+    let schema_struct =
+      schema_struct
+        ~format:"ttn"
         ~name
         ~children:empty_schema_l
         ~flag:Schema.Flags.nullable_

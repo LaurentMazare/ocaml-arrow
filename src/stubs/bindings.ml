@@ -59,6 +59,12 @@ module C (F : Cstubs.FOREIGN) = struct
     let timestamp_unit_in_ns =
       foreign "timestamp_unit_in_ns" (t @-> string @-> int @-> returning int)
 
+    let time64_unit_in_ns =
+      foreign "time64_unit_in_ns" (t @-> string @-> int @-> returning int)
+
+    let duration_unit_in_ns =
+      foreign "duration_unit_in_ns" (t @-> string @-> int @-> returning int)
+
     let chunked_column =
       foreign
         "table_chunked_column"
