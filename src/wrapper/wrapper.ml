@@ -1447,6 +1447,7 @@ module Writer = struct
       |> Table.with_free
     in
     use_value cols;
+    Caml.Gc.finalise (fun _ -> use_value cols) table;
     table
 
   let int array ~name =

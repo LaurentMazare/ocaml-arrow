@@ -17,8 +17,8 @@ let run2 () =
         Wrapper.Writer.create_table ~cols)
   in
   Stdio.printf "concat\n%!";
-  (* let table = Wrapper.Table.concatenate tables in *)
-  Wrapper.Table.write_parquet (List.last_exn tables) "/tmp/foo.parquet";
+  let table = Wrapper.Table.concatenate tables in
+  Wrapper.Table.write_parquet table "/tmp/foo.parquet";
   (*  let _col = Wrapper.Column.read_utf8 table ~column:(`Name "foo") in *)
   Stdio.printf ">> %d %d\n%!" (List.length !all_cols) (List.length tables);
   ()
