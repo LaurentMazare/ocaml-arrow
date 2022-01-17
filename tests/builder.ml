@@ -452,3 +452,186 @@ let%expect_test _ =
       ]
 
   |}]
+
+type t5 =
+  { t : t
+  ; time : Time_ns.t
+  ; time_opt : Time_ns.t option
+  ; span : Time_ns.Span.t
+  ; span_opt : Time_ns.Span.t option
+  ; ofday : Time_ns.Ofday.t
+  ; ofday_opt : Time_ns.Ofday.t option
+  }
+[@@deriving fields]
+
+let t5_array_to_table =
+  Fields_of_t5.to_list
+    ~t:(Builder.C.c_flatten array_to_col_list)
+    ~time:(Builder.C.c Time_ns)
+    ~time_opt:(Builder.C.c_opt Time_ns)
+    ~span:(Builder.C.c Span_ns)
+    ~span_opt:(Builder.C.c_opt Span_ns)
+    ~ofday:(Builder.C.c Ofday_ns)
+    ~ofday_opt:(Builder.C.c_opt Ofday_ns)
+  |> List.concat
+  |> Builder.C.array_to_table
+
+let%expect_test _ =
+  let t1 = { foo = 1337; bar = "fortytwo"; foobar = Some 0.57721566490153286 } in
+  let t2 = { foo = 42; bar = "leet"; foobar = None } in
+  let time = Time_ns.of_string "2020-01-16 15:15:00.000Z" in
+  let c t b s od =
+    let span = Time_ns.Span.of_string s in
+    let ofday = Time_ns.Ofday.of_string od in
+    { t
+    ; time
+    ; time_opt = (if b then Some time else None)
+    ; span
+    ; span_opt = (if not b then Some span else None)
+    ; ofday
+    ; ofday_opt = (if b then Some ofday else None)
+    }
+  in
+  t5_array_to_table
+    [| c t1 true "1d" "12:00"
+     ; c t2 false "0d" "00:00:01"
+     ; c t1 true "-12d12ns" "00:00:01.123456789"
+     ; c t1 true "-112ns" "00:00:01.123456789"
+     ; c t2 true "12d12s" "23:00:01"
+     ; c t1 true "-12ns" "23:59:59.123456789"
+     ; c t2 false "1s1ns" "12:00:00.000"
+     ; c t1 true "1d" "00:00:01.123456789"
+    |]
+  |> Table.to_string_debug
+  |> Stdio.print_endline;
+  [%expect
+    {|
+    t_foo: int64 not null
+    t_bar: string not null
+    t_foobar: double
+    time: timestamp[ns, tz=UTC] not null
+    time_opt: timestamp[ns, tz=UTC]
+    span: duration[ns] not null
+    span_opt: duration[ns]
+    ofday: time64[ns] not null
+    ofday_opt: time64[ns]
+    ----
+    t_foo:
+      [
+        [
+          1337,
+          42,
+          1337,
+          1337,
+          42,
+          1337,
+          42,
+          1337
+        ]
+      ]
+    t_bar:
+      [
+        [
+          "fortytwo",
+          "leet",
+          "fortytwo",
+          "fortytwo",
+          "leet",
+          "fortytwo",
+          "leet",
+          "fortytwo"
+        ]
+      ]
+    t_foobar:
+      [
+        [
+          0.577216,
+          null,
+          0.577216,
+          0.577216,
+          null,
+          0.577216,
+          null,
+          0.577216
+        ]
+      ]
+    time:
+      [
+        [
+          2020-01-16 15:15:00.000000000,
+          2020-01-16 15:15:00.000000000,
+          2020-01-16 15:15:00.000000000,
+          2020-01-16 15:15:00.000000000,
+          2020-01-16 15:15:00.000000000,
+          2020-01-16 15:15:00.000000000,
+          2020-01-16 15:15:00.000000000,
+          2020-01-16 15:15:00.000000000
+        ]
+      ]
+    time_opt:
+      [
+        [
+          2020-01-16 15:15:00.000000000,
+          null,
+          2020-01-16 15:15:00.000000000,
+          2020-01-16 15:15:00.000000000,
+          2020-01-16 15:15:00.000000000,
+          2020-01-16 15:15:00.000000000,
+          null,
+          2020-01-16 15:15:00.000000000
+        ]
+      ]
+    span:
+      [
+        [
+          86400000000000,
+          0,
+          -1036800000000012,
+          -112,
+          1036812000000000,
+          -12,
+          1000000001,
+          86400000000000
+        ]
+      ]
+    span_opt:
+      [
+        [
+          null,
+          0,
+          null,
+          null,
+          null,
+          null,
+          1000000001,
+          null
+        ]
+      ]
+    ofday:
+      [
+        [
+          12:00:00.000000000,
+          00:00:01.000000000,
+          00:00:01.123456789,
+          00:00:01.123456789,
+          23:00:01.000000000,
+          23:59:59.123456789,
+          12:00:00.000000000,
+          00:00:01.123456789
+        ]
+      ]
+    ofday_opt:
+      [
+        [
+          12:00:00.000000000,
+          null,
+          00:00:01.123456789,
+          00:00:01.123456789,
+          23:00:01.000000000,
+          23:59:59.123456789,
+          null,
+          00:00:01.123456789
+        ]
+      ]
+
+  |}]

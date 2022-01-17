@@ -6,6 +6,8 @@ type _ col_type =
   | Utf8 : string col_type
   | Date : Core_kernel.Date.t col_type
   | Time_ns : Core_kernel.Time_ns.t col_type
+  | Span_ns : Core_kernel.Time_ns.Span.t col_type
+  | Ofday_ns : Core_kernel.Time_ns.Ofday.t col_type
   | Bool : bool col_type
 
 type packed_col =

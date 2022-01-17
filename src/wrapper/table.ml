@@ -7,6 +7,8 @@ type _ col_type =
   | Utf8 : string col_type
   | Date : Core_kernel.Date.t col_type
   | Time_ns : Core_kernel.Time_ns.t col_type
+  | Span_ns : Core_kernel.Time_ns.Span.t col_type
+  | Ofday_ns : Core_kernel.Time_ns.Ofday.t col_type
   | Bool : bool col_type
 
 type packed_col =
@@ -21,6 +23,8 @@ let col (type a) (data : a array) (type_ : a col_type) ~name =
   | Utf8 -> utf8 data ~name
   | Date -> date data ~name
   | Time_ns -> time_ns data ~name
+  | Span_ns -> span_ns data ~name
+  | Ofday_ns -> ofday_ns data ~name
   | Bool ->
     let bs = Valid.create_all_valid (Array.length data) in
     Array.iteri data ~f:(fun i a -> if not a then Valid.set bs i a);
@@ -34,6 +38,8 @@ let col_opt (type a) (data : a option array) (type_ : a col_type) ~name =
   | Utf8 -> utf8_opt data ~name
   | Date -> date_opt data ~name
   | Time_ns -> time_ns_opt data ~name
+  | Span_ns -> span_ns_opt data ~name
+  | Ofday_ns -> ofday_ns_opt data ~name
   | Bool ->
     let bs = Valid.create_all_valid (Array.length data) in
     let valid = Valid.create_all_valid (Array.length data) in
@@ -63,6 +69,16 @@ let read (type a) t ~column (col_type : a col_type) : a array =
     (try Wrapper.Column.read_time_ns t ~column with
     | _ ->
       Wrapper.Column.read_utf8 t ~column |> Array.map ~f:Core_kernel.Time_ns.of_string)
+  | Span_ns ->
+    (try Wrapper.Column.read_span_ns t ~column with
+    | _ ->
+      Wrapper.Column.read_utf8 t ~column
+      |> Array.map ~f:Core_kernel.Time_ns.Span.of_string)
+  | Ofday_ns ->
+    (try Wrapper.Column.read_ofday_ns t ~column with
+    | _ ->
+      Wrapper.Column.read_utf8 t ~column
+      |> Array.map ~f:Core_kernel.Time_ns.Ofday.of_string)
   | Bool ->
     let bs = Wrapper.Column.read_bitset t ~column in
     Array.init (Valid.length bs) ~f:(Valid.get bs)
@@ -82,6 +98,16 @@ let read_opt (type a) t ~column (col_type : a col_type) : a option array =
     | _ ->
       Wrapper.Column.read_utf8_opt t ~column
       |> Array.map ~f:(Option.map ~f:Core_kernel.Time_ns.of_string))
+  | Span_ns ->
+    (try Wrapper.Column.read_span_ns_opt t ~column with
+    | _ ->
+      Wrapper.Column.read_utf8_opt t ~column
+      |> Array.map ~f:(Option.map ~f:Core_kernel.Time_ns.Span.of_string))
+  | Ofday_ns ->
+    (try Wrapper.Column.read_ofday_ns_opt t ~column with
+    | _ ->
+      Wrapper.Column.read_utf8_opt t ~column
+      |> Array.map ~f:(Option.map ~f:Core_kernel.Time_ns.Ofday.of_string))
   | Bool ->
     let bs, valid = Wrapper.Column.read_bitset_opt t ~column in
     Array.init (Valid.length bs) ~f:(fun i ->
