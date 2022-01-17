@@ -184,3 +184,49 @@ struct
   let get t idx = t.(idx)
   let set t idx v = t.(idx) <- v
 end
+
+module Span_col : Col_intf with type elem = Core_kernel.Time_ns.Span.t = struct
+  type elem = Core_kernel.Time_ns.Span.t
+  type t = elem array
+
+  let init len = Array.create ~len Core_kernel.Time_ns.Span.zero
+  let of_table table name = C.read_span_ns table ~column:(`Name name)
+  let writer_col t name = W.span_ns t ~name
+  let get t idx = t.(idx)
+  let set t idx v = t.(idx) <- v
+end
+
+module Span_option_col : Col_intf with type elem = Core_kernel.Time_ns.Span.t option =
+struct
+  type elem = Core_kernel.Time_ns.Span.t option
+  type t = elem array
+
+  let init len = Array.create ~len None
+  let of_table table name = C.read_span_ns_opt table ~column:(`Name name)
+  let writer_col t name = W.span_ns_opt t ~name
+  let get t idx = t.(idx)
+  let set t idx v = t.(idx) <- v
+end
+
+module Ofday_col : Col_intf with type elem = Core_kernel.Time_ns.Ofday.t = struct
+  type elem = Core_kernel.Time_ns.Ofday.t
+  type t = elem array
+
+  let init len = Array.create ~len Core_kernel.Time_ns.Ofday.start_of_day
+  let of_table table name = C.read_ofday_ns table ~column:(`Name name)
+  let writer_col t name = W.ofday_ns t ~name
+  let get t idx = t.(idx)
+  let set t idx v = t.(idx) <- v
+end
+
+module Ofday_option_col : Col_intf with type elem = Core_kernel.Time_ns.Ofday.t option =
+struct
+  type elem = Core_kernel.Time_ns.Ofday.t option
+  type t = elem array
+
+  let init len = Array.create ~len None
+  let of_table table name = C.read_ofday_ns_opt table ~column:(`Name name)
+  let writer_col t name = W.ofday_ns_opt t ~name
+  let get t idx = t.(idx)
+  let set t idx v = t.(idx) <- v
+end
