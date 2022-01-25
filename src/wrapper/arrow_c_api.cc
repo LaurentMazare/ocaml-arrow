@@ -417,7 +417,7 @@ void parquet_write_file(char *filename, struct ArrowArray *array, struct ArrowSc
                                                   arrow::default_memory_pool(),
                                                   outfile,
                                                   chunk_size,
-                                                  parquet::WriterProperties::Builder().version(parquet::ParquetVersion::PARQUET_2_0)->compression(compression_)->build());
+                                                  parquet::WriterProperties::Builder().version(parquet::ParquetVersion::PARQUET_2_6)->compression(compression_)->build());
     status_exn(st);
   }
 
@@ -474,7 +474,7 @@ void parquet_write_table(char *filename, TablePtr *table, int chunk_size, int co
                                                 arrow::default_memory_pool(),
                                                 outfile,
                                                 chunk_size,
-                                                parquet::WriterProperties::Builder().version(parquet::ParquetVersion::PARQUET_2_0)->compression(compression_)->build());
+                                                parquet::WriterProperties::Builder().version(parquet::ParquetVersion::PARQUET_2_6)->compression(compression_)->build());
   status_exn(st);
 
   OCAML_END_PROTECT_EXN
