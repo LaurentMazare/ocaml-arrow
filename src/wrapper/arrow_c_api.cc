@@ -641,7 +641,7 @@ TablePtr *csv_read_table(char *filename) {
                                   arrow::csv::ConvertOptions::Defaults());
 
   auto table = ok_exn(reader)->Read();
-  return new std::shared_ptr<arrow::Table>(std::move(table.ValueOrDie()));
+  return new std::shared_ptr<arrow::Table>(std::move(ok_exn(table)));
 
   OCAML_END_PROTECT_EXN
   return nullptr;
