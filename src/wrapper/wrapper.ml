@@ -1277,20 +1277,26 @@ module Writer = struct
     in
     (array_struct, schema_struct : col)
 
-  (* TODO: also have a "categorical" version? *)
-  (* TODO: switch to large_utf8 if [sum_length >= Int32.max_value]. *)
-  let utf8 array ~name =
+  let utf8
+      (type a)
+      (kind : (a, _) Bigarray.kind)
+      ~format
+      ~of_int_exn
+      ~to_int_exn
+      array
+      ~name
+    =
     let length = Array.length array in
-    let offsets = Bigarray.Array1.create Int32 C_layout (length + 1) in
+    let offsets = Bigarray.Array1.create kind C_layout (length + 1) in
     let sum_length =
       Array.foldi array ~init:0 ~f:(fun i acc str ->
-          offsets.{i} <- Int32.of_int_exn acc;
+          offsets.{i} <- of_int_exn acc;
           acc + String.length str)
     in
-    offsets.{length} <- Int32.of_int_exn sum_length;
+    offsets.{length} <- of_int_exn sum_length;
     let data = Ctypes.CArray.make Ctypes.char sum_length in
     Array.iteri array ~f:(fun i str ->
-        let offset = offsets.{i} |> Int32.to_int_exn in
+        let offset = offsets.{i} |> to_int_exn in
         for i = 0 to String.length str - 1 do
           Ctypes.CArray.set data (i + offset) str.[i]
         done);
@@ -1313,26 +1319,55 @@ module Writer = struct
         ~length
     in
     let schema_struct =
-      schema_struct ~format:"u" ~name ~children:empty_schema_l ~flag:Schema.Flags.none
+      schema_struct ~format ~name ~children:empty_schema_l ~flag:Schema.Flags.none
     in
     (array_struct, schema_struct : col)
 
-  let utf8_opt array ~name =
+  (* TODO: also have a "categorical" version? *)
+  let utf8 array ~name =
+    let sum_length = Array.sum (module Int) array ~f:String.length in
+    if sum_length + 10 < 1 lsl 31
+    then
+      utf8
+        Int32
+        ~of_int_exn:Int32.of_int_exn
+        ~to_int_exn:Int32.to_int_exn
+        ~format:"u"
+        array
+        ~name
+    else
+      utf8
+        Int64
+        ~of_int_exn:Int64.of_int_exn
+        ~to_int_exn:Int64.to_int_exn
+        ~format:"U"
+        array
+        ~name
+
+  let utf8_opt
+      (type a)
+      (kind : (a, _) Bigarray.kind)
+      ~format
+      ~of_int_exn
+      ~to_int_exn
+      array
+      ~name
+    =
     let valid = Valid.create_all_valid (Array.length array) in
     let length = Array.length array in
-    let offsets = Bigarray.Array1.create Int32 C_layout (length + 1) in
+    let offsets = Bigarray.Array1.create kind C_layout (length + 1) in
     let sum_length =
       Array.foldi array ~init:0 ~f:(fun i acc str ->
-          offsets.{i} <- Int32.of_int_exn acc;
+          offsets.{i} <- of_int_exn acc;
           acc + Option.value_map str ~f:String.length ~default:0)
     in
-    offsets.{length} <- Int32.of_int_exn sum_length;
+    offsets.{length} <- of_int_exn sum_length;
     let data = Ctypes.CArray.make Ctypes.char sum_length in
     Array.iteri array ~f:(fun i str ->
         match str with
         | None -> Valid.set valid i false
         | Some str ->
-          let offset = offsets.{i} |> Int32.to_int_exn in
+          let offset = offsets.{i} |> to_int_exn in
           for i = 0 to String.length str - 1 do
             Ctypes.CArray.set data (i + offset) str.[i]
           done);
@@ -1356,13 +1391,31 @@ module Writer = struct
         ~length
     in
     let schema_struct =
-      schema_struct
-        ~format:"u"
-        ~name
-        ~children:empty_schema_l
-        ~flag:Schema.Flags.nullable_
+      schema_struct ~format ~name ~children:empty_schema_l ~flag:Schema.Flags.nullable_
     in
     (array_struct, schema_struct : col)
+
+  let utf8_opt array ~name =
+    let sum_length =
+      Array.sum (module Int) array ~f:(Option.value_map ~default:0 ~f:String.length)
+    in
+    if sum_length + 10 < 1 lsl 31
+    then
+      utf8_opt
+        Int32
+        ~of_int_exn:Int32.of_int_exn
+        ~to_int_exn:Int32.to_int_exn
+        ~format:"u"
+        array
+        ~name
+    else
+      utf8_opt
+        Int64
+        ~of_int_exn:Int64.of_int_exn
+        ~to_int_exn:Int64.to_int_exn
+        ~format:"U"
+        array
+        ~name
 
   let write ?(chunk_size = 1024 * 1024) ?(compression = Compression.Snappy) filename ~cols
     =
