@@ -1,9 +1,10 @@
 #ifndef __OCAML_ARROW_C_API__
 #define __OCAML_ARROW_C_API__
 
-#include<arrow/c/abi.h>
+#include<stdint.h>
 
 #ifdef __cplusplus
+#include<arrow/c/abi.h>
 #include<arrow/c/bridge.h>
 #include<arrow/api.h>
 #include<arrow/csv/api.h>
