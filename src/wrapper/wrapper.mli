@@ -268,3 +268,6 @@ module Builder : sig
 
   val make_table : (string * t) list -> Table.t
 end
+
+(* See comment in wrapper.ml about Flambda 2. *)
+val keep_alive : Obj.t list ref
