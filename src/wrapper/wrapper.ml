@@ -856,8 +856,9 @@ module Writer = struct
     Ctypes.setf a C.ArrowArray.release release_array_ptr;
     a
 
-  let int64_ba
-      (array : (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t)
+  let fixed_ba
+      ~format
+      array
       ~name
     =
     let buffers =
@@ -874,12 +875,13 @@ module Writer = struct
         ~length:(Bigarray.Array1.dim array)
     in
     let schema_struct =
-      schema_struct ~format:"l" ~name ~children:empty_schema_l ~flag:Schema.Flags.none
+      schema_struct ~format ~name ~children:empty_schema_l ~flag:Schema.Flags.none
     in
     (array_struct, schema_struct : col)
 
-  let int64_ba_opt
-      (array : (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t)
+  let fixed_ba_opt
+      ~format
+      array
       valid
       ~name
     =
@@ -903,12 +905,19 @@ module Writer = struct
     in
     let schema_struct =
       schema_struct
-        ~format:"l"
+        ~format
         ~name
         ~children:empty_schema_l
         ~flag:Schema.Flags.nullable_
     in
     (array_struct, schema_struct : col)
+
+  let int64_ba array ~name = fixed_ba ~format:"l" array ~name
+  let int64_ba_opt array valid ~name = fixed_ba_opt ~format:"l" array valid ~name
+  let int32_ba array ~name = fixed_ba ~format:"i" array ~name
+  let int32_ba_opt array valid ~name = fixed_ba_opt ~format:"i" array valid ~name
+  let float64_ba array ~name = fixed_ba ~format:"g" array ~name
+  let float64_ba_opt array valid ~name = fixed_ba_opt ~format:"g" array valid ~name
 
   let date date_array ~name =
     let array = Ctypes.CArray.make Ctypes.int32_t (Array.length date_array) in
@@ -1172,28 +1181,6 @@ module Writer = struct
     in
     (array_struct, schema_struct : col)
 
-  let float64_ba
-      (array : (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t)
-      ~name
-    =
-    let buffers =
-      Ctypes.CArray.of_list
-        (Ctypes.ptr Ctypes.void)
-        [ Ctypes.null; Ctypes.bigarray_start Array1 array |> Ctypes.to_voidp ]
-    in
-    let array_struct =
-      array_struct
-        ~buffers
-        ~children:empty_array_l
-        ~null_count:0
-        ~finalise:(fun _ -> use_value array)
-        ~length:(Bigarray.Array1.dim array)
-    in
-    let schema_struct =
-      schema_struct ~format:"g" ~name ~children:empty_schema_l ~flag:Schema.Flags.none
-    in
-    (array_struct, schema_struct : col)
-
   let bitset valid ~name =
     let array = Valid.bigarray valid in
     let buffers =
@@ -1214,37 +1201,6 @@ module Writer = struct
     in
     (array_struct, schema_struct : col)
 
-  let float64_ba_opt
-      (array : (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array1.t)
-      valid
-      ~name
-    =
-    if Bigarray.Array1.dim array <> Valid.length valid then failwith "incoherent lengths";
-    let buffers =
-      Ctypes.CArray.of_list
-        (Ctypes.ptr Ctypes.void)
-        [ Ctypes.bigarray_start Array1 (Valid.bigarray valid) |> Ctypes.to_voidp
-        ; Ctypes.bigarray_start Array1 array |> Ctypes.to_voidp
-        ]
-    in
-    let array_struct =
-      array_struct
-        ~buffers
-        ~children:empty_array_l
-        ~null_count:(Valid.num_false valid)
-        ~finalise:(fun _ ->
-          use_value array;
-          use_value valid)
-        ~length:(Bigarray.Array1.dim array)
-    in
-    let schema_struct =
-      schema_struct
-        ~format:"g"
-        ~name
-        ~children:empty_schema_l
-        ~flag:Schema.Flags.nullable_
-    in
-    (array_struct, schema_struct : col)
 
   let bitset_opt content ~valid ~name =
     if Valid.length content <> Valid.length valid then failwith "incoherent lengths";
@@ -1275,6 +1231,46 @@ module Writer = struct
     in
     (array_struct, schema_struct : col)
 
+  let string_ba ~format ~offsets ~data ~name =
+    let buffers = Ctypes.CArray.of_list
+                    (Ctypes.ptr Ctypes.void)
+                    [ Ctypes.null
+                    ; Ctypes.bigarray_start Array1 offsets |> Ctypes.to_voidp
+                    ; Ctypes.bigarray_start Array1 data |> Ctypes.to_voidp
+                    ]
+    in
+    let length = (Bigarray.Array1.dim offsets) - 1 in
+    let array_struct =
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~null_count:0
+        ~finalise:(fun _ -> use_value data; use_value offsets)
+        ~length in
+    let schema_struct = schema_struct ~format ~name ~children:empty_schema_l ~flag:Schema.Flags.none in
+    (array_struct, schema_struct : col)
+  ;;
+
+  let string_ba_opt ~format ~offsets ~data ~valid ~name =
+    let buffers = Ctypes.CArray.of_list
+                    (Ctypes.ptr Ctypes.void)
+                    [ Ctypes.bigarray_start Array1 (Valid.bigarray valid) |> Ctypes.to_voidp
+                    ; Ctypes.bigarray_start Array1 offsets |> Ctypes.to_voidp
+                    ; Ctypes.bigarray_start Array1 data |> Ctypes.to_voidp
+                    ]
+    in
+    let length = (Bigarray.Array1.dim offsets) - 1 in
+    let array_struct =
+      array_struct
+        ~buffers
+        ~children:empty_array_l
+        ~null_count:(Valid.num_false valid)
+        ~finalise:(fun _ -> use_value data; use_value offsets; use_value valid)
+        ~length in
+    let schema_struct = schema_struct ~format ~name ~children:empty_schema_l ~flag:Schema.Flags.nullable_ in
+    (array_struct, schema_struct : col)
+  ;;
+
   let utf8
       (type a)
       (kind : (a, _) Bigarray.kind)
@@ -1292,34 +1288,13 @@ module Writer = struct
           acc + String.length str)
     in
     offsets.{length} <- of_int_exn sum_length;
-    let data = Ctypes.CArray.make Ctypes.char sum_length in
+    let data = Bigarray.Array1.create Char C_layout sum_length in
     Array.iteri array ~f:(fun i str ->
         let offset = offsets.{i} |> to_int_exn in
         for i = 0 to String.length str - 1 do
-          Ctypes.CArray.set data (i + offset) str.[i]
+          Bigarray.Array1.set data (i + offset) str.[i]
         done);
-    let buffers =
-      Ctypes.CArray.of_list
-        (Ctypes.ptr Ctypes.void)
-        [ Ctypes.null
-        ; Ctypes.bigarray_start Array1 offsets |> Ctypes.to_voidp
-        ; Ctypes.CArray.start data |> Ctypes.to_voidp
-        ]
-    in
-    let array_struct =
-      array_struct
-        ~buffers
-        ~children:empty_array_l
-        ~null_count:0
-        ~finalise:(fun _ ->
-          use_value data;
-          use_value offsets)
-        ~length
-    in
-    let schema_struct =
-      schema_struct ~format ~name ~children:empty_schema_l ~flag:Schema.Flags.none
-    in
-    (array_struct, schema_struct : col)
+    string_ba ~format ~offsets ~data ~name
 
   (* TODO: also have a "categorical" version? *)
   let utf8 array ~name =
@@ -1360,38 +1335,16 @@ module Writer = struct
           acc + Option.value_map str ~f:String.length ~default:0)
     in
     offsets.{length} <- of_int_exn sum_length;
-    let data = Ctypes.CArray.make Ctypes.char sum_length in
+    let data = Bigarray.Array1.create Char C_layout sum_length in
     Array.iteri array ~f:(fun i str ->
         match str with
         | None -> Valid.set valid i false
         | Some str ->
           let offset = offsets.{i} |> to_int_exn in
           for i = 0 to String.length str - 1 do
-            Ctypes.CArray.set data (i + offset) str.[i]
+            Bigarray.Array1.set data (i + offset) str.[i]
           done);
-    let buffers =
-      Ctypes.CArray.of_list
-        (Ctypes.ptr Ctypes.void)
-        [ Ctypes.bigarray_start Array1 (Valid.bigarray valid) |> Ctypes.to_voidp
-        ; Ctypes.bigarray_start Array1 offsets |> Ctypes.to_voidp
-        ; Ctypes.CArray.start data |> Ctypes.to_voidp
-        ]
-    in
-    let array_struct =
-      array_struct
-        ~buffers
-        ~children:empty_array_l
-        ~null_count:(Valid.num_false valid)
-        ~finalise:(fun _ ->
-          use_value data;
-          use_value offsets;
-          use_value valid)
-        ~length
-    in
-    let schema_struct =
-      schema_struct ~format ~name ~children:empty_schema_l ~flag:Schema.Flags.nullable_
-    in
-    (array_struct, schema_struct : col)
+    string_ba_opt ~format ~offsets ~data ~valid ~name
 
   let utf8_opt array ~name =
     let sum_length =

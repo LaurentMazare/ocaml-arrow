@@ -166,13 +166,68 @@ end
 module Writer : sig
   type col
 
+  (** Construct an Arrow column of fixed-size values that uses the memory of a [Bigarray].
+      The format must be specified based on
+      https://arrow.apache.org/docs/format/CDataInterface.html#data-type-description-format-strings
+      and must be compatible with the kind of array passed in.
+  *)
+  val fixed_ba
+    : format:string
+    -> ('a, 'b, Bigarray.c_layout) Bigarray.Array1.t
+    -> name:string
+    -> col
+
+  (** As [fixed_ba], but also takes a bitfield specifying which array values are null. *)
+  val fixed_ba_opt
+    : format:string
+    -> ('a, 'b, Bigarray.c_layout) Bigarray.Array1.t
+    -> Valid.t
+    -> name:string
+    -> col
+
+  (** Construct an Arrow-column of variable-sized values. This requires an array of the
+      actual data as well as an array of offsets specifying where each value begins and
+      ends. For n values, the offsets array is of length n+1: the nth offset stores where
+      the nth value begins, and the n+1-th offset stores where the nth value ends.
+
+      The format must be specified based on
+      https://arrow.apache.org/docs/format/CDataInterface.html#data-type-description-format-strings
+      and must be compatible with the kinds of array passed in (note in particular that
+      [offsets] can be either an Int32 or an Int64 array.)
+     *)
+  val string_ba
+    : format:string
+    -> offsets:('a, 'b, Bigarray.c_layout) Bigarray.Array1.t
+    -> data:(char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
+    -> name:string
+    -> col
+
+  val string_ba_opt
+    : format:string
+    -> offsets:('a, 'b, Bigarray.c_layout) Bigarray.Array1.t
+    -> data:(char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
+    -> valid:Valid.t
+    -> name:string
+    -> col
+
   val int64_ba
-    :  (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t
+    : (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t
     -> name:string
     -> col
 
   val int64_ba_opt
-    :  (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t
+    : (int64, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t
+    -> Valid.t
+    -> name:string
+    -> col
+
+  val int32_ba
+    : (int32, Bigarray.int32_elt, Bigarray.c_layout) Bigarray.Array1.t
+    -> name:string
+    -> col
+
+  val int32_ba_opt
+    : (int32, Bigarray.int32_elt, Bigarray.c_layout) Bigarray.Array1.t
     -> Valid.t
     -> name:string
     -> col
